@@ -1,17 +1,11 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:id="@+id/fragment_navigation_drawer"
+    android:layout_width="@dimen/nav_drawer_width"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.vacho.realtimebusapp.HomeScreenFragment"
-    tools:showIn="@layout/activity_home_screen">
+    android:layout_gravity="start"
+    tools:showIn="@layout/activity_home_screen"
+    android:name="com.example.vacho.realtimebusapp.HomeScreenFragment"
+    tools:layout="@layout/fragment_navigation_drawer">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
-
-</RelativeLayout>
+</fragment>
