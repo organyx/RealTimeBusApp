@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="start"
     tools:showIn="@layout/activity_home_screen"
-    android:name="com.example.vacho.realtimebusapp.HomeScreenFragment"
+    android:name="com.example.vacho.realtimebusapp.NavigationDrawerFragment"
     tools:layout="@layout/fragment_navigation_drawer">
 
 </fragment>
