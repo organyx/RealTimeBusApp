@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import adapter.NavigationDrawerAdapter;
-import model.NavDrawerItem;
+import model.NavigationDrawerItem;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -42,12 +42,12 @@ public class HomeScreenFragment extends Fragment {
         this.drawerListener = listener;
     }
 
-    public static List<NavDrawerItem> getData() {
-        List<NavDrawerItem> data = new ArrayList<>();
+    public static List<NavigationDrawerItem> getData() {
+        List<NavigationDrawerItem> data = new ArrayList<>();
 
         // preparing navigation drawer items
         for (int i = 0; i < titles.length; i++) {
-            NavDrawerItem navItem = new NavDrawerItem();
+            NavigationDrawerItem navItem = new NavigationDrawerItem();
             navItem.setTitle(titles[i]);
             data.add(navItem);
         }

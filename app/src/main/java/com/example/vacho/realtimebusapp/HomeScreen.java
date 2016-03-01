@@ -19,6 +19,7 @@ public class HomeScreen extends AppCompatActivity implements HomeScreenFragment.
         setContentView(R.layout.activity_home_screen);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        // Not sure if we need the line below
         getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
 
         homeScreenFragment = (HomeScreenFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);

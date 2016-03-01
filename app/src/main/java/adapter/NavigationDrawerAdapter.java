@@ -12,17 +12,17 @@ import com.example.vacho.realtimebusapp.R;
 import java.util.Collections;
 import java.util.List;
 
-import model.NavDrawerItem;
+import model.NavigationDrawerItem;
 
 /**
  * Created by Vacho on 2/29/2016.
  */
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.MyViewHolder> {
-    List<NavDrawerItem> data = Collections.emptyList();
+    List<NavigationDrawerItem> data = Collections.emptyList();
     private LayoutInflater inflater;
     private Context context;
 
-    public NavigationDrawerAdapter(Context context, List<NavDrawerItem> data) {
+    public NavigationDrawerAdapter(Context context, List<NavigationDrawerItem> data) {
         this.context = context;
         inflater = LayoutInflater.from(context);
         this.data = data;
@@ -42,7 +42,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        NavDrawerItem current = data.get(position);
+        NavigationDrawerItem current = data.get(position);
         holder.title.setText(current.getTitle());
     }
 

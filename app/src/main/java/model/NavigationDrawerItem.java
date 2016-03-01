@@ -3,15 +3,15 @@ package model;
 /**
  * Created by Vacho on 2/29/2016.
  */
-public class NavDrawerItem {
+public class NavigationDrawerItem {
     private boolean showNotify;
     private String title;
 
-    public NavDrawerItem() {
+    public NavigationDrawerItem() {
 
     }
 
-    public NavDrawerItem (boolean showNotify, String title){
+    public NavigationDrawerItem(boolean showNotify, String title){
         this.showNotify = showNotify;
         this.title = title;
     }

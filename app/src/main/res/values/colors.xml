@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!--  Toolbar`s color -->
     <color name="colorPrimary">#3F51B5</color>
+    <!--  The color on top of the screen -->
     <color name="colorPrimaryDark">#303FB5</color>
+    <!--  The text color on the toolbar -->
     <color name="textColorPrimary">#FFFFFF</color>
+    <!--  Screen background color -->
     <color name="windowBackground">#FFFFFF</color>
+    <!--  Navigation bar on the bottom of the screen (the default one) -->
     <color name="navigationBarColor">#000000</color>
+    <!-- Could be used to some icon text and so on -->
     <color name="colorAccent">#FF80AB</color>
 </resources>
