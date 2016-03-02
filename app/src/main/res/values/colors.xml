@@ -13,4 +13,6 @@
     <color name="navigationBarColor">#000000</color>
     <!-- Could be used to some icon text and so on -->
     <color name="colorAccent">#FF80AB</color>
+
+
 </resources>

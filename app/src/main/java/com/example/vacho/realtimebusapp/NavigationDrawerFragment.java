@@ -1,6 +1,7 @@
 package com.example.vacho.realtimebusapp;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -118,7 +119,6 @@ public class NavigationDrawerFragment extends Fragment {
                 mDrawerToggle.syncState();
             }
         });
-
     }
 
     public static interface ClickListener {

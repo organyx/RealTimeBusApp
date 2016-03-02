@@ -1,5 +1,6 @@
 package com.example.vacho.realtimebusapp;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -56,6 +57,7 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
     @Override
     public void onDrawerItemSelected(View view, int position) {
         displayView(position);
+
     }
 
     private void displayView(int position) {
@@ -65,6 +67,10 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
             case 0:
                 fragment = new HomeScreenFragment();
                 title = getString(R.string.title_home);
+                break;
+            case 1:
+                fragment = new FavouritesScreenFragment();
+                title = getString(R.string.title_favourites);
                 break;
             default:
                 break;
