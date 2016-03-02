@@ -11,6 +11,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener {
 
@@ -84,6 +88,17 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
 
             // set the toolbar title
             getSupportActionBar().setTitle(title);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if(status == ConnectionResult.SUCCESS){
+            Toast.makeText(this,"Google Play Services are available",Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this,"Google Play Services are not available",Toast.LENGTH_SHORT).show();
         }
     }
 }
