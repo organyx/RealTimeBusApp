@@ -7,16 +7,13 @@
 
     <string name="nav_item_home">Home</string>
     <string name="nav_item_favourites">Favourites</string>
-    <string name="nav_item_notifications">Messages</string>
 
     <!-- Navigation drawer item labels -->
     <string-array name="nav_drawer_labels">
         <item>@string/nav_item_home</item>
         <item>@string/nav_item_favourites</item>
-        <item>@string/nav_item_notifications</item>
     </string-array>
 
-    <string name="title_messages">Messages</string>
     <string name="title_favourites">Favourites</string>
     <string name="title_home">Home</string>
 

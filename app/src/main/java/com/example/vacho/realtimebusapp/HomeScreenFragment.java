@@ -1,46 +1,52 @@
 package com.example.vacho.realtimebusapp;
 
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeScreenFragment extends Fragment {
+public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
 
 
-    public HomeScreenFragment() {
-        // Required empty public constructor
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_home_screen,container,false);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            MapFragment fragment = (MapFragment)getChildFragmentManager().findFragmentById(R.id.home_fragment);
+            fragment.getMapAsync(this);
+        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
+    public void onMapReady(GoogleMap googleMap) {
+        LatLng horsens = new LatLng(55.866, 9.833);
 
-        // Inflate the layout for this fragment
-        return rootView;
-    }
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(horsens, 13));
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
+        googleMap.addMarker(new MarkerOptions()
+                .title("Horsens")
+                .position(horsens));
     }
 }
+

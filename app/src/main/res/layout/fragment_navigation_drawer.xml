@@ -1,32 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_navigation_drawer"
+    android:layout_width="@dimen/nav_drawer_width"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:layout_gravity="start"
+    tools:showIn="@layout/activity_home_screen"
+    android:name="com.example.vacho.realtimebusapp.NavigationDrawerFragment"
+    tools:layout="@layout/content_navigation_drawer">
 
-    <RelativeLayout
-        android:id="@+id/navigation_header_container"
-        android:layout_width="match_parent"
-        android:layout_height="140dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/colorPrimary">
-
-        <ImageView
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:src="@drawable/ic_action_search"
-        android:scaleType="fitCenter"
-        android:layout_centerInParent="true" />
-
-
-    </RelativeLayout>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/drawerList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/navigation_header_container"
-        android:layout_marginTop="15dp">
-
-    </android.support.v7.widget.RecyclerView>
-
-</RelativeLayout>
+</fragment>

@@ -1,20 +1,14 @@
 package com.example.vacho.realtimebusapp;
 
-import android.graphics.Color;
+import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener {
 
@@ -26,8 +20,6 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         setContentView(R.layout.activity_home_screen);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // Not sure if we need the line below
-        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
 
         navigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         navigationDrawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
@@ -65,40 +57,21 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
     }
 
     private void displayView(int position) {
-        Fragment fragment = null;
+        FragmentManager fm = getFragmentManager();
         String title = getString(R.string.app_name);
         switch (position) {
             case 0:
-                fragment = new HomeScreenFragment();
+                fm.beginTransaction().replace(R.id.fragment_container, new HomeScreenFragment()).commit();
                 title = getString(R.string.title_home);
                 break;
             case 1:
-                fragment = new FavouritesScreenFragment();
+                fm.beginTransaction().replace(R.id.fragment_container, new FavouritesScreenFragment()).commit();
                 title = getString(R.string.title_favourites);
                 break;
             default:
                 break;
         }
 
-        if (fragment != null) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.container_body, fragment);
-            fragmentTransaction.commit();
-
-            // set the toolbar title
-            getSupportActionBar().setTitle(title);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if(status == ConnectionResult.SUCCESS){
-            Toast.makeText(this,"Google Play Services are available",Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(this,"Google Play Services are not available",Toast.LENGTH_SHORT).show();
-        }
+        getSupportActionBar().setTitle(title);
     }
 }

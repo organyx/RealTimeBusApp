@@ -1,11 +1,12 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_navigation_drawer"
-    android:layout_width="@dimen/nav_drawer_width"
-    android:layout_height="match_parent"
-    android:layout_gravity="start"
-    tools:showIn="@layout/activity_home_screen"
-    android:name="com.example.vacho.realtimebusapp.NavigationDrawerFragment"
-    tools:layout="@layout/fragment_navigation_drawer">
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-</fragment>
+    <fragment
+        android:id="@+id/home_fragment"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</FrameLayout>
