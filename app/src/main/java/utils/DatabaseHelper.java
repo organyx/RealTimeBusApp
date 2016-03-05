@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * Created by Aleks on 05-Mar-16.
@@ -76,10 +77,15 @@ public class DatabaseHelper {
             row.put(COL_ZOOM, zoom);
             long id = db.insert(TABLE_NAME, null, row);
             db.close();
+            Log.d("DB_Helper", "DB Inserted = " + id);
             return id;
         }
         else
+        {
+            Log.d("DB_Helper", "DB Inserted = " + 0);
             return 0;
+        }
+
     }
 
     public void deleteFavouriteItem(String name)
@@ -87,7 +93,13 @@ public class DatabaseHelper {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if(db==null)
             return;
-        db.delete(TABLE_NAME, COL_NAME + " = ? ", new String[]{String.valueOf(name)});
+        int deleted = db.delete(TABLE_NAME, COL_NAME + " = ? ", new String[]{String.valueOf(name)});
+
+        if(deleted > 0)
+            Log.d("DB_Helper", "DB Deleted = " + deleted);
+        else
+            Log.d("DB_Helper", "DB Deleted = " + deleted);
+
         db.close();
     }
 
@@ -107,7 +119,12 @@ public class DatabaseHelper {
             row.put(COL_LNG, lng);
             row.put(COL_ZOOM, zoom);
         }
-        db.update(TABLE_NAME, row, COL_NAME + " = ?", new String[] {String.valueOf(name)});
+        int updated = db.update(TABLE_NAME, row, COL_NAME + " = ?", new String[] {String.valueOf(name)});
+
+        if(updated > 0)
+            Log.d("DB_Helper", "DB Updated = " + updated);
+        else
+            Log.d("DB_Helper", "DB Updated = " + updated);
         db.close();
     }
 
@@ -128,9 +145,15 @@ public class DatabaseHelper {
         int count = cursor.getInt(0);
         boolean empty;
         if(count > 0)
+        {
             empty = false;
+            Log.d("DB_Helper", "DB Empty = " + empty);
+        }
         else
+        {
             empty = true;
+            Log.d("DB_Helper", "DB Empty = " + empty);
+        }
         cursor.close();
         return empty;
     }

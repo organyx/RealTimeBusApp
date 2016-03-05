@@ -44,9 +44,12 @@ public class FavouritesScreenFragment extends Fragment {
         View v = inflater.inflate(R.layout.content_favourites_screen, container, false);
 
         db = new DatabaseHelper(getActivity());
-        for (int i = 0; i < db.getAll().getCount(); i++) {
-            names[i] = db.getAll().getString(1);
-        }
+//        if (!db.isEmpty())
+//        {
+//            for (int i = 0; i < db.getAll().getCount(); i++) {
+//                names[i] = db.getAll().getString(1);
+//            }
+//        }
 
         btnAdd = (Button) v.findViewById(R.id.btn_add_fav);
         btnUpdate = (Button) v.findViewById(R.id.btn_update_fav);
@@ -63,14 +66,14 @@ public class FavouritesScreenFragment extends Fragment {
             }
         });
 
-        btnAdd.setOnClickListener(new View.OnClickListener() {
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 db.updateFavouriteItem(editTextName.getText().toString(), editTextDescr.getText().toString(), 0, 0, 0);
             }
         });
 
-        btnAdd.setOnClickListener(new View.OnClickListener() {
+        btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 db.deleteFavouriteItem(editTextName.getText().toString());
