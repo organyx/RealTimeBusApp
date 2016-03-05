@@ -20,6 +20,7 @@ public class DatabaseHelper {
     private static final String COL_ADDRESS = "ADDRESS";
     private static final String COL_LAT = "LAT";
     private static final String COL_LNG = "LNG";
+    private static final String COL_ZOOM = "ZOOM";
 
     public DatabaseHelper(Context context){
         _opeSqLiteOpenHelper = new mySQLiteOpenHelper(context);
@@ -38,7 +39,8 @@ public class DatabaseHelper {
                     COL_NAME + " text, " +
                     COL_ADDRESS + " text, " +
                     COL_LAT + " double, " +
-                    COL_LNG + " double)");
+                    COL_LNG + " double, " +
+                    COL_ZOOM + " text )");
         }
 
         @Override
@@ -58,7 +60,7 @@ public class DatabaseHelper {
         return db.rawQuery("SELECT * FROM " + TABLE_NAME + " order by " + COL_ID + "", null);
     }
 
-    public long addNewFavourite(String name, String address, double lat, double lng)
+    public long addNewFavourite(String name, String address, double lat, double lng, float zoom)
     {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if(db==null)
@@ -71,6 +73,7 @@ public class DatabaseHelper {
             row.put(COL_ADDRESS, address);
             row.put(COL_LAT, lat);
             row.put(COL_LNG, lng);
+            row.put(COL_ZOOM, zoom);
             long id = db.insert(TABLE_NAME, null, row);
             db.close();
             return id;
@@ -88,7 +91,7 @@ public class DatabaseHelper {
         db.close();
     }
 
-    public void updateFavouriteItem(String name, String address, double lat, double lng)
+    public void updateFavouriteItem(String name, String address, double lat, double lng, float zoom)
     {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if(db==null)
@@ -102,6 +105,7 @@ public class DatabaseHelper {
         {
             row.put(COL_LAT, lat);
             row.put(COL_LNG, lng);
+            row.put(COL_ZOOM, zoom);
         }
         db.update(TABLE_NAME, row, COL_NAME + " = ?", new String[] {String.valueOf(name)});
         db.close();

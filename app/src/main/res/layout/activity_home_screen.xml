@@ -33,10 +33,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1"></FrameLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"></LinearLayout>
+        <!--REMOVED FOR BD DEBUG PURPOSES-->
+        <!--CONSIDER REMOVING, AFFECTS ALL FRAGMENTS-->
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="1"></LinearLayout>-->
 
     </LinearLayout>
 
