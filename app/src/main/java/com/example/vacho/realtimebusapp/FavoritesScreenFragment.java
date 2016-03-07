@@ -2,6 +2,7 @@ package com.example.vacho.realtimebusapp;
 
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,14 +15,14 @@ import android.widget.EditText;
 
 import java.util.List;
 
-import adapter.FavouriteListAdapter;
+import adapter.FavoriteListAdapter;
+import model.FavoriteItem;
 import utils.DatabaseHelper;
-import model.FavouriteItem;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FavouritesScreenFragment extends Fragment {
+public class FavoritesScreenFragment extends Fragment {
 
     Button btnAdd;
     Button btnUpdate;
@@ -47,7 +48,7 @@ public class FavouritesScreenFragment extends Fragment {
 
         db = new DatabaseHelper(getActivity());
 
-        final List<FavouriteItem> list = db.getAllFavourites();
+        final List<FavoriteItem> list = db.getAllFavourites();
 
         recyclerView = (RecyclerView) v.findViewById(R.id.rv_fav_list);
         recyclerView.setHasFixedSize(true);
@@ -55,8 +56,8 @@ public class FavouritesScreenFragment extends Fragment {
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new FavouriteListAdapter(getActivity(), list);
-        adapter.setHasStableIds(true);
+        adapter = new FavoriteListAdapter(getActivity(), list);
+//        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
 //            Toast.makeText(getActivity(), n, Toast.LENGTH_LONG);
 //        Log.d("FavScreenFragment", "Something: " + list.get(0).getName());
@@ -98,7 +99,7 @@ public class FavouritesScreenFragment extends Fragment {
         btnRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                adapter = new FavouriteListAdapter(getActivity(), db.getAllFavourites());
+                adapter = new FavoriteListAdapter(getActivity(), db.getAllFavourites());
                 recyclerView.setAdapter(adapter);
 //                adapter.notifyDataSetChanged();
             }
@@ -106,18 +107,6 @@ public class FavouritesScreenFragment extends Fragment {
 
         return v;
     }
-//
-//    public static List<FavoriteItem> getData() {
-//        List<FavoriteItem> data = new ArrayList<>();
-//
-//        // preparing navigation drawer items
-//        for (int i = 0; i < names.length; i++) {
-//            FavoriteItem favoriteItem = new FavoriteItem();
-//            favoriteItem.setName(names[i]);
-//            data.add(favoriteItem);
-//        }
-//        return data;
-//    }
 
     public void refreshActivity()
     {

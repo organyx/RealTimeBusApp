@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="start"
 
-    android:name="com.example.vacho.realtimebusapp.FavouritesScreenFragment"
+    android:name="com.example.vacho.realtimebusapp.FavoritesScreenFragment"
     tools:layout="@layout/content_favourites_screen">
 
 </fragment>

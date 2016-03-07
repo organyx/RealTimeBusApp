@@ -3,7 +3,7 @@ package model;
 /**
  * Created by Aleks on 07-Mar-16.
  */
-public class FavouriteItem {
+public class FavoriteItem {
 
     private boolean showNotify;
     private long id;
@@ -15,19 +15,19 @@ public class FavouriteItem {
 
     @Override
     public String toString() {
-        return "FavouriteItem{" +
+        return "FavoriteItem{" +
                 "address='" + address + '\'' +
                 ", name='" + name + '\'' +
                 ", zoom='" + zoom + '\'' +
                 '}';
     }
 
-    public FavouriteItem()
+    public FavoriteItem()
     {
 
     }
 
-    public FavouriteItem(boolean showNotify, long id, String name, String address, double lat, double lng, String zoom) {
+    public FavoriteItem(boolean showNotify, long id, String name, String address, double lat, double lng, String zoom) {
         this.showNotify  = showNotify;
         this.id = id;
         this.name = name;

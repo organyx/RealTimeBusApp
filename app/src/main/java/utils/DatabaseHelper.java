@@ -10,7 +10,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.FavouriteItem;
+import model.FavoriteItem;
 
 /**
  * Created by Aleks on 05-Mar-16.
@@ -88,22 +88,22 @@ public class DatabaseHelper {
         return row;
     }
 
-    public List<FavouriteItem> getAllFavourites()
+    public List<FavoriteItem> getAllFavourites()
     {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
-        List<FavouriteItem> favouriteItemList = new ArrayList<FavouriteItem>();
+        List<FavoriteItem> favoriteItemList = new ArrayList<FavoriteItem>();
         Cursor cursor = db.query(TABLE_NAME, allColumns, null, null, null, null, null );
         cursor.moveToFirst();
         while (!cursor.isAfterLast())
         {
-            FavouriteItem favouriteItem = cursorToFavouriteItem(cursor);
-            favouriteItemList.add(favouriteItem);
+            FavoriteItem favoriteItem = cursorToFavouriteItem(cursor);
+            favoriteItemList.add(favoriteItem);
             cursor.moveToNext();
         }
 
         cursor.close();
-        Log.d("DB_Helper", "DB Items retrieved = " + favouriteItemList.size());
-        return favouriteItemList;
+        Log.d("DB_Helper", "DB Items retrieved = " + favoriteItemList.size());
+        return favoriteItemList;
     }
 
     public long addNewFavourite(String name, String address, double lat, double lng, float zoom)
@@ -203,14 +203,14 @@ public class DatabaseHelper {
         return empty;
     }
 
-    private FavouriteItem cursorToFavouriteItem(Cursor cursor) {
-        FavouriteItem favouriteItem = new FavouriteItem();
-        favouriteItem.setId(cursor.getLong(0));
-        favouriteItem.setName(cursor.getString(1));
-        favouriteItem.setAddress(cursor.getString(2));
-        favouriteItem.setLat(cursor.getDouble(3));
-        favouriteItem.setLng(cursor.getDouble(4));
-        favouriteItem.setZoom(cursor.getString(5));
-        return favouriteItem;
+    private FavoriteItem cursorToFavouriteItem(Cursor cursor) {
+        FavoriteItem favoriteItem = new FavoriteItem();
+        favoriteItem.setId(cursor.getLong(0));
+        favoriteItem.setName(cursor.getString(1));
+        favoriteItem.setAddress(cursor.getString(2));
+        favoriteItem.setLat(cursor.getDouble(3));
+        favoriteItem.setLng(cursor.getDouble(4));
+        favoriteItem.setZoom(cursor.getString(5));
+        return favoriteItem;
     }
 }

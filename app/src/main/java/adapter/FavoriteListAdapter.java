@@ -12,18 +12,18 @@ import com.example.vacho.realtimebusapp.R;
 import java.util.Collections;
 import java.util.List;
 
-import model.FavouriteItem;
+import model.FavoriteItem;
 
 /**
  * Created by Aleks on 05-Mar-16.
  */
-public class FavouriteListAdapter extends RecyclerView.Adapter<FavouriteListAdapter.MyFavViewHolder> {
+public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapter.MyFavViewHolder> {
 
-    List<FavouriteItem> data = Collections.emptyList();
+    List<FavoriteItem> data = Collections.emptyList();
     private LayoutInflater inflater;
     private Context context;
 
-    public FavouriteListAdapter(Context context, List<FavouriteItem> data)
+    public FavoriteListAdapter(Context context, List<FavoriteItem> data)
     {
         this.context = context;
         inflater = LayoutInflater.from(context);
@@ -44,7 +44,7 @@ public class FavouriteListAdapter extends RecyclerView.Adapter<FavouriteListAdap
 
     @Override
     public void onBindViewHolder(MyFavViewHolder holder, int position) {
-        FavouriteItem current = data.get(position);
+        FavoriteItem current = data.get(position);
         holder.name.setText(current.getName());
         holder.descr.setText(current.getAddress());
     }
@@ -65,14 +65,14 @@ public class FavouriteListAdapter extends RecyclerView.Adapter<FavouriteListAdap
         }
     }
 
-    public void removeItem(FavouriteItem item)
+    public void removeItem(FavoriteItem item)
     {
         int currentPos = data.indexOf(item);
         data.remove(currentPos);
         notifyItemRemoved(currentPos);
     }
 
-    public void addItem(int position, FavouriteItem item)
+    public void addItem(int position, FavoriteItem item)
     {
         data.add(position, item);
         notifyItemInserted(position);
