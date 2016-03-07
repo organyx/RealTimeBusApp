@@ -7,6 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import model.FavouriteItem;
+
 /**
  * Created by Aleks on 05-Mar-16.
  */
@@ -22,6 +27,9 @@ public class DatabaseHelper {
     private static final String COL_LAT = "LAT";
     private static final String COL_LNG = "LNG";
     private static final String COL_ZOOM = "ZOOM";
+
+    private String[] allColumns = { COL_ID,
+            COL_NAME, COL_ADDRESS, COL_LAT, COL_LNG, COL_LNG };
 
     public DatabaseHelper(Context context){
         _opeSqLiteOpenHelper = new mySQLiteOpenHelper(context);
@@ -61,6 +69,43 @@ public class DatabaseHelper {
         return db.rawQuery("SELECT * FROM " + TABLE_NAME + " order by " + COL_ID + "", null);
     }
 
+    public ContentValues getAll2() {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        if (db == null) {
+            return null;
+        }
+        ContentValues row = new ContentValues();
+        Cursor cur = db.rawQuery("select * from " + TABLE_NAME, null);
+        if (cur.moveToNext()) {
+            row.put("Name", cur.getString(1));
+            row.put("Address", cur.getString(2));
+            row.put("Lat", cur.getDouble(3));
+            row.put("Lng", cur.getDouble(4));
+            row.put("Zoom", cur.getString(5));
+        }
+        cur.close();
+        db.close();
+        return row;
+    }
+
+    public List<FavouriteItem> getAllFavourites()
+    {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        List<FavouriteItem> favouriteItemList = new ArrayList<FavouriteItem>();
+        Cursor cursor = db.query(TABLE_NAME, allColumns, null, null, null, null, null );
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast())
+        {
+            FavouriteItem favouriteItem = cursorToFavouriteItem(cursor);
+            favouriteItemList.add(favouriteItem);
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        Log.d("DB_Helper", "DB Items retrieved = " + favouriteItemList.size());
+        return favouriteItemList;
+    }
+
     public long addNewFavourite(String name, String address, double lat, double lng, float zoom)
     {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
@@ -77,7 +122,7 @@ public class DatabaseHelper {
             row.put(COL_ZOOM, zoom);
             long id = db.insert(TABLE_NAME, null, row);
             db.close();
-            Log.d("DB_Helper", "DB Inserted = " + id);
+            Log.d("DB_Helper", "DB Inserted ID = " + id + " NAME = " + name + " ADDRESS = " + address + " LAT = " + lat + " LNG = " + lng + " ZOOM = " + zoom);
             return id;
         }
         else
@@ -96,7 +141,7 @@ public class DatabaseHelper {
         int deleted = db.delete(TABLE_NAME, COL_NAME + " = ? ", new String[]{String.valueOf(name)});
 
         if(deleted > 0)
-            Log.d("DB_Helper", "DB Deleted = " + deleted);
+            Log.d("DB_Helper", "DB Deleted ID = " + deleted);
         else
             Log.d("DB_Helper", "DB Deleted = " + deleted);
 
@@ -119,10 +164,10 @@ public class DatabaseHelper {
             row.put(COL_LNG, lng);
             row.put(COL_ZOOM, zoom);
         }
-        int updated = db.update(TABLE_NAME, row, COL_NAME + " = ?", new String[] {String.valueOf(name)});
+        int updated = db.update(TABLE_NAME, row, COL_NAME + " = ?", new String[]{String.valueOf(name)});
 
         if(updated > 0)
-            Log.d("DB_Helper", "DB Updated = " + updated);
+            Log.d("DB_Helper", "DB Updated ID = " + updated);
         else
             Log.d("DB_Helper", "DB Updated = " + updated);
         db.close();
@@ -156,5 +201,16 @@ public class DatabaseHelper {
         }
         cursor.close();
         return empty;
+    }
+
+    private FavouriteItem cursorToFavouriteItem(Cursor cursor) {
+        FavouriteItem favouriteItem = new FavouriteItem();
+        favouriteItem.setId(cursor.getLong(0));
+        favouriteItem.setName(cursor.getString(1));
+        favouriteItem.setAddress(cursor.getString(2));
+        favouriteItem.setLat(cursor.getDouble(3));
+        favouriteItem.setLng(cursor.getDouble(4));
+        favouriteItem.setZoom(cursor.getString(5));
+        return favouriteItem;
     }
 }

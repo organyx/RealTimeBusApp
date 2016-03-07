@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.vacho.realtimebusapp.R;
@@ -13,19 +12,18 @@ import com.example.vacho.realtimebusapp.R;
 import java.util.Collections;
 import java.util.List;
 
-import model.FavoriteItem;
-import model.NavigationDrawerItem;
+import model.FavouriteItem;
 
 /**
  * Created by Aleks on 05-Mar-16.
  */
 public class FavouriteListAdapter extends RecyclerView.Adapter<FavouriteListAdapter.MyFavViewHolder> {
 
-    List<FavoriteItem> data = Collections.emptyList();
+    List<FavouriteItem> data = Collections.emptyList();
     private LayoutInflater inflater;
     private Context context;
 
-    public FavouriteListAdapter(Context context, List<FavoriteItem> data)
+    public FavouriteListAdapter(Context context, List<FavouriteItem> data)
     {
         this.context = context;
         inflater = LayoutInflater.from(context);
@@ -46,9 +44,9 @@ public class FavouriteListAdapter extends RecyclerView.Adapter<FavouriteListAdap
 
     @Override
     public void onBindViewHolder(MyFavViewHolder holder, int position) {
-        FavoriteItem current = data.get(position);
+        FavouriteItem current = data.get(position);
         holder.name.setText(current.getName());
-        holder.descr.setText(current.getDescr());
+        holder.descr.setText(current.getAddress());
     }
 
     @Override
@@ -65,5 +63,18 @@ public class FavouriteListAdapter extends RecyclerView.Adapter<FavouriteListAdap
             name = (TextView) itemView.findViewById(R.id.tv_name);
             descr = (TextView) itemView.findViewById(R.id.tv_descr);
         }
+    }
+
+    public void removeItem(FavouriteItem item)
+    {
+        int currentPos = data.indexOf(item);
+        data.remove(currentPos);
+        notifyItemRemoved(currentPos);
+    }
+
+    public void addItem(int position, FavouriteItem item)
+    {
+        data.add(position, item);
+        notifyItemInserted(position);
     }
 }
