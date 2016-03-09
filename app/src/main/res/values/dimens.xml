@@ -5,4 +5,5 @@
 
     <!-- Navigation Drawer width -->
     <dimen name="nav_drawer_width">250dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 </resources>

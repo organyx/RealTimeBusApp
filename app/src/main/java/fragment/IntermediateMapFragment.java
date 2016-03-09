@@ -1,6 +1,5 @@
 package fragment;
 
-
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.os.Build;
@@ -18,18 +17,15 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
 /**
- * A simple {@link Fragment} subclass.
+ * Created by Aleks on 09-Mar-16.
  */
-public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
-
-    public int pos = 0;
+public class IntermediateMapFragment extends Fragment implements OnMapReadyCallback {
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_home_screen,container,false);
+        return inflater.inflate(R.layout.fragment_intermediate_map,container,false);
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -37,10 +33,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-//
-//        }
-        MapFragment fragment = (MapFragment)getChildFragmentManager().findFragmentById(R.id.home_fragment);
+        MapFragment fragment = (MapFragment)getChildFragmentManager().findFragmentById(R.id.f_intermediate_map);
         fragment.getMapAsync(this);
     }
 
@@ -55,4 +48,3 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
                 .position(horsens));
     }
 }
-

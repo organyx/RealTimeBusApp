@@ -2,6 +2,7 @@ package fragment;
 
 
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -75,9 +76,29 @@ public class FavoritesScreenFragment extends Fragment {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                db.addNewFavourite(editTextName.getText().toString(), editTextDescr.getText().toString(), 0, 0, 0);
-                adapter.notifyItemInserted(list.size());
+//                db.addNewFavourite(editTextName.getText().toString(), editTextDescr.getText().toString(), 55.86544499999999, 9.843203000000017, 0);
+//                adapter.notifyItemInserted(list.size());
 //                adapter.notifyDataSetChanged();
+
+//                HomeScreenFragment fr = new HomeScreenFragment();
+//                Bundle args = new Bundle();
+////                args.putInt(fr.pos, position);
+//                fr.setArguments(args);
+//
+//                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+//
+//                transaction.replace(R.id.fragment_container, fr);
+//                transaction.addToBackStack(null);
+//                transaction.commit();
+                IntermediateMapFragment mapFragment = new IntermediateMapFragment();
+                Bundle args = new Bundle();
+                mapFragment.setArguments(args);
+
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+                transaction.replace(R.id.fragment_container, mapFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         });
 
