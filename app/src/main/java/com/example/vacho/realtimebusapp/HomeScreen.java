@@ -9,6 +9,10 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import fragment.FavoritesScreenFragment;
+import fragment.HomeScreenFragment;
+import fragment.NavigationDrawerFragment;
+
 
 public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener {
 

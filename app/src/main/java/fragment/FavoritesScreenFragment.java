@@ -1,4 +1,4 @@
-package com.example.vacho.realtimebusapp;
+package fragment;
 
 
 import android.app.Fragment;
@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.example.vacho.realtimebusapp.R;
 
 import java.util.List;
 
