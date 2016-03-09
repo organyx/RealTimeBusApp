@@ -4,61 +4,32 @@
     android:layout_height="match_parent"
     android:scrollbars="vertical">
 
-    <TextView
-        android:id="@+id/label"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="60dp"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:textSize="45dp"
-        android:text="Favourites"
-        android:textStyle="bold"/>
-
-    <TextView
-        android:id="@+id/instructions"
-        android:layout_below="@id/label"
-        android:layout_centerInParent="true"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textSize="12dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center_horizontal"
-        android:text="Edit fragment_favourites.xml to change the appearance" />
-
-    <TableRow
-        android:id="@+id/tr_name"
-        android:layout_below="@+id/instructions"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp">
-        <TextView
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:text="Name"/>
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/til_fav_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
         <EditText
             android:id="@+id/et_fav_name"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content" />
-    </TableRow>
-
-    <TableRow
-        android:id="@+id/tr_address"
-        android:layout_below="@+id/tr_name"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp">
-        <TextView
-            android:layout_width="50dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Address"/>
+            android:hint="@string/hint_fav_item_name"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/til_fav_address"
+        android:layout_below="@+id/til_fav_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
         <EditText
             android:id="@+id/et_fav_address"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content" />
-    </TableRow>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_fav_item_descr"/>
+    </android.support.design.widget.TextInputLayout>
 
     <Button
         android:id="@+id/btn_add_fav"
-        android:layout_below="@+id/tr_address"
+        android:layout_below="@+id/til_fav_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Add"
@@ -66,7 +37,7 @@
 
     <Button
         android:id="@+id/btn_update_fav"
-        android:layout_below="@+id/tr_address"
+        android:layout_below="@+id/til_fav_address"
         android:layout_toRightOf="@+id/btn_add_fav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -75,7 +46,7 @@
 
     <Button
         android:id="@+id/btn_del_fav"
-        android:layout_below="@+id/tr_address"
+        android:layout_below="@+id/til_fav_address"
         android:layout_toRightOf="@+id/btn_update_fav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -84,7 +55,7 @@
 
     <Button
         android:id="@+id/btn_refresh_fav"
-        android:layout_below="@+id/tr_address"
+        android:layout_below="@+id/til_fav_address"
         android:layout_toRightOf="@+id/btn_del_fav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -93,7 +64,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_fav_list"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/btn_add_fav"
         android:layout_marginTop="15dp">
     </android.support.v7.widget.RecyclerView>

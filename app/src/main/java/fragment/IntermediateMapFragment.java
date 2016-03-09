@@ -50,7 +50,7 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
     private PlaceArrayAdapter placeArrayAdapter;
     private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
             new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
-    
+
     private Button btn_add_fav_item;
     private Place placeToAdd;
     private GoogleMap map;
@@ -62,14 +62,13 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
 
         googleApiClient = new GoogleApiClient.Builder(getActivity())
                 .addApi(Places.GEO_DATA_API)
-//                .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this)
+//                .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this) // RECREATED WITHIN onStart and onStop METHODS
                 .addConnectionCallbacks(this)
                 .build();
         atv_fav_item_address = (AutoCompleteTextView) v.findViewById(R.id
                 .atv_autocomplete_fav_item_address);
         atv_fav_item_address.setThreshold(3);
         tv_fav_item_name = (EditText) v.findViewById(R.id.et_fav_item_name);
-//        mAddressTextView = (EditText) v.findViewById(R.id.et_);
 
         atv_fav_item_address.setOnItemClickListener(mAutocompleteClickListener);
         placeArrayAdapter = new PlaceArrayAdapter(getActivity(), android.R.layout.simple_list_item_1,
