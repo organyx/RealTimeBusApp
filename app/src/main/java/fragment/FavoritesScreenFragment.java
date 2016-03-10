@@ -6,9 +6,12 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -64,6 +67,36 @@ public class FavoritesScreenFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 //            Toast.makeText(getActivity(), n, Toast.LENGTH_LONG);
 //        Log.d("FavScreenFragment", "Something: " + list.get(0).getName());
+
+
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                FavoriteItem item = db.getAllFavourites().get(position);
+                editTextName.setText(item.getName());
+                editTextDescr.setText(item.getAddress());
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+                FavoriteItem item = db.getAllFavourites().get(position);
+                HomeScreenFragment homeScreenFragment = new HomeScreenFragment();
+                Bundle args = new Bundle();
+                args.putString("fav_item_name", item.getName());
+                args.putString("fav_item_address", item.getAddress());
+                args.putDouble("fav_item_lat", item.getLat());
+                args.putDouble("fav_item_lng", item.getLng());
+                args.putString("fav_item_zoom", item.getZoom());
+                homeScreenFragment.setArguments(args);
+
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, homeScreenFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+//                getActivity().getActionBar().setTitle(R.string.title_home);
+
+            }
+        }));
 
         btnAdd = (Button) v.findViewById(R.id.btn_add_fav);
         btnUpdate = (Button) v.findViewById(R.id.btn_update_fav);
@@ -142,5 +175,54 @@ public class FavoritesScreenFragment extends Fragment {
 
         getActivity().overridePendingTransition(0, 0);
         startActivity(intent);
+    }
+
+    public interface ClickListener {
+        void onClick(View view, int position);
+
+        void onLongClick(View view, int position);
+    }
+
+    public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
+
+        private GestureDetector gestureDetector;
+        private ClickListener clickListener;
+
+        public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final ClickListener clickListener) {
+            this.clickListener = clickListener;
+            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return true;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
+                    if (child != null && clickListener != null) {
+                        clickListener.onLongClick(child, recyclerView.getChildPosition(child));
+                    }
+                }
+            });
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            View child = rv.findChildViewUnder(e.getX(), e.getY());
+            if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
+                clickListener.onClick(child, rv.getChildPosition(child));
+            }
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+        }
     }
 }

@@ -37,6 +37,14 @@ public class FavoriteItem {
         this.zoom = zoom;
     }
 
+    public FavoriteItem(String name, String address, double lat, double lng, String zoom) {
+        this.name = name;
+        this.address = address;
+        this.lat = lat;
+        this.lng = lng;
+        this.zoom = zoom;
+    }
+
     public String getName() {
         return name;
     }
