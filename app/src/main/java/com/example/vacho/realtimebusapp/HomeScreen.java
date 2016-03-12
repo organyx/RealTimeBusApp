@@ -79,6 +79,10 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
                 fm.beginTransaction().replace(R.id.fragment_container, new FavouritesScreenFragment()).commit();
                 title = getString(R.string.title_favourites);
                 break;
+            case 2:
+                fm.beginTransaction().replace(R.id.fragment_container, new AboutScreenFragment()).commit();
+                title = "About";
+                break;
             default:
                 break;
         }
