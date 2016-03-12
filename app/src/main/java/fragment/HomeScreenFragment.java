@@ -67,6 +67,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
                 Toast.makeText(getActivity(), "fav_item_name " + favoriteItem.getName(), Toast.LENGTH_LONG).show();
                 Log.d(TAG, "fav_item_name " + favoriteItem.getName());
             }
+//            getActivity().getActionBar().setTitle(R.string.title_home);
         }
         return v;
     }

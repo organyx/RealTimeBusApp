@@ -32,41 +32,44 @@
         android:layout_below="@+id/til_fav_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add"
+        android:text="@string/btn_add_fav_item"
         />
 
     <Button
         android:id="@+id/btn_update_fav"
         android:layout_below="@+id/til_fav_address"
+        android:layout_toEndOf="@+id/btn_add_fav"
         android:layout_toRightOf="@+id/btn_add_fav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Update"
+        android:text="@string/btn_update_fav_item"
         />
 
     <Button
         android:id="@+id/btn_del_fav"
         android:layout_below="@+id/til_fav_address"
+        android:layout_toEndOf="@+id/btn_update_fav"
         android:layout_toRightOf="@+id/btn_update_fav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Delete"
+        android:text="@string/btn_delete_fav_item"
         />
 
     <Button
         android:id="@+id/btn_refresh_fav"
         android:layout_below="@+id/til_fav_address"
+        android:layout_toEndOf="@+id/btn_del_fav"
         android:layout_toRightOf="@+id/btn_del_fav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="REFRESH"
+        android:text="@string/btn_refresh_fav_item_list"
         />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_fav_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/btn_add_fav"
-        android:layout_marginTop="15dp">
+        android:layout_marginTop="@dimen/fav_item_list_margin_top">
     </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

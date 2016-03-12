@@ -30,7 +30,14 @@
     <string name="err_msg_email">Enter valid email address</string>
     <string name="err_msg_password">Enter the password</string>
 
+    <!--Favourites Screen-->
+    <string name="fav_item_icon_description">Favourite Item Icon</string>
+    <string name="fav_item_icon2_description">Favourite Item More Icon</string>
     <string name="hint_fav_item_name">Name</string>
     <string name="hint_fav_item_descr">Description</string>
+    <string name="hint_fav_item_address">Enter Place Here</string>
     <string name="btn_add_fav_item">Add</string>
+    <string name="btn_update_fav_item">Update</string>
+    <string name="btn_delete_fav_item">Delete</string>
+    <string name="btn_refresh_fav_item_list">Refresh</string>
 </resources>

@@ -6,4 +6,20 @@
     <!-- Navigation Drawer width -->
     <dimen name="nav_drawer_width">250dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <!--Favorites Dimensions-->
+    <dimen name="fav_item_height">60dp</dimen>
+    <dimen name="fav_item_layout_margin">2dp</dimen>
+    <dimen name="fav_item_icon_width_height">30dp</dimen>
+    <dimen name="fav_item_icon_margin_left_right">15dp</dimen>
+    <dimen name="fav_item_input_layout_width">250dp</dimen>
+    <dimen name="fav_item_input_padding_left">15dp</dimen>
+    <dimen name="fav_item_input_padding_top_bottom">5dp</dimen>
+    <dimen name="fav_item_input_padding_bottom">15dp</dimen>
+    <dimen name="fav_item_input_text_size">15sp</dimen>
+    <dimen name="fav_item_list_margin_top">15dp</dimen>
+    <dimen name="fav_screen_input_padding_left_right">20dp</dimen>
+    <dimen name="fav_screen_input_margin_top">50dp</dimen>
+    <dimen name="fav_screen_btn_margin_top">30dp</dimen>
+    <dimen name="fav_screen_fragment_height">300dp</dimen>
 </resources>
