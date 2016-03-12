@@ -56,15 +56,15 @@
                 android:background="@android:color/white"
                 android:visibility="gone" />
 
-            <model.LockableRecyclerView
+            <model.LockableListView
                 android:id="@android:id/list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/transparentView"
                 android:background="@android:color/transparent"
                 android:cacheColorHint="@android:color/white"
-                android:divider="@android:color/darker_gray"
-                android:dividerHeight="1dp"
+                android:divider="@color/custom1"
+                android:dividerHeight="10dp"
                 android:drawSelectorOnTop="true"
                 android:smoothScrollbar="false" />
         </RelativeLayout>

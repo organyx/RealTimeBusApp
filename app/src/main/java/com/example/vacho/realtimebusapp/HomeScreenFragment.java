@@ -5,21 +5,26 @@ import android.app.Fragment;
 
 import android.location.Location;
 import android.location.LocationListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -29,7 +34,10 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 
+import adapter.CustomListViewAdapter;
 import adapter.HeaderAdapter;
+import model.BusStationInfo;
+import model.LockableListView;
 import model.LockableRecyclerView;
 
 
@@ -42,6 +50,9 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private View whiteSpaceView;
     private HeaderAdapter headerAdapter;
     private LockableRecyclerView mListView;
+    private LockableListView h;
+    private View mTransparentHeaderView;
+    private View mSpaceView;
     private LatLng mLocation;
     private Marker mLocationMarker;
     private SlidingUpPanelLayout slidingPaneLayout;
@@ -54,13 +65,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         View rootView = inflater.inflate(R.layout.fragment_home_screen, container, false);
 
 
-        mListView = (LockableRecyclerView) rootView.findViewById(android.R.id.list);
-        mListView.setOverScrollMode(ListView.OVER_SCROLL_NEVER);
-
-
-        transparentView = rootView.findViewById(R.id.transparentView);
-        whiteSpaceView = rootView.findViewById(R.id.whiteSpaceView);
-
+        h = (LockableListView) rootView.findViewById(android.R.id.list);
+        h.setOverScrollMode(ListView.OVER_SCROLL_NEVER);
 
         slidingPaneLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_drawer);
         slidingPaneLayout.setEnableDragViewTouchEvents(true);
@@ -71,14 +77,24 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         int height = dm.heightPixels;
         int mapHeight = getResources().getDimensionPixelSize(R.dimen.map_height);
 
-        slidingPaneLayout.setPanelHeight(height / 3); // you can use different height here
-        slidingPaneLayout.setScrollableView(mListView, mapHeight);
+        slidingPaneLayout.setPanelHeight(mapHeight); // you can use different height here
+        slidingPaneLayout.setScrollableView(h, mapHeight);
         slidingPaneLayout.setPanelSlideListener(this);
+
+        transparentView = rootView.findViewById(R.id.transparentView);
+        whiteSpaceView = rootView.findViewById(R.id.whiteSpaceView);
+
+        mTransparentHeaderView = inflater.inflate(R.layout.transparent_header_view, h, false);
+        mSpaceView = mTransparentHeaderView.findViewById(R.id.space);
+
+        collapseMap();
 
         slidingPaneLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                slidingPaneLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    slidingPaneLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
                 slidingPaneLayout.onPanelDragged(0);
             }
         });
@@ -102,19 +118,38 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        ArrayList<String> testData = new ArrayList<String>(50);
-        for (int i = 0; i < 50; i++) {
-            testData.add("Item " + i);
-        }
         whiteSpaceView.setVisibility(View.VISIBLE);
 
+        BusStationInfo b[] = new BusStationInfo[]{
+                new BusStationInfo(R.drawable.ic_action_search, "ads", "123"),
+                new BusStationInfo(R.drawable.ic_action_search, "wqeqwekjq", "kjqwejkqhew"),
+                new BusStationInfo(R.drawable.ic_action_search, "ads", "123"),
+                new BusStationInfo(R.drawable.ic_action_search, "wqeqwekjq", "kjqwejkqhew"),
+                new BusStationInfo(R.drawable.ic_action_search, "ads", "123"),
+                new BusStationInfo(R.drawable.ic_action_search, "wqeqwekjq", "kjqwejkqhew"),
+                new BusStationInfo(R.drawable.ic_action_search, "ads", "123"),
+                new BusStationInfo(R.drawable.ic_action_search, "wqeqwekjq", "kjqwejkqhew"),
+                new BusStationInfo(R.drawable.ic_action_search, "ads", "123"),
+                new BusStationInfo(R.drawable.ic_action_search, "wqeqwekjq", "kjqwejkqhew"),
+                new BusStationInfo(R.drawable.ic_action_search, "eeew", "vcvcv")
+        };
 
-        headerAdapter = new HeaderAdapter(getActivity(), testData, this);
-        mListView.setItemAnimator(null);
+        h.addHeaderView(mTransparentHeaderView);
+        h.setAdapter(new CustomListViewAdapter(getActivity(),R.layout.list_item,b));
+        h.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                slidingPaneLayout.collapsePane();
+            }
+        });
+
+
+        // headerAdapter = new HeaderAdapter(getActivity(), testData, this);
+        // mListView.setItemAnimator(null);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        mListView.setLayoutManager(layoutManager);
-        mListView.setAdapter(headerAdapter);
+        //  h.setLayoutManager(layoutManager);
+        // mListView.setAdapter(headerAdapter);
 
     }
 
@@ -139,21 +174,24 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             headerAdapter.showSpace();
         }
         transparentView.setVisibility(View.GONE);
+        mSpaceView.setVisibility(View.VISIBLE);
+        // mTransparentHeaderView.setVisibility(View.GONE);
         if (googleMap != null && horsens != null) {
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(horsens, 11f), 1000, null);
         }
-        mListView.setScrollingEnabled(true);
+        h.setScrollingEnabled(true);
     }
 
     private void expandMap() {
         if (headerAdapter != null) {
             headerAdapter.hideSpace();
         }
+        mSpaceView.setVisibility(View.GONE);
         transparentView.setVisibility(View.INVISIBLE);
         if (googleMap != null) {
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(14f), 1000, null);
         }
-        mListView.setScrollingEnabled(false);
+        h.setScrollingEnabled(false);
     }
 
     private void moveMarker(LatLng latLng) {
