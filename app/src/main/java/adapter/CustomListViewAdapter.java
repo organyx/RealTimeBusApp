@@ -11,9 +11,6 @@ import android.widget.TextView;
 
 import com.example.vacho.realtimebusapp.R;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import model.BusStationInfo;
 
 /**
@@ -21,37 +18,34 @@ import model.BusStationInfo;
  */
 public class CustomListViewAdapter extends ArrayAdapter {
 
-   Context context;
+    Context context;
     int layoutResourceId;
-    BusStationInfo data[]= null;
+    BusStationInfo data[] = null;
 
-    public CustomListViewAdapter(Context context, int layoutResourceId,  BusStationInfo[] data) {
+    public CustomListViewAdapter(Context context, int layoutResourceId, BusStationInfo[] data) {
         super(context, layoutResourceId, data);
         this.layoutResourceId = layoutResourceId;
         this.context = context;
         this.data = data;
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        WeatherHolder holder = null;
+        BusStationInfoHolder holder = null;
 
-        if(row == null)
-        {
-            LayoutInflater inflater = ((Activity)context).getLayoutInflater();
+        if (row == null) {
+            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
             row = inflater.inflate(layoutResourceId, parent, false);
 
-            holder = new WeatherHolder();
-            holder.imgIcon = (ImageView)row.findViewById(R.id.image_da);
-            holder.txtTitle1 = (TextView)row.findViewById(R.id.sss);
-            holder.txtTitle2 = (TextView)row.findViewById(R.id.nnn);
-
+            holder = new BusStationInfoHolder();
+            holder.imgIcon = (ImageView) row.findViewById(R.id.image_da);
+            holder.txtTitle1 = (TextView) row.findViewById(R.id.sss);
+            holder.txtTitle2 = (TextView) row.findViewById(R.id.nnn);
 
             row.setTag(holder);
-        }
-        else
-        {
-            holder = (WeatherHolder)row.getTag();
+        } else {
+            holder = (BusStationInfoHolder) row.getTag();
         }
 
         BusStationInfo b = data[position];
@@ -62,11 +56,9 @@ public class CustomListViewAdapter extends ArrayAdapter {
         return row;
     }
 
-    static class WeatherHolder
-    {
+    static class BusStationInfoHolder {
         ImageView imgIcon;
         TextView txtTitle1;
         TextView txtTitle2;
     }
-
 }

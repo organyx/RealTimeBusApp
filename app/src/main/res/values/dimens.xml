@@ -8,6 +8,4 @@
     <dimen name="map_height">125dp</dimen>
     <dimen name="offset">125dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-
-
 </resources>

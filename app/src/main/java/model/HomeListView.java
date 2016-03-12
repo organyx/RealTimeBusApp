@@ -1,32 +1,32 @@
 package model;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.widget.ListView;
 
 /**
- * Created by Vacho on 3/9/2016.
+ * Created by Vacho on 3/11/2016.
  */
-public class LockableRecyclerView extends RecyclerView {
+public class HomeListView extends ListView {
+
     private boolean mScrollable = true;
 
-    public LockableRecyclerView(Context context) {
+    public HomeListView(Context context) {
         super(context);
     }
 
-    public LockableRecyclerView(Context context, AttributeSet attrs) {
+    public HomeListView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public LockableRecyclerView(Context context, AttributeSet attrs, int defStyle) {
+    public HomeListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
     public void setScrollingEnabled(boolean enabled) {
         mScrollable = enabled;
     }
-
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         switch (ev.getAction()) {
@@ -52,5 +52,4 @@ public class LockableRecyclerView extends RecyclerView {
             return super.onInterceptTouchEvent(ev);
         }
     }
-
 }
