@@ -11,6 +11,10 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import fragment.FavoritesScreenFragment;
+import fragment.HomeScreenFragment;
+import fragment.NavigationDrawerFragment;
+
 
 public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener {
 
@@ -76,7 +80,7 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
                 title = getString(R.string.title_home);
                 break;
             case 1:
-                fm.beginTransaction().replace(R.id.fragment_container, new FavouritesScreenFragment()).commit();
+                fm.beginTransaction().replace(R.id.fragment_container, new FavoritesScreenFragment()).commit();
                 title = getString(R.string.title_favourites);
                 break;
             default:
