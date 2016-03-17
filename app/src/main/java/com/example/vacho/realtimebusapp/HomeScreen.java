@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import fragment.FavoritesScreenFragment;
 import fragment.HomeScreenFragment;
@@ -19,6 +20,7 @@ import fragment.NavigationDrawerFragment;
 public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener {
 
     private NavigationDrawerFragment navigationDrawerFragment;
+    public static boolean tracking;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +28,8 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         setContentView(R.layout.activity_home_screen);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        tracking = false;
 
         navigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         navigationDrawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
@@ -61,6 +65,18 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         if (id == R.id.action_settings) {
             return true;
         }
+        else if(id == R.id.action_tracking){
+            if(tracking)
+            {
+                Toast.makeText(this, "Tracking: False", Toast.LENGTH_SHORT).show();
+                tracking = false;
+            }
+            else
+            {
+                Toast.makeText(this, "Tracking: True", Toast.LENGTH_SHORT).show();
+                tracking = true;
+            }
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -88,5 +104,10 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         }
 
         getSupportActionBar().setTitle(title);
+    }
+
+    public boolean getTracking()
+    {
+        return tracking;
     }
 }

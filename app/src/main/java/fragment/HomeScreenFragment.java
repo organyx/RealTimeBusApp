@@ -9,6 +9,8 @@ import android.location.LocationListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,6 +23,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.BuildConfig;
+import com.example.vacho.realtimebusapp.HomeScreen;
 import com.example.vacho.realtimebusapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -69,6 +72,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private Pubnub pubnub;
     private Activity mActivity;
     private Object m;
+//    private boolean tracking;
+    FavoriteItem trackedItem;
 
     @Nullable
     @Override
@@ -129,6 +134,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         });
 
         mActivity = getActivity();
+//        tracking = false;
         pubnub = getPubnub();
         subscribeToChannel();
 
@@ -183,13 +189,17 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        if (favoriteItem == null)
+        this.googleMap = googleMap;
+        if(!HomeScreen.tracking)
         {
-            setDefaultLocation(googleMap);
-        }
-        else
-        {
-            setFavLocation(googleMap);
+            if(favoriteItem == null)
+            {
+                setDefaultLocation(googleMap);
+            }
+            else
+            {
+                setFavLocation(googleMap);
+            }
         }
 //        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 //            // TODO: Consider calling
@@ -309,19 +319,32 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                                 {
                                     m = message;
                                     final JSONObject messageJSON = (JSONObject) message;
-                                    final String id = messageJSON.getString("ID");
-                                    final double lat = messageJSON.getDouble("Lat");
-                                    final double lng = messageJSON.getDouble("Lng");
-                                    final long timeToken = messageJSON.getInt("TimeToken");
-                                    mActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Log.d(TAG + " IN ", "ID: " + id + " Lat: " + lat + " Lng " + lng + " TimeToken: " + timeToken);
-                                        }
-                                    });
+                                    if(messageJSON.has("ID"))
+                                    {
+                                        final String id = messageJSON.getString("ID");
+                                        final double lat = messageJSON.getDouble("Lat");
+                                        final double lng = messageJSON.getDouble("Lng");
+                                        final long timeToken = messageJSON.getInt("TimeToken");
+                                        mActivity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Log.d(TAG + " IN ", "ID: " + id + " Lat: " + lat + " Lng " + lng + " TimeToken: " + timeToken);
+                                                if(HomeScreen.tracking)
+                                                {
+                                                    googleMap.clear();
+                                                    trackMarker(googleMap, id, lat, lng);
+                                                }
+                                            }
+                                        });
 
-                                    Gson gson = new Gson();
-                                    gson.toJson(message);
+                                        Gson gson = new Gson();
+                                        gson.toJson(message);
+
+                                    }
+                                    else
+                                    {
+                                        Log.d(TAG + " IN ", message.toString());
+                                    }
                                 }
                             }
                             catch (Exception e)
@@ -342,6 +365,15 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         } catch (PubnubException e) {
             System.out.println(e.toString());
         }
+    }
+
+    public void trackMarker(GoogleMap map, String id, double lat, double lng)
+    {
+        LatLng loc = new LatLng(lat, lng);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 13));
+        map.addMarker(new MarkerOptions()
+                    .title(id)
+                    .position(loc));
     }
 
     @Override
