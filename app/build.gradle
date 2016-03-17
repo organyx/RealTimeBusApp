@@ -16,6 +16,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            buildConfigField "String", "SUBSCRIBE_KEY", "\"sub-c-52032cca-e9e7-11e5-8346-0619f8945a4f\"";
+            buildConfigField "String", "PUBLISH_KEY", "\"pub-c-7deeec3a-0ced-4d7c-a634-ccd573a51dba\"";
+        }
     }
 }
 
@@ -29,4 +33,5 @@ dependencies {
     compile 'com.android.support:support-v4:23.2.0'
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.pubnub:pubnub-android:3.7.6'
+    compile 'com.google.code.gson:gson:2.6.2'
 }

@@ -1,22 +1,14 @@
 package fragment;
 
 
-import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.app.Dialog;
+import android.app.Activity;
 import android.app.Fragment;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -28,17 +20,22 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.vacho.realtimebusapp.BuildConfig;
 import com.example.vacho.realtimebusapp.R;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.pubnub.api.Callback;
+import com.pubnub.api.Pubnub;
+import com.pubnub.api.PubnubError;
+import com.pubnub.api.PubnubException;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import org.json.JSONObject;
 
 import adapter.CustomListViewAdapter;
 import model.BusStationInfo;
@@ -68,6 +65,10 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     public int pos = 0;
     FavoriteItem favoriteItem;
     GPSTracker gpsTracker;
+
+    private Pubnub pubnub;
+    private Activity mActivity;
+    private Object m;
 
     @Nullable
     @Override
@@ -126,6 +127,10 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 slidingPaneLayout.onPanelDragged(0);
             }
         });
+
+        mActivity = getActivity();
+        pubnub = getPubnub();
+        subscribeToChannel();
 
         return v;
     }
@@ -257,6 +262,86 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(14f), 1000, null);
         }
         homeListView.setScrollingEnabled(false);
+    }
+
+    public Pubnub getPubnub()
+    {
+        if(null == pubnub)
+        {
+            pubnub = new Pubnub(BuildConfig.PUBLISH_KEY, BuildConfig.SUBSCRIBE_KEY, false);
+        }
+        return pubnub;
+    }
+
+    public void subscribeToChannel()
+    {
+        try {
+            pubnub.subscribe("my_channel", new Callback() {
+                        @Override
+                        public void connectCallback(String channel, Object message) {
+                            pubnub.publish("my_channel", "Hello from " + Build.MODEL, new Callback() {
+                            });
+                            Log.d(TAG, "connectCallback:" + message.toString());
+                        }
+
+                        @Override
+                        public void disconnectCallback(String channel, Object message) {
+                            System.out.println("SUBSCRIBE : DISCONNECT on channel:" + channel
+                                    + " : " + message.getClass() + " : "
+                                    + message.toString());
+                            Log.d(TAG, "disconnectCallback:" + message.toString());
+                        }
+
+                        public void reconnectCallback(String channel, Object message) {
+                            System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel
+                                    + " : " + message.getClass() + " : "
+                                    + message.toString());
+                            Log.d(TAG, "reconnectCallback:" + message.toString());
+                        }
+
+                        @Override
+                        public void successCallback(String channel, Object message) {
+                            System.out.println("SUBSCRIBE : " + channel + " : "
+                                    + message.getClass() + " : " + message.toString());
+                            Log.d(TAG, "successCallback:" + message.toString());
+                            try{
+                                if(message instanceof JSONObject)
+                                {
+                                    m = message;
+                                    final JSONObject messageJSON = (JSONObject) message;
+                                    final String id = messageJSON.getString("ID");
+                                    final double lat = messageJSON.getDouble("Lat");
+                                    final double lng = messageJSON.getDouble("Lng");
+                                    final long timeToken = messageJSON.getInt("TimeToken");
+                                    mActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Log.d(TAG + " IN ", "ID: " + id + " Lat: " + lat + " Lng " + lng + " TimeToken: " + timeToken);
+                                        }
+                                    });
+
+                                    Gson gson = new Gson();
+                                    gson.toJson(message);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Log.e(TAG, "exception while processing presence event", e);
+                            }
+
+                        }
+
+                        @Override
+                        public void errorCallback(String channel, PubnubError error) {
+                            System.out.println("SUBSCRIBE : ERROR on channel " + channel
+                                    + " : " + error.toString());
+                            Log.d(TAG, "errorCallback: " + error.toString());
+                        }
+                    }
+            );
+        } catch (PubnubException e) {
+            System.out.println(e.toString());
+        }
     }
 
     @Override
