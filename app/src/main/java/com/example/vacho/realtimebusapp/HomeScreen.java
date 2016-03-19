@@ -1,6 +1,7 @@
 package com.example.vacho.realtimebusapp;
 
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -32,18 +33,18 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         navigationDrawerFragment.setDrawerListener(this);
 
         FloatingActionButton fab = (FloatingActionButton) this.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab.setOnClickListener(clickSearchIcon);
 
         displayView(0);
     }
 
-    @Override
+    View.OnClickListener clickSearchIcon = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent searchIntent = new Intent(HomeScreen.this,SearchScreen.class);
+            startActivity(searchIntent);
+        }
+    };
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_home_screen, menu);
