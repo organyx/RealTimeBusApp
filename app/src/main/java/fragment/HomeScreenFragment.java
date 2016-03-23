@@ -1,9 +1,11 @@
 package fragment;
 
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Build;
@@ -11,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -27,7 +30,9 @@ import com.example.vacho.realtimebusapp.HomeScreen;
 import com.example.vacho.realtimebusapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -63,6 +68,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private SlidingUpPanelLayout slidingPaneLayout;
     private LatLng horsens;
     private GoogleMap googleMap;
+    private MapView mapView;
+    private static final int REQUEST_LOCATION = 0;
 
     private static final String TAG = "HomeScreenFrag";
     public int pos = 0;
@@ -72,8 +79,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private Pubnub pubnub;
     private Activity mActivity;
     private Object m;
-//    private boolean tracking;
-    FavoriteItem trackedItem;
 
     @Nullable
     @Override
@@ -134,7 +139,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         });
 
         mActivity = getActivity();
-//        tracking = false;
         pubnub = getPubnub();
         subscribeToChannel();
 
@@ -150,6 +154,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //
 //        }
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.home_fragment);
+//        mapView = (MapView)view.findViewById(R.id.home_fragment);
+//        mapView.getMapAsync(this);
         fragment.getMapAsync(this);
     }
 
@@ -189,6 +195,30 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
+//        this.googleMap = googleMap;
+//        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+//            else
+//            {
+//                this.googleMap.setMyLocationEnabled(true);
+//                Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+//            }
+//        }
+        googleMap.setMyLocationEnabled(true);
+        Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+
+//        this.googleMap.setTrafficEnabled(true);
+//        this.googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+//        googleMap.setPadding(20, 20, 20, 20);
+        googleMap.getUiSettings().setCompassEnabled(true);
+        googleMap.getUiSettings().setMapToolbarEnabled(true);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+        Log.d(TAG, "isCompassEnabled: " + googleMap.getUiSettings().isCompassEnabled());
+        Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
         this.googleMap = googleMap;
         if(!HomeScreen.tracking)
         {
@@ -201,6 +231,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 setFavLocation(googleMap);
             }
         }
+
 //        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 //            // TODO: Consider calling
 //            //    ActivityCompat#requestPermissions
@@ -230,6 +261,25 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //        {
 //            gpsTracker.showSettingsAlert();
 //        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission Granted
+                    Toast.makeText(getActivity(), "REQUEST_LOCATION Allowed", Toast.LENGTH_SHORT)
+                            .show();
+                } else {
+                    // Permission Denied
+                    Toast.makeText(getActivity(), "REQUEST_LOCATION Denied", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     private void setDefaultLocation(GoogleMap defaultLocation){
@@ -364,6 +414,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             );
         } catch (PubnubException e) {
             System.out.println(e.toString());
+            Log.e(TAG, e.toString());
         }
     }
 
