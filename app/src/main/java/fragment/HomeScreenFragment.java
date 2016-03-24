@@ -5,9 +5,12 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,6 +21,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -28,6 +34,10 @@ import android.widget.Toast;
 import com.example.vacho.realtimebusapp.BuildConfig;
 import com.example.vacho.realtimebusapp.HomeScreen;
 import com.example.vacho.realtimebusapp.R;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -35,7 +45,9 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
@@ -43,21 +55,33 @@ import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import adapter.CustomListViewAdapter;
 import model.BusStationInfo;
 import model.FavoriteItem;
 import model.HomeListView;
 import service.GPSTracker;
-
+import utils.PubNubManager;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, SlidingUpPanelLayout.PanelSlideListener, LocationListener {
-
-    private static final String ARG_LOCATION = "arg.location";
 
     private View transparentView;
     private View whiteSpaceView;
@@ -70,13 +94,24 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private GoogleMap googleMap;
     private MapView mapView;
     private static final int REQUEST_LOCATION = 0;
+    private static final int PLACE_PICKER_REQUEST = 1;
+    private static final int RESULT_OK = 100;
 
     private static final String TAG = "HomeScreenFrag";
     public int pos = 0;
     FavoriteItem favoriteItem;
     GPSTracker gpsTracker;
 
+    private MenuItem btnTrack;
+    private static final String PUBNUB_TAG = "PUBNUB";
+    private boolean isFirstMessage = true;
+    private boolean requestingLocationUpdates = false;
+    private PolylineOptions mPolylineOptions;
+    private Marker mMarker;
+    private MarkerOptions mMarkerOptions;
+    private LatLng mLatLng;
     private Pubnub pubnub;
+    private String channelName = "my_channel";
     private Activity mActivity;
     private Object m;
 
@@ -139,9 +174,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         });
 
         mActivity = getActivity();
-        pubnub = getPubnub();
-        subscribeToChannel();
-
+        setHasOptionsMenu(true); // For Handling Fragment calls to menu items
         return v;
     }
 
@@ -193,8 +226,14 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        btnTrack = menu.findItem(R.id.action_tracking);
+    }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        Log.d(TAG, "Map Ready");
 //        this.googleMap = googleMap;
 //        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
 //                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -219,8 +258,27 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
         Log.d(TAG, "isCompassEnabled: " + googleMap.getUiSettings().isCompassEnabled());
         Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
+
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Log.d(TAG, "MarkerCLicked");
+//                new GooglePlaceTask().execute();
+//                int PLACE_PICKER_REQUEST = 1;
+//                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+//
+//                try {
+//                    startActivityForResult(builder.build(getActivity()), PLACE_PICKER_REQUEST);
+//                } catch (GooglePlayServicesRepairableException e) {
+//                    e.printStackTrace();
+//                } catch (GooglePlayServicesNotAvailableException e) {
+//                    e.printStackTrace();
+//                }
+                return false;
+            }
+        });
         this.googleMap = googleMap;
-        if(!HomeScreen.tracking)
+        if(!requestingLocationUpdates)
         {
             if(favoriteItem == null)
             {
@@ -262,6 +320,103 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //            gpsTracker.showSettingsAlert();
 //        }
     }
+
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if (requestCode == PLACE_PICKER_REQUEST) {
+//            if (resultCode == RESULT_OK) {
+//                Place place = PlacePicker.getPlace(data, getActivity());
+//                String toastMsg = String.format("Place: %s", place.getName());
+//                Toast.makeText(getActivity(), toastMsg, Toast.LENGTH_LONG).show();
+//            }
+//        }
+//    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_tracking:
+                Log.d(TAG, "'Tracking' Button Pressed");
+                requestingLocationUpdates = !requestingLocationUpdates;
+                if (requestingLocationUpdates) {
+                    startFollowingLocation();
+                    btnTrack.setTitle("Tracking");
+                }
+                if (!requestingLocationUpdates) {
+                    stopFollowingLocation();
+                    btnTrack.setTitle("Track");
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void startFollowingLocation() {
+        initializePolyline();
+        pubnub = PubNubManager.startPubnub();
+        PubNubManager.subscribe(pubnub, channelName, subscribeCallback);
+    }
+
+    private void stopFollowingLocation() {
+        pubnub.unsubscribe(channelName);
+        isFirstMessage = true;
+    }
+
+    private void initializePolyline() {
+        googleMap.clear();
+        mPolylineOptions = new PolylineOptions();
+        mPolylineOptions.color(Color.BLUE).width(10);
+        googleMap.addPolyline(mPolylineOptions);
+
+        mMarkerOptions = new MarkerOptions();
+    }
+
+    private void updatePolyline() {
+        mPolylineOptions.add(mLatLng);
+        googleMap.clear();
+        googleMap.addPolyline(mPolylineOptions);
+    }
+
+    private void updateCamera() {
+        googleMap
+                .animateCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 16));
+    }
+
+    private void updateMarker() {
+//		if (!isFirstMessage) {
+//			isFirstMessage = false;
+//			mMarker.remove();
+//		}
+        mMarker = googleMap.addMarker(mMarkerOptions.position(mLatLng));
+    }
+
+    Callback subscribeCallback = new Callback() {
+
+        @Override
+        public void successCallback(String channel, Object message) {
+            Log.d(PUBNUB_TAG, "Message Received: " + message.toString());
+            JSONObject jsonMessage = (JSONObject) message;
+            try {
+                String id = jsonMessage.getString("ID");
+                double mLat = jsonMessage.getDouble("Lat");
+                double mLng = jsonMessage.getDouble("Lng");
+                long timeToken = jsonMessage.getInt("TimeToken");
+                mLatLng = new LatLng(mLat, mLng);
+            } catch (JSONException e) {
+                Log.e(TAG, e.toString());
+            }
+
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updatePolyline();
+                    updateCamera();
+                    updateMarker();
+                }
+            });
+        }
+    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -324,109 +479,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         homeListView.setScrollingEnabled(false);
     }
 
-    public Pubnub getPubnub()
-    {
-        if(null == pubnub)
-        {
-            pubnub = new Pubnub(BuildConfig.PUBLISH_KEY, BuildConfig.SUBSCRIBE_KEY, false);
-        }
-        return pubnub;
-    }
-
-    public void subscribeToChannel()
-    {
-        try {
-            pubnub.subscribe("my_channel", new Callback() {
-                        @Override
-                        public void connectCallback(String channel, Object message) {
-                            pubnub.publish("my_channel", "Hello from " + Build.MODEL, new Callback() {
-                            });
-                            Log.d(TAG, "connectCallback:" + message.toString());
-                        }
-
-                        @Override
-                        public void disconnectCallback(String channel, Object message) {
-                            System.out.println("SUBSCRIBE : DISCONNECT on channel:" + channel
-                                    + " : " + message.getClass() + " : "
-                                    + message.toString());
-                            Log.d(TAG, "disconnectCallback:" + message.toString());
-                        }
-
-                        public void reconnectCallback(String channel, Object message) {
-                            System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel
-                                    + " : " + message.getClass() + " : "
-                                    + message.toString());
-                            Log.d(TAG, "reconnectCallback:" + message.toString());
-                        }
-
-                        @Override
-                        public void successCallback(String channel, Object message) {
-                            System.out.println("SUBSCRIBE : " + channel + " : "
-                                    + message.getClass() + " : " + message.toString());
-                            Log.d(TAG, "successCallback:" + message.toString());
-                            try{
-                                if(message instanceof JSONObject)
-                                {
-                                    m = message;
-                                    final JSONObject messageJSON = (JSONObject) message;
-                                    if(messageJSON.has("ID"))
-                                    {
-                                        final String id = messageJSON.getString("ID");
-                                        final double lat = messageJSON.getDouble("Lat");
-                                        final double lng = messageJSON.getDouble("Lng");
-                                        final long timeToken = messageJSON.getInt("TimeToken");
-                                        mActivity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Log.d(TAG + " IN ", "ID: " + id + " Lat: " + lat + " Lng " + lng + " TimeToken: " + timeToken);
-                                                if(HomeScreen.tracking)
-                                                {
-                                                    googleMap.clear();
-                                                    trackMarker(googleMap, id, lat, lng);
-                                                }
-                                            }
-                                        });
-
-                                        Gson gson = new Gson();
-                                        gson.toJson(message);
-
-                                    }
-                                    else
-                                    {
-                                        Log.d(TAG + " IN ", message.toString());
-                                    }
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Log.e(TAG, "exception while processing presence event", e);
-                            }
-
-                        }
-
-                        @Override
-                        public void errorCallback(String channel, PubnubError error) {
-                            System.out.println("SUBSCRIBE : ERROR on channel " + channel
-                                    + " : " + error.toString());
-                            Log.d(TAG, "errorCallback: " + error.toString());
-                        }
-                    }
-            );
-        } catch (PubnubException e) {
-            System.out.println(e.toString());
-            Log.e(TAG, e.toString());
-        }
-    }
-
-    public void trackMarker(GoogleMap map, String id, double lat, double lng)
-    {
-        LatLng loc = new LatLng(lat, lng);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 13));
-        map.addMarker(new MarkerOptions()
-                    .title(id)
-                    .position(loc));
-    }
-
     @Override
     public void onPanelCollapsed(View panel) {
         expandMap();
@@ -459,5 +511,125 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     public void onProviderDisabled(String provider) {
 
     }
+
+    private class GooglePlaceTask extends AsyncTask<String, String, String> {
+        JSONObject obj = null;
+
+//        @Override
+//        protected Object doInBackground(Object[] params) {
+//            try
+//            {
+//                tmp = makeCall("https://maps.googleapis.com/maps/api/place/search/json?location="
+//                        + latitude + ","
+//                        + longtitude + "&radius=100&sensor=true&key="
+//                        + BuildConfig.);
+//            }
+//            catch (IOException e){
+//                System.out.print(e.toString());
+//            }
+////            System.out.println("https://maps.googleapis.com/maps/api/place/search/json?location=" + latitude + "," + longtitude + "&radius=100&sensor=true&key=" + GOOGLE_KEY);
+//            return "";
+//        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            JSONObject result = new JSONObject();
+            URL url;
+            HttpsURLConnection urlConnection;
+            try{
+                url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
+                urlConnection = (HttpsURLConnection)url.openConnection();
+
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                urlConnection.setRequestProperty("charset", "utf-8");
+                urlConnection.setRequestProperty("Accept", "application/json");
+                urlConnection.setDoOutput(true);
+                urlConnection.setDoInput(true);
+                urlConnection.setUseCaches(false);
+
+                String parameters = "?location=" + 55.866 + "," + 9.833;
+                parameters+="&radius=500";
+                parameters+="&types=bus_station";
+                parameters+="&key=AIzaSyCcwMBsRjVEwrvCxXDJ90lfJUm0askpA24";
+                byte[] postData = parameters.getBytes(Charset.forName("UTF-8"));
+                int postDataLength = postData.length;
+                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+                DataOutputStream data = new DataOutputStream(urlConnection.getOutputStream());
+                data.write(postData);
+                data.flush();
+                data.close();
+
+                StringBuilder sb= new StringBuilder();
+                int HttpResult = urlConnection.getResponseCode();
+
+                if(HttpResult == HttpURLConnection.HTTP_OK){
+                    String json;
+                    BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
+                    String line;
+                    while ((line = br.readLine()) != null){
+                        sb.append(line + "\n");
+                    }
+                    br.close();
+                    Log.d(TAG, "json: " + sb.toString());
+                    // Parse the String to a JSON Object
+                    result = new JSONObject(sb.toString());
+                }
+                else
+                {
+                    Log.d(TAG, "urlConnection.getResponseMessage(): " + urlConnection.getResponseMessage());
+                    result = null;
+                }
+            }
+            catch (UnsupportedEncodingException e){
+                e.printStackTrace();
+                Log.d(TAG, "UnsuppoertedEncodingException: " + e.toString());
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+                Log.d(TAG, "Error JSONException: " + e.toString());
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+                Log.d(TAG, "IOException: " + e.toString());
+            }
+
+            return result.toString();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            // we can start a progress bar here
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getActivity(), "Loaded\n" + result, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+//    public static String makeCall(URL url) throws IOException{
+//        BufferedReader reader = null;
+//        String replyString = "";
+//
+//        try{
+//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+//            urlConnection.connect();
+//            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+//            StringBuilder buf = new StringBuilder();
+//            while((replyString=reader.readLine()) != null){
+//                buf.append(replyString + "\n");
+//            }
+//        }
+//        finally {
+//            if (reader != null)
+//            {
+//                reader.close();
+//            }
+//        }
+//    }
+
 }
 
