@@ -23,25 +23,25 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import utils.TaskParameters;
+
 /**
  * Created by Aleks on 29-Mar-16.
+ * Async Task for retrieving nearby bus stations.
  */
 public class GetNearestBusStations extends AsyncTask<TaskParameters, String, String> {
     private static final String TAG = "GetNearestBusStations";
-    JSONObject obj = null;
     GoogleMap taskMap;
 
     @Override
     protected String doInBackground(TaskParameters... params) {
-        int count = params.length;
-        long totalSize = 0;
         JSONObject result = new JSONObject();
         URL url;
         HttpsURLConnection urlConnection;
         for (TaskParameters p : params) {
             try{
-                taskMap = p.gmap;
-                url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + p.location.latitude + "," + p.location.longitude + "&radius=500&type=bus_station&key=" + BuildConfig.SERVER_KEY);
+                taskMap = p.getGmap();
+                url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + p.getLocation().latitude + "," + p.getLocation().longitude + "&radius=500&type=bus_station&key=" + BuildConfig.SERVER_KEY);
                 urlConnection = (HttpsURLConnection)url.openConnection();
 
                 urlConnection.setRequestMethod("POST");
@@ -69,7 +69,6 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Str
                 int HttpResult = urlConnection.getResponseCode();
 
                 if(HttpResult == HttpURLConnection.HTTP_OK){
-                    String json;
                     BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
                     String line;
                     while ((line = br.readLine()) != null){
