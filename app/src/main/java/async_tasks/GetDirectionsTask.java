@@ -1,11 +1,15 @@
 package async_tasks;
 
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.vacho.realtimebusapp.BuildConfig;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,6 +19,9 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -28,6 +35,7 @@ import utils.TaskParameters;
 public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String> {
     private static final String TAG = "GetDirectionsTask";
     GoogleMap taskMap;
+    JSONObject resultSet;
 
     @Override
     protected String doInBackground(TaskParameters... params) {
@@ -38,7 +46,11 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
         {
             try {
                 taskMap = p.getGmap();
-                url = new URL("TO DO" + "&key=" + BuildConfig.SERVER_KEY);
+                url = new URL("https://maps.googleapis.com/maps/api/directions/json?origin=" + p.getFrom().latitude + "," + p.getFrom().longitude
+                        + "&destination=" + p.getTo().latitude + "," + p.getTo().longitude
+                        + "&waypoints=55.8622125,9.8420348|55.8630615,9.8481180|55.8645606,9.8721935|55.8696416,9.8752405|55.8718567,9.8820211"
+                        + "&region=dk"
+                        + "&key=" + BuildConfig.SERVER_KEY);
                 urlConnection = (HttpsURLConnection)url.openConnection();
 
                 urlConnection.setRequestMethod("POST");
@@ -84,6 +96,7 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
                 Log.d(TAG, "IOException: " + e.toString());
             }
         }
+        resultSet = result;
         return result.toString();
     }
 
@@ -93,7 +106,35 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
     }
 
     @Override
-    protected void onPostExecute(String s) {
-        super.onPostExecute(s);
+    protected void onPostExecute(String routes) {
+        List<List<HashMap<String, String>>> routesJson = null;
+        JSONParser parser = new JSONParser();
+        routesJson = parser.parse(resultSet);
+
+        ArrayList<LatLng> points = null;
+        PolylineOptions polyLineOptions = null;
+
+        // traversing through routes
+        for (int i = 0; i < routesJson.size(); i++) {
+            points = new ArrayList<LatLng>();
+            polyLineOptions = new PolylineOptions();
+            List<HashMap<String, String>> path = routesJson.get(i);
+
+            for (int j = 0; j < path.size(); j++) {
+                HashMap<String, String> point = path.get(j);
+
+                double lat = Double.parseDouble(point.get("lat"));
+                double lng = Double.parseDouble(point.get("lng"));
+                LatLng position = new LatLng(lat, lng);
+
+                points.add(position);
+            }
+
+            polyLineOptions.addAll(points);
+            polyLineOptions.width(2);
+            polyLineOptions.color(Color.BLUE);
+        }
+
+        taskMap.addPolyline(polyLineOptions);
     }
 }

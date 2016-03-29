@@ -43,6 +43,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import adapter.CustomListViewAdapter;
+import async_tasks.GetDirectionsTask;
 import async_tasks.GetNearestBusStations;
 import model.BusStationInfo;
 import model.FavoriteItem;
@@ -233,6 +234,11 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             @Override
             public boolean onMarkerClick(Marker marker) {
                 Log.d(TAG, "MarkerCLicked");
+                // Draw polyline between 2 points
+//                LatLng trafikTerminal = new LatLng(55.8629951, 9.8365588);
+//                LatLng via = new LatLng(55.8695091, 9.8858728);
+//                new GetDirectionsTask().execute(new TaskParameters(googleMap, trafikTerminal, via));
+                // Get nearest bus stations
                 new GetNearestBusStations().execute(new TaskParameters(googleMap, marker.getPosition()));
                 return false;
             }
