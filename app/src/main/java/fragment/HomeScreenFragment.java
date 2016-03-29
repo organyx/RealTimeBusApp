@@ -13,6 +13,7 @@ import android.location.LocationListener;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -75,6 +76,8 @@ import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
 
 import adapter.CustomListViewAdapter;
+import async_tasks.GetNearestBusStations;
+import async_tasks.TaskParameters;
 import model.BusStationInfo;
 import model.FavoriteItem;
 import model.HomeListView;
@@ -232,7 +235,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         Log.d(TAG, "Map Ready");
 //        this.googleMap = googleMap;
 //        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -263,7 +266,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             @Override
             public boolean onMarkerClick(Marker marker) {
                 Log.d(TAG, "MarkerCLicked");
-                new GooglePlaceTask().execute(marker.getPosition());
+                new GetNearestBusStations().execute(new TaskParameters(googleMap, marker.getPosition()));
                 return false;
             }
         });
@@ -399,7 +402,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     };
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_LOCATION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -490,113 +493,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onProviderDisabled(String provider) {
 
-    }
-
-    private class GooglePlaceTask extends AsyncTask<LatLng, String, String> {
-        JSONObject obj = null;
-
-        @Override
-        protected String doInBackground(LatLng... params) {
-            int count = params.length;
-            long totalSize = 0;
-            JSONObject result = new JSONObject();
-            URL url;
-            HttpsURLConnection urlConnection;
-            for (LatLng p : params) {
-                try{
-                    url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + p.latitude + "," + p.longitude + "&radius=500&type=bus_station&key=" + BuildConfig.SERVER_KEY);
-                    urlConnection = (HttpsURLConnection)url.openConnection();
-
-                    urlConnection.setRequestMethod("POST");
-                    urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                    urlConnection.setRequestProperty("charset", "utf-8");
-                    urlConnection.setRequestProperty("Accept", "application/json");
-                    urlConnection.setDoOutput(true);
-                    urlConnection.setDoInput(true);
-                    urlConnection.setUseCaches(false);
-
-//                String parameters = "?location=" + 55.866 + "," + 9.833;
-//                parameters+="&radius=500";
-//                parameters+="&type=bus_station";
-//                parameters+="&key="+ BuildConfig.SERVER_KEY;
-//                byte[] postData = parameters.getBytes(Charset.forName("UTF-8"));
-//
-//                int postDataLength = postData.length;
-//                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-//                DataOutputStream data = new DataOutputStream(urlConnection.getOutputStream());
-//                data.writeBytes(parameters);
-//                data.flush();
-//                data.close();
-
-                    StringBuilder sb= new StringBuilder();
-                    int HttpResult = urlConnection.getResponseCode();
-
-                    if(HttpResult == HttpURLConnection.HTTP_OK){
-                        String json;
-                        BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
-                        String line;
-                        while ((line = br.readLine()) != null){
-                            sb.append(line + "\n");
-                        }
-                        br.close();
-                        Log.d(TAG, "json: " + sb.toString());
-                        // Parse the String to a JSON Object
-                        result = new JSONObject(sb.toString());
-                    }
-                    else
-                    {
-                        Log.d(TAG, "urlConnection.getResponseMessage(): " + urlConnection.getResponseMessage());
-                        result = null;
-                    }
-                }
-                catch (UnsupportedEncodingException e){
-                    e.printStackTrace();
-                    Log.d(TAG, "UnsuppoertedEncodingException: " + e.toString());
-                }
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-                    Log.d(TAG, "Error JSONException: " + e.toString());
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                    Log.d(TAG, "IOException: " + e.toString());
-                }
-            }
-
-            return result.toString();
-        }
-
-        @Override
-        protected void onPreExecute() {
-            // we can start a progress bar here
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-//            Toast.makeText(getActivity(), "Loaded\n" + result, Toast.LENGTH_SHORT).show();
-            try {
-                JSONObject obj = new JSONObject(result);
-                JSONArray objArray = obj.getJSONArray("results");
-                for (int i = 0; i < objArray.length(); i++) {
-                    JSONObject explrObject = objArray.getJSONObject(i);
-                    Log.d(TAG, explrObject.getString("name"));
-//                    Log.d(TAG, String.valueOf(explrObject.getJSONArray("geometry").getJSONArray(0).getDouble(0)));
-//                    Log.d(TAG, explrObject.getJSONObject("geometry").toString());
-//                    Log.d(TAG, explrObject.getJSONObject("geometry").getJSONObject("location").toString());
-                    Log.d(TAG, String.valueOf(explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lat")));
-                    googleMap.addMarker(new MarkerOptions()
-                            .title(explrObject.getString("name"))
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
-                            .position(new LatLng(
-                                    explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
-                                    explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lng"))));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
 
