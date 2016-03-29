@@ -19,6 +19,7 @@ android {
         debug {
             buildConfigField "String", "SUBSCRIBE_KEY", "\"sub-c-52032cca-e9e7-11e5-8346-0619f8945a4f\"";
             buildConfigField "String", "PUBLISH_KEY", "\"pub-c-7deeec3a-0ced-4d7c-a634-ccd573a51dba\"";
+            buildConfigField "String", "SERVER_KEY", "\"AIzaSyA2hi-3KKNTzl1b7OMa7Mp7pbrMZnWlZR4\"";
         }
     }
 }

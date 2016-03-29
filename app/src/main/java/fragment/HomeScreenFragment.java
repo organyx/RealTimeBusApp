@@ -96,9 +96,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private LatLng horsens;
     private LatLng currentLocation;
     private GoogleMap googleMap;
-    private MapView mapView;
     private static final int REQUEST_LOCATION = 0;
-    private static final int PLACE_PICKER_REQUEST = 1;
     private static final int RESULT_OK = 100;
 
     private static final String TAG = "HomeScreenFrag";
@@ -191,8 +189,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //
 //        }
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.home_fragment);
-//        mapView = (MapView)view.findViewById(R.id.home_fragment);
-//        mapView.getMapAsync(this);
         fragment.getMapAsync(this);
     }
 
@@ -267,7 +263,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             @Override
             public boolean onMarkerClick(Marker marker) {
                 Log.d(TAG, "MarkerCLicked");
-                new GooglePlaceTask().execute();
+                new GooglePlaceTask().execute(marker.getPosition());
                 return false;
             }
         });
@@ -496,89 +492,77 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
     }
 
-    private class GooglePlaceTask extends AsyncTask<String, String, String> {
+    private class GooglePlaceTask extends AsyncTask<LatLng, String, String> {
         JSONObject obj = null;
 
-//        @Override
-//        protected Object doInBackground(Object[] params) {
-//            try
-//            {
-//                tmp = makeCall("https://maps.googleapis.com/maps/api/place/search/json?location="
-//                        + latitude + ","
-//                        + longtitude + "&radius=100&sensor=true&key="
-//                        + BuildConfig.);
-//            }
-//            catch (IOException e){
-//                System.out.print(e.toString());
-//            }
-////            System.out.println("https://maps.googleapis.com/maps/api/place/search/json?location=" + latitude + "," + longtitude + "&radius=100&sensor=true&key=" + GOOGLE_KEY);
-//            return "";
-//        }
-
         @Override
-        protected String doInBackground(String... params) {
+        protected String doInBackground(LatLng... params) {
+            int count = params.length;
+            long totalSize = 0;
             JSONObject result = new JSONObject();
             URL url;
             HttpsURLConnection urlConnection;
-            try{
-                url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + 55.866 + "," + 9.833 + "&radius=500&type=bus_station&key=AIzaSyA2hi-3KKNTzl1b7OMa7Mp7pbrMZnWlZR4");
-                urlConnection = (HttpsURLConnection)url.openConnection();
+            for (LatLng p : params) {
+                try{
+                    url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + p.latitude + "," + p.longitude + "&radius=500&type=bus_station&key=" + BuildConfig.SERVER_KEY);
+                    urlConnection = (HttpsURLConnection)url.openConnection();
 
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                urlConnection.setRequestProperty("charset", "utf-8");
-                urlConnection.setRequestProperty("Accept", "application/json");
-                urlConnection.setDoOutput(true);
-                urlConnection.setDoInput(true);
-                urlConnection.setUseCaches(false);
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                    urlConnection.setRequestProperty("charset", "utf-8");
+                    urlConnection.setRequestProperty("Accept", "application/json");
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setDoInput(true);
+                    urlConnection.setUseCaches(false);
 
 //                String parameters = "?location=" + 55.866 + "," + 9.833;
 //                parameters+="&radius=500";
 //                parameters+="&type=bus_station";
-//                parameters+="&key=AIzaSyA2hi-3KKNTzl1b7OMa7Mp7pbrMZnWlZR4";
+//                parameters+="&key="+ BuildConfig.SERVER_KEY;
 //                byte[] postData = parameters.getBytes(Charset.forName("UTF-8"));
 //
 //                int postDataLength = postData.length;
 //                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
 //                DataOutputStream data = new DataOutputStream(urlConnection.getOutputStream());
-//                data.write(postData);
+//                data.writeBytes(parameters);
 //                data.flush();
 //                data.close();
 
-                StringBuilder sb= new StringBuilder();
-                int HttpResult = urlConnection.getResponseCode();
+                    StringBuilder sb= new StringBuilder();
+                    int HttpResult = urlConnection.getResponseCode();
 
-                if(HttpResult == HttpURLConnection.HTTP_OK){
-                    String json;
-                    BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
-                    String line;
-                    while ((line = br.readLine()) != null){
-                        sb.append(line + "\n");
+                    if(HttpResult == HttpURLConnection.HTTP_OK){
+                        String json;
+                        BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
+                        String line;
+                        while ((line = br.readLine()) != null){
+                            sb.append(line + "\n");
+                        }
+                        br.close();
+                        Log.d(TAG, "json: " + sb.toString());
+                        // Parse the String to a JSON Object
+                        result = new JSONObject(sb.toString());
                     }
-                    br.close();
-                    Log.d(TAG, "json: " + sb.toString());
-                    // Parse the String to a JSON Object
-                    result = new JSONObject(sb.toString());
+                    else
+                    {
+                        Log.d(TAG, "urlConnection.getResponseMessage(): " + urlConnection.getResponseMessage());
+                        result = null;
+                    }
                 }
-                else
+                catch (UnsupportedEncodingException e){
+                    e.printStackTrace();
+                    Log.d(TAG, "UnsuppoertedEncodingException: " + e.toString());
+                }
+                catch (JSONException e)
                 {
-                    Log.d(TAG, "urlConnection.getResponseMessage(): " + urlConnection.getResponseMessage());
-                    result = null;
+                    e.printStackTrace();
+                    Log.d(TAG, "Error JSONException: " + e.toString());
                 }
-            }
-            catch (UnsupportedEncodingException e){
-                e.printStackTrace();
-                Log.d(TAG, "UnsuppoertedEncodingException: " + e.toString());
-            }
-            catch (JSONException e)
-            {
-                e.printStackTrace();
-                Log.d(TAG, "Error JSONException: " + e.toString());
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-                Log.d(TAG, "IOException: " + e.toString());
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                    Log.d(TAG, "IOException: " + e.toString());
+                }
             }
 
             return result.toString();
