@@ -44,6 +44,8 @@ import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -55,6 +57,7 @@ import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -91,6 +94,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private HomeListView homeListView;
     private SlidingUpPanelLayout slidingPaneLayout;
     private LatLng horsens;
+    private LatLng currentLocation;
     private GoogleMap googleMap;
     private MapView mapView;
     private static final int REQUEST_LOCATION = 0;
@@ -263,17 +267,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             @Override
             public boolean onMarkerClick(Marker marker) {
                 Log.d(TAG, "MarkerCLicked");
-//                new GooglePlaceTask().execute();
-//                int PLACE_PICKER_REQUEST = 1;
-//                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-//
-//                try {
-//                    startActivityForResult(builder.build(getActivity()), PLACE_PICKER_REQUEST);
-//                } catch (GooglePlayServicesRepairableException e) {
-//                    e.printStackTrace();
-//                } catch (GooglePlayServicesNotAvailableException e) {
-//                    e.printStackTrace();
-//                }
+                new GooglePlaceTask().execute();
                 return false;
             }
         });
@@ -320,16 +314,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //            gpsTracker.showSettingsAlert();
 //        }
     }
-
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode == PLACE_PICKER_REQUEST) {
-//            if (resultCode == RESULT_OK) {
-//                Place place = PlacePicker.getPlace(data, getActivity());
-//                String toastMsg = String.format("Place: %s", place.getName());
-//                Toast.makeText(getActivity(), toastMsg, Toast.LENGTH_LONG).show();
-//            }
-//        }
-//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -537,7 +521,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             URL url;
             HttpsURLConnection urlConnection;
             try{
-                url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
+                url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + 55.866 + "," + 9.833 + "&radius=500&type=bus_station&key=AIzaSyA2hi-3KKNTzl1b7OMa7Mp7pbrMZnWlZR4");
                 urlConnection = (HttpsURLConnection)url.openConnection();
 
                 urlConnection.setRequestMethod("POST");
@@ -548,17 +532,18 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 urlConnection.setDoInput(true);
                 urlConnection.setUseCaches(false);
 
-                String parameters = "?location=" + 55.866 + "," + 9.833;
-                parameters+="&radius=500";
-                parameters+="&types=bus_station";
-                parameters+="&key=AIzaSyCcwMBsRjVEwrvCxXDJ90lfJUm0askpA24";
-                byte[] postData = parameters.getBytes(Charset.forName("UTF-8"));
-                int postDataLength = postData.length;
-                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-                DataOutputStream data = new DataOutputStream(urlConnection.getOutputStream());
-                data.write(postData);
-                data.flush();
-                data.close();
+//                String parameters = "?location=" + 55.866 + "," + 9.833;
+//                parameters+="&radius=500";
+//                parameters+="&type=bus_station";
+//                parameters+="&key=AIzaSyA2hi-3KKNTzl1b7OMa7Mp7pbrMZnWlZR4";
+//                byte[] postData = parameters.getBytes(Charset.forName("UTF-8"));
+//
+//                int postDataLength = postData.length;
+//                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+//                DataOutputStream data = new DataOutputStream(urlConnection.getOutputStream());
+//                data.write(postData);
+//                data.flush();
+//                data.close();
 
                 StringBuilder sb= new StringBuilder();
                 int HttpResult = urlConnection.getResponseCode();
@@ -606,30 +591,28 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getActivity(), "Loaded\n" + result, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getActivity(), "Loaded\n" + result, Toast.LENGTH_SHORT).show();
+            try {
+                JSONObject obj = new JSONObject(result);
+                JSONArray objArray = obj.getJSONArray("results");
+                for (int i = 0; i < objArray.length(); i++) {
+                    JSONObject explrObject = objArray.getJSONObject(i);
+                    Log.d(TAG, explrObject.getString("name"));
+//                    Log.d(TAG, String.valueOf(explrObject.getJSONArray("geometry").getJSONArray(0).getDouble(0)));
+//                    Log.d(TAG, explrObject.getJSONObject("geometry").toString());
+//                    Log.d(TAG, explrObject.getJSONObject("geometry").getJSONObject("location").toString());
+                    Log.d(TAG, String.valueOf(explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lat")));
+                    googleMap.addMarker(new MarkerOptions()
+                            .title(explrObject.getString("name"))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
+                            .position(new LatLng(
+                                    explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
+                                    explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lng"))));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
-
-//    public static String makeCall(URL url) throws IOException{
-//        BufferedReader reader = null;
-//        String replyString = "";
-//
-//        try{
-//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-//            urlConnection.connect();
-//            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-//            StringBuilder buf = new StringBuilder();
-//            while((replyString=reader.readLine()) != null){
-//                buf.append(replyString + "\n");
-//            }
-//        }
-//        finally {
-//            if (reader != null)
-//            {
-//                reader.close();
-//            }
-//        }
-//    }
-
 }
 

@@ -26,7 +26,6 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
 
     private static final String TAG = "HomeScreen";
     private NavigationDrawerFragment navigationDrawerFragment;
-//    public static boolean tracking;
     public static GoogleApiClient googleApiClient;
 
     @Override
@@ -80,21 +79,6 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         if (id == R.id.action_settings) {
             return true;
         }
-//        else if(id == R.id.action_tracking){
-//            if(tracking)
-//            {
-//                Toast.makeText(this, "Tracking: False", Toast.LENGTH_SHORT).show();
-//                tracking = false;
-//            }
-//            else
-//            {
-//                Toast.makeText(this, "Tracking: True", Toast.LENGTH_SHORT).show();
-//                tracking = true;
-//            }
-//        }
-//        else if(id == R.id.action_tracking) {
-//            return true;
-//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -123,11 +107,6 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
 
         getSupportActionBar().setTitle(title);
     }
-
-//    public boolean getTracking()
-//    {
-//        return tracking;
-//    }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
