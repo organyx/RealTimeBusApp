@@ -4,6 +4,18 @@
 
     <uses-feature android:name="android.hardware.screen.portrait" />
 
+    <permission
+        android:name="com.example.vacho.realtimebusapp.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.example.vacho.realtimebusapp.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -21,7 +33,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyD5lSUj_6jmw6PsRmIhw4yGckP_cTOQNaw" />
+            android:value="AIzaSyCcwMBsRjVEwrvCxXDJ90lfJUm0askpA24" />
 
         <activity
             android:name=".HomeScreen"
@@ -34,10 +46,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".SearchScreen"
-            android:label="@string/title_activity_search_screen"
-            android:theme="@style/MyMaterialTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

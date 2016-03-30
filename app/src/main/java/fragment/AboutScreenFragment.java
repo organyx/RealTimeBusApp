@@ -1,4 +1,4 @@
-package com.example.vacho.realtimebusapp;
+package fragment;
 
 
 import android.app.Fragment;
@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.vacho.realtimebusapp.R;
 
 
 /**

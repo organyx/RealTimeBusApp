@@ -1,26 +1,24 @@
 package fragment;
 
 
-import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.app.Dialog;
+import android.app.Activity;
 import android.app.Fragment;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -29,30 +27,35 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.R;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.pubnub.api.Callback;
+import com.pubnub.api.Pubnub;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import adapter.CustomListViewAdapter;
+import async_tasks.GetDirectionsTask;
+import async_tasks.GetNearestBusStations;
 import model.BusStationInfo;
 import model.FavoriteItem;
 import model.HomeListView;
 import service.GPSTracker;
-
+import utils.PubNubManager;
+import utils.TaskParameters;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, SlidingUpPanelLayout.PanelSlideListener, LocationListener {
-
-    private static final String ARG_LOCATION = "arg.location";
 
     private View transparentView;
     private View whiteSpaceView;
@@ -62,12 +65,28 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private HomeListView homeListView;
     private SlidingUpPanelLayout slidingPaneLayout;
     private LatLng horsens;
+    private LatLng currentLocation;
     private GoogleMap googleMap;
+    private static final int REQUEST_LOCATION = 0;
+    private static final int RESULT_OK = 100;
 
     private static final String TAG = "HomeScreenFrag";
     public int pos = 0;
     FavoriteItem favoriteItem;
     GPSTracker gpsTracker;
+
+    private MenuItem btnTrack;
+    private static final String PUBNUB_TAG = "PUBNUB";
+    private boolean isFirstMessage = true;
+    private boolean requestingLocationUpdates = false;
+    private PolylineOptions mPolylineOptions;
+    private Marker mMarker;
+    private MarkerOptions mMarkerOptions;
+    private LatLng mLatLng;
+    private Pubnub pubnub;
+    private String channelName = "my_channel";
+    private Activity mActivity;
+    private Object m;
 
     @Nullable
     @Override
@@ -127,6 +146,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             }
         });
 
+        mActivity = getActivity();
+        setHasOptionsMenu(true); // For Handling Fragment calls to menu items
         return v;
     }
 
@@ -176,16 +197,65 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        btnTrack = menu.findItem(R.id.action_tracking);
+    }
 
-        if (favoriteItem == null)
+    @Override
+    public void onMapReady(final GoogleMap googleMap) {
+        Log.d(TAG, "Map Ready");
+//        this.googleMap = googleMap;
+//        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+//            else
+//            {
+//                this.googleMap.setMyLocationEnabled(true);
+//                Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+//            }
+//        }
+        googleMap.setMyLocationEnabled(true);
+        Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+
+//        this.googleMap.setTrafficEnabled(true);
+//        this.googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+//        googleMap.setPadding(20, 20, 20, 20);
+        googleMap.getUiSettings().setCompassEnabled(true);
+        googleMap.getUiSettings().setMapToolbarEnabled(true);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+        Log.d(TAG, "isCompassEnabled: " + googleMap.getUiSettings().isCompassEnabled());
+        Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
+
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Log.d(TAG, "MarkerCLicked");
+                // Draw polyline between 2 points
+//                LatLng trafikTerminal = new LatLng(55.8629951, 9.8365588);
+//                LatLng via = new LatLng(55.8695091, 9.8858728);
+//                new GetDirectionsTask().execute(new TaskParameters(googleMap, trafikTerminal, via));
+                // Get nearest bus stations
+                new GetNearestBusStations().execute(new TaskParameters(googleMap, marker.getPosition()));
+                return false;
+            }
+        });
+        this.googleMap = googleMap;
+        if(!requestingLocationUpdates)
         {
-            setDefaultLocation(googleMap);
+            if(favoriteItem == null)
+            {
+                setDefaultLocation(googleMap);
+            }
+            else
+            {
+                setFavLocation(googleMap);
+            }
         }
-        else
-        {
-            setFavLocation(googleMap);
-        }
+
 //        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 //            // TODO: Consider calling
 //            //    ActivityCompat#requestPermissions
@@ -215,6 +285,112 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //        {
 //            gpsTracker.showSettingsAlert();
 //        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_tracking:
+                Log.d(TAG, "'Tracking' Button Pressed");
+                requestingLocationUpdates = !requestingLocationUpdates;
+                if (requestingLocationUpdates) {
+                    startFollowingLocation();
+                    btnTrack.setTitle("Tracking");
+                }
+                if (!requestingLocationUpdates) {
+                    stopFollowingLocation();
+                    btnTrack.setTitle("Track");
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void startFollowingLocation() {
+        initializePolyline();
+        pubnub = PubNubManager.startPubnub();
+        PubNubManager.subscribe(pubnub, channelName, subscribeCallback);
+    }
+
+    private void stopFollowingLocation() {
+        pubnub.unsubscribe(channelName);
+        isFirstMessage = true;
+    }
+
+    private void initializePolyline() {
+        googleMap.clear();
+        mPolylineOptions = new PolylineOptions();
+        mPolylineOptions.color(Color.BLUE).width(10);
+        googleMap.addPolyline(mPolylineOptions);
+
+        mMarkerOptions = new MarkerOptions();
+    }
+
+    private void updatePolyline() {
+        mPolylineOptions.add(mLatLng);
+        googleMap.clear();
+        googleMap.addPolyline(mPolylineOptions);
+    }
+
+    private void updateCamera() {
+        googleMap
+                .animateCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 16));
+    }
+
+    private void updateMarker() {
+//		if (!isFirstMessage) {
+//			isFirstMessage = false;
+//			mMarker.remove();
+//		}
+        mMarker = googleMap.addMarker(mMarkerOptions.position(mLatLng));
+    }
+
+    Callback subscribeCallback = new Callback() {
+
+        @Override
+        public void successCallback(String channel, Object message) {
+            Log.d(PUBNUB_TAG, "Message Received: " + message.toString());
+            JSONObject jsonMessage = (JSONObject) message;
+            try {
+                String id = jsonMessage.getString("ID");
+                double mLat = jsonMessage.getDouble("Lat");
+                double mLng = jsonMessage.getDouble("Lng");
+                long timeToken = jsonMessage.getInt("TimeToken");
+                mLatLng = new LatLng(mLat, mLng);
+            } catch (JSONException e) {
+                Log.e(TAG, e.toString());
+            }
+
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updatePolyline();
+                    updateCamera();
+                    updateMarker();
+                }
+            });
+        }
+    };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission Granted
+                    Toast.makeText(getActivity(), "REQUEST_LOCATION Allowed", Toast.LENGTH_SHORT)
+                            .show();
+                } else {
+                    // Permission Denied
+                    Toast.makeText(getActivity(), "REQUEST_LOCATION Denied", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     private void setDefaultLocation(GoogleMap defaultLocation){

@@ -16,13 +16,17 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            buildConfigField "String", "SUBSCRIBE_KEY", "\"sub-c-52032cca-e9e7-11e5-8346-0619f8945a4f\"";
+            buildConfigField "String", "PUBLISH_KEY", "\"pub-c-7deeec3a-0ced-4d7c-a634-ccd573a51dba\"";
+            buildConfigField "String", "SERVER_KEY", "\"AIzaSyA2hi-3KKNTzl1b7OMa7Mp7pbrMZnWlZR4\"";
+        }
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-
 
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.android.support:design:23.2.0'
@@ -31,4 +35,6 @@ dependencies {
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
 
+    compile 'com.pubnub:pubnub-android:3.7.6'
+    compile 'com.google.code.gson:gson:2.6.2'
 }
