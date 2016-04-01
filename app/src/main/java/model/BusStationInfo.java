@@ -15,6 +15,11 @@ public class BusStationInfo {
         this.busLines = busLines;
     }
 
+    public BusStationInfo(int icon, String busLines){
+        this.icon = icon;
+        this.busLines = busLines;
+    }
+
     public int getIcon() {
         return icon;
     }

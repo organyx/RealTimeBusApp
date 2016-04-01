@@ -20,15 +20,6 @@ public class LocationFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static LocationFragment newInstance(int page) {
-        Bundle args = new Bundle();
-        args.putInt(ARG_PAGE, page);
-        LocationFragment fragment = new LocationFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

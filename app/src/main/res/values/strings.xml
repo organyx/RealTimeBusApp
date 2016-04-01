@@ -58,4 +58,7 @@
     <string name="hour_and">"1 hour and "</string>
     <string name="via">"via "</string>
     <string name="next_bus_in">Next Bus In:</string>
+
+    <string name="title_activity_route_screen">RouteScreen</string>
+
 </resources>

@@ -1,17 +1,21 @@
 package fragment;
 
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
+
+import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -55,7 +59,7 @@ import utils.TaskParameters;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, SlidingUpPanelLayout.PanelSlideListener, LocationListener {
+public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, SlidingUpPanelLayout.PanelSlideListener {
 
     private View transparentView;
     private View whiteSpaceView;
@@ -70,10 +74,15 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private static final int REQUEST_LOCATION = 0;
     private static final int RESULT_OK = 100;
 
+    protected LocationManager locationManager;
+    private boolean isGPSEnabled;
+    private LocationListener locationListener;
+    private Location location;
+
     private static final String TAG = "HomeScreenFrag";
     public int pos = 0;
     FavoriteItem favoriteItem;
-    GPSTracker gpsTracker;
+
 
     private MenuItem btnTrack;
     private static final String PUBNUB_TAG = "PUBNUB";
@@ -134,7 +143,32 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         transparentHeaderView = inflater.inflate(R.layout.transparent_header_view, homeListView, false);
         spaceHeaderView = transparentHeaderView.findViewById(R.id.space);
 
-        expandMap();
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+
+       // expandMap();
 
         slidingPaneLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -146,8 +180,9 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             }
         });
 
-        mActivity = getActivity();
-        setHasOptionsMenu(true); // For Handling Fragment calls to menu items
+       // mActivity = getActivity();
+       // setHasOptionsMenu(true); // For Handling Fragment calls to menu items
+
         return v;
     }
 
@@ -155,10 +190,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-//
-//        }
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.home_fragment);
         fragment.getMapAsync(this);
     }
@@ -166,21 +197,17 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         whiteSpaceView.setVisibility(View.VISIBLE);
+        String dot = "\u2022 Bullet";
 
         BusStationInfo busStationInfos[] = new BusStationInfo[]{
-                new BusStationInfo(R.drawable.ic_action_search, "ads", "123"),
-                new BusStationInfo(R.drawable.ic_action_search, "wqeqwekjq", "kjqwejkqhew"),
-                new BusStationInfo(R.drawable.ic_action_search, "ads", "123"),
-                new BusStationInfo(R.drawable.ic_action_search, "wqeqwekjq", "kjqwejkqhew"),
-                new BusStationInfo(R.drawable.ic_action_search, "ads", "123"),
-                new BusStationInfo(R.drawable.ic_action_search, "wqeqwekjq", "kjqwejkqhew"),
-                new BusStationInfo(R.drawable.ic_action_search, "ads", "123"),
-                new BusStationInfo(R.drawable.ic_action_search, "wqeqwekjq", "kjqwejkqhew"),
-                new BusStationInfo(R.drawable.ic_action_search, "ads", "123"),
-                new BusStationInfo(R.drawable.ic_action_search, "wqeqwekjq", "kjqwejkqhew"),
-                new BusStationInfo(R.drawable.ic_action_search, "eeew", "vcvcv")
+                new BusStationInfo(R.drawable.ic_flag_24dp, "Åboulevarden", "3 min a pe " + "\u2022" + " 15, 3A"),
+                new BusStationInfo(R.drawable.ic_flag_24dp, "Gasve", "3 min a pe " + "\u2022" + " 1, 3"),
+                new BusStationInfo(R.drawable.ic_flag_24dp, "Sundhedshuset", "5 min a pe " + "\u2022" + " 11, 3A, 6G"),
+                new BusStationInfo(R.drawable.ic_flag_24dp, "V. Berings Plads", "8 min a pe " + "\u2022" + " 15"),
+                new BusStationInfo(R.drawable.ic_flag_24dp, "Hybenvej", "9 min a pe " + "\u2022" + " 3A"),
+                new BusStationInfo(R.drawable.ic_flag_24dp, "VIA, Chr. M. Østergårdsve", "9 min a pe " + "\u2022" + " 6G"),
+                new BusStationInfo(R.drawable.ic_flag_24dp, "Rådhuse", "12 min a pe " + "\u2022" + " 15, 4A")
         };
 
         homeListView.addHeaderView(transparentHeaderView);
@@ -194,58 +221,59 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        btnTrack = menu.findItem(R.id.action_tracking);
-    }
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        super.onCreateOptionsMenu(menu, inflater);
+//        btnTrack = menu.findItem(R.id.action_tracking);
+//    }
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-        Log.d(TAG, "Map Ready");
-//        this.googleMap = googleMap;
-//        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-//                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
-//            else
-//            {
-//                this.googleMap.setMyLocationEnabled(true);
-//                Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+      //  Log.d(TAG, "Map Ready");
+////        this.googleMap = googleMap;
+////        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+////                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+////            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+////                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+////            else
+////            {
+////                this.googleMap.setMyLocationEnabled(true);
+////                Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+////            }
+////        }
+//        googleMap.setMyLocationEnabled(true);
+//        Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+//
+////        this.googleMap.setTrafficEnabled(true);
+////        this.googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+////        googleMap.setPadding(20, 20, 20, 20);
+//        googleMap.getUiSettings().setCompassEnabled(true);
+//        googleMap.getUiSettings().setMapToolbarEnabled(true);
+//        googleMap.getUiSettings().setZoomControlsEnabled(true);
+//        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+//
+//        Log.d(TAG, "isCompassEnabled: " + googleMap.getUiSettings().isCompassEnabled());
+//        Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
+//
+//        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+//            @Override
+//            public boolean onMarkerClick(Marker marker) {
+//                Log.d(TAG, "MarkerCLicked");
+//                // Draw polyline between 2 points
+////                LatLng trafikTerminal = new LatLng(55.8629951, 9.8365588);
+////                LatLng via = new LatLng(55.8695091, 9.8858728);
+////                new GetDirectionsTask().execute(new TaskParameters(googleMap, trafikTerminal, via));
+//                // Get nearest bus stations
+//                new GetNearestBusStations().execute(new TaskParameters(googleMap, marker.getPosition()));
+//                return false;
 //            }
-//        }
-        googleMap.setMyLocationEnabled(true);
-        Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
-
-//        this.googleMap.setTrafficEnabled(true);
-//        this.googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-//        googleMap.setPadding(20, 20, 20, 20);
-        googleMap.getUiSettings().setCompassEnabled(true);
-        googleMap.getUiSettings().setMapToolbarEnabled(true);
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
-        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-
-        Log.d(TAG, "isCompassEnabled: " + googleMap.getUiSettings().isCompassEnabled());
-        Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
-
-        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Log.d(TAG, "MarkerCLicked");
-                // Draw polyline between 2 points
-//                LatLng trafikTerminal = new LatLng(55.8629951, 9.8365588);
-//                LatLng via = new LatLng(55.8695091, 9.8858728);
-//                new GetDirectionsTask().execute(new TaskParameters(googleMap, trafikTerminal, via));
-                // Get nearest bus stations
-                new GetNearestBusStations().execute(new TaskParameters(googleMap, marker.getPosition()));
-                return false;
-            }
-        });
-        this.googleMap = googleMap;
-        if(!requestingLocationUpdates)
-        {
+//        });
+//        this.googleMap = googleMap;
+//        if(!requestingLocationUpdates)
+//        {
             if(favoriteItem == null)
             {
                 setDefaultLocation(googleMap);
@@ -285,126 +313,155 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //        {
 //            gpsTracker.showSettingsAlert();
 //        }
-    }
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle presses on the action bar items
+//        switch (item.getItemId()) {
+//            case R.id.action_tracking:
+//                Log.d(TAG, "'Tracking' Button Pressed");
+//                requestingLocationUpdates = !requestingLocationUpdates;
+//                if (requestingLocationUpdates) {
+//                    startFollowingLocation();
+//                    btnTrack.setTitle("Tracking");
+//                }
+//                if (!requestingLocationUpdates) {
+//                    stopFollowingLocation();
+//                    btnTrack.setTitle("Track");
+//                }
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
+//
+//    private void startFollowingLocation() {
+//        initializePolyline();
+//        pubnub = PubNubManager.startPubnub();
+//        PubNubManager.subscribe(pubnub, channelName, subscribeCallback);
+//    }
+//
+//    private void stopFollowingLocation() {
+//        pubnub.unsubscribe(channelName);
+//        isFirstMessage = true;
+//    }
+//
+//    private void initializePolyline() {
+//        googleMap.clear();
+//        mPolylineOptions = new PolylineOptions();
+//        mPolylineOptions.color(Color.BLUE).width(10);
+//        googleMap.addPolyline(mPolylineOptions);
+//
+//        mMarkerOptions = new MarkerOptions();
+//    }
+//
+//    private void updatePolyline() {
+//        mPolylineOptions.add(mLatLng);
+//        googleMap.clear();
+//        googleMap.addPolyline(mPolylineOptions);
+//    }
+//
+//    private void updateCamera() {
+//        googleMap
+//                .animateCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 16));
+//    }
+//
+//    private void updateMarker() {
+////		if (!isFirstMessage) {
+////			isFirstMessage = false;
+////			mMarker.remove();
+////		}
+//        mMarker = googleMap.addMarker(mMarkerOptions.position(mLatLng));
+//    }
+//
+//    Callback subscribeCallback = new Callback() {
+//
+//        @Override
+//        public void successCallback(String channel, Object message) {
+//            Log.d(PUBNUB_TAG, "Message Received: " + message.toString());
+//            JSONObject jsonMessage = (JSONObject) message;
+//            try {
+//                String id = jsonMessage.getString("ID");
+//                double mLat = jsonMessage.getDouble("Lat");
+//                double mLng = jsonMessage.getDouble("Lng");
+//                long timeToken = jsonMessage.getInt("TimeToken");
+//                mLatLng = new LatLng(mLat, mLng);
+//            } catch (JSONException e) {
+//                Log.e(TAG, e.toString());
+//            }
+//
+//            mActivity.runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    updatePolyline();
+//                    updateCamera();
+//                    updateMarker();
+//                }
+//            });
+//        }
+//    };
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        switch (requestCode) {
+//            case REQUEST_LOCATION:
+//                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    // Permission Granted
+//                    Toast.makeText(getActivity(), "REQUEST_LOCATION Allowed", Toast.LENGTH_SHORT)
+//                            .show();
+//                } else {
+//                    // Permission Denied
+//                    Toast.makeText(getActivity(), "REQUEST_LOCATION Denied", Toast.LENGTH_SHORT)
+//                            .show();
+//                }
+//                break;
+//            default:
+//                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        }
+//    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.action_tracking:
-                Log.d(TAG, "'Tracking' Button Pressed");
-                requestingLocationUpdates = !requestingLocationUpdates;
-                if (requestingLocationUpdates) {
-                    startFollowingLocation();
-                    btnTrack.setTitle("Tracking");
-                }
-                if (!requestingLocationUpdates) {
-                    stopFollowingLocation();
-                    btnTrack.setTitle("Track");
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    private void setDefaultLocation(GoogleMap defaultLocation){
+//                LatLng horsens = new LatLng(55.866, 9.833);
+//=======
+//        if (favoriteItem == null) {
+//            setDefaultLocation(googleMap);
+//        } else {
+//            setFavLocation(googleMap);
+//        }
+//    }
 
-    private void startFollowingLocation() {
-        initializePolyline();
-        pubnub = PubNubManager.startPubnub();
-        PubNubManager.subscribe(pubnub, channelName, subscribeCallback);
-    }
+    private void setDefaultLocation(GoogleMap defaultLocation) {
+        LatLng horsens = new LatLng(55.866, 9.833);
 
-    private void stopFollowingLocation() {
-        pubnub.unsubscribe(channelName);
-        isFirstMessage = true;
-    }
+        defaultLocation.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
 
-    private void initializePolyline() {
-        googleMap.clear();
-        mPolylineOptions = new PolylineOptions();
-        mPolylineOptions.color(Color.BLUE).width(10);
-        googleMap.addPolyline(mPolylineOptions);
-
-        mMarkerOptions = new MarkerOptions();
-    }
-
-    private void updatePolyline() {
-        mPolylineOptions.add(mLatLng);
-        googleMap.clear();
-        googleMap.addPolyline(mPolylineOptions);
-    }
-
-    private void updateCamera() {
-        googleMap
-                .animateCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 16));
-    }
-
-    private void updateMarker() {
-//		if (!isFirstMessage) {
-//			isFirstMessage = false;
-//			mMarker.remove();
-//		}
-        mMarker = googleMap.addMarker(mMarkerOptions.position(mLatLng));
-    }
-
-    Callback subscribeCallback = new Callback() {
-
-        @Override
-        public void successCallback(String channel, Object message) {
-            Log.d(PUBNUB_TAG, "Message Received: " + message.toString());
-            JSONObject jsonMessage = (JSONObject) message;
-            try {
-                String id = jsonMessage.getString("ID");
-                double mLat = jsonMessage.getDouble("Lat");
-                double mLng = jsonMessage.getDouble("Lng");
-                long timeToken = jsonMessage.getInt("TimeToken");
-                mLatLng = new LatLng(mLat, mLng);
-            } catch (JSONException e) {
-                Log.e(TAG, e.toString());
+        if (isGPSEnabled) {
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
             }
+            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(location != null) {
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                defaultLocation.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                defaultLocation.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                defaultLocation.addMarker(new MarkerOptions()
+                        .title("Current Location")
+                        .position(latLng));
 
-            mActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updatePolyline();
-                    updateCamera();
-                    updateMarker();
-                }
-            });
+            }
+        }else {
+            defaultLocation.moveCamera(CameraUpdateFactory.newLatLng(horsens));
+            defaultLocation.moveCamera(CameraUpdateFactory.newLatLngZoom(horsens, 15));
+            defaultLocation.addMarker(new MarkerOptions()
+                    .title("Horsens")
+                    .position(horsens));
         }
-    };
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_LOCATION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission Granted
-                    Toast.makeText(getActivity(), "REQUEST_LOCATION Allowed", Toast.LENGTH_SHORT)
-                            .show();
-                } else {
-                    // Permission Denied
-                    Toast.makeText(getActivity(), "REQUEST_LOCATION Denied", Toast.LENGTH_SHORT)
-                            .show();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
-    private void setDefaultLocation(GoogleMap defaultLocation){
-                LatLng horsens = new LatLng(55.866, 9.833);
-
-        defaultLocation.moveCamera(CameraUpdateFactory.newLatLngZoom(horsens, 13));
-
-        defaultLocation.addMarker(new MarkerOptions()
-                .title("Horsens")
-                .position(horsens));
 
     }
 
-    private void setFavLocation(GoogleMap favLocation){
+    private void setFavLocation(GoogleMap favLocation) {
         LatLng loc = new LatLng(favoriteItem.getLat(), favoriteItem.getLng());
         favLocation.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 13));
         favLocation.addMarker(new MarkerOptions()
@@ -449,23 +506,5 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     public void onPanelAnchored(View panel) {
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
 }
 

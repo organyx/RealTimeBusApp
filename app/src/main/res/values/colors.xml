@@ -2,9 +2,9 @@
 <resources>
 
     <!--  Toolbar`s color -->
-    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimary">#795548</color>
     <!--  The color on top of the screen -->
-    <color name="colorPrimaryDark">#303FB5</color>
+    <color name="colorPrimaryDark">#5D4037</color>
     <!--  The text color on the toolbar -->
     <color name="textColorPrimary">#FFFFFF</color>
     <!--  Screen background color -->
@@ -12,7 +12,7 @@
     <!--  Navigation bar on the bottom of the screen (the default one) -->
     <color name="navigationBarColor">#000000</color>
     <!-- Could be used to some icon text and so on -->
-    <color name="colorAccent">#FF80AB</color>
+    <color name="colorAccent">#FFCC80</color>
 
     <color name="custom1">#EEEEEE</color>
     <color name="white">#FFFFFF</color>
