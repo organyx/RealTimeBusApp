@@ -52,7 +52,7 @@ public class SearchScreen extends AppCompatActivity {
 
         contentSearchScreenMainLayout = ((LinearLayout) pagerSlidingTabStrip.getChildAt(0));
         tabTitle = (TextView) contentSearchScreenMainLayout.getChildAt(0);
-        tabTitle.setTextColor(Color.BLUE);
+        tabTitle.setTextColor(Color.parseColor("#FFCC80"));
         hintForSearchField.setHint("Where do you want to go?");
 
         pagerSlidingTabStrip.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -67,7 +67,7 @@ public class SearchScreen extends AppCompatActivity {
                     tabTitle = (TextView) contentSearchScreenMainLayout.getChildAt(i);
 
                     if (i == position) {
-                        tabTitle.setTextColor(Color.BLUE);
+                        tabTitle.setTextColor(Color.parseColor("#FFCC80"));
                         hintForSearchField.setHint("Type your line number: ");
                     }  else {
                         hintForSearchField.setHint("Where do you want to go?");

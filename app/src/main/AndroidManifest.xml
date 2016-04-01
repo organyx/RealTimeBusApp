@@ -37,6 +37,10 @@
         <activity
             android:name=".SearchScreen"
             android:label="@string/title_activity_search_screen"
+            android:theme="@style/MyMaterialTheme.NoActionBar" />
+        <activity
+            android:name=".RouteScreen"
+            android:label="@string/title_activity_route_screen"
             android:theme="@style/MyMaterialTheme.NoActionBar"></activity>
     </application>
 

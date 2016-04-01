@@ -14,7 +14,7 @@ import fragment.LocationFragment;
 public class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
 
     final int PAGE_COUNT = 2;
-    private String tabTitles[] = new String[] { "Locations", "Lines" };
+    private String tabTitles[] = new String[]{"Locations", "Lines"};
 
     public FragmentPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -23,12 +23,12 @@ public class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAd
     @Override
     public Fragment getItem(int position) {
         Fragment fragment = null;
-        switch (position){
+        switch (position) {
             case 0:
-                fragment = new BusLinesFragment();
+                fragment = new LocationFragment();
                 break;
             case 1:
-                fragment = new LocationFragment();
+                fragment = new BusLinesFragment();
                 break;
         }
         return fragment;
@@ -41,7 +41,7 @@ public class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAd
 
     @Override
     public CharSequence getPageTitle(int position) {
-        switch (position){
+        switch (position) {
             case 0:
                 return tabTitles[0];
             case 1:
