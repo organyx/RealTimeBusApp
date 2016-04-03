@@ -20,6 +20,7 @@ import com.google.android.gms.location.places.Places;
 import fragment.AboutScreenFragment;
 import fragment.FavoritesScreenFragment;
 import fragment.HomeScreenFragment;
+import fragment.IntermediateMapFragment;
 import fragment.NavigationDrawerFragment;
 
 
@@ -28,6 +29,7 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
     private static final String TAG = "HomeScreen";
     private NavigationDrawerFragment navigationDrawerFragment;
     public static GoogleApiClient googleApiClient;
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +44,8 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         navigationDrawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
         navigationDrawerFragment.setDrawerListener(this);
 
-        FloatingActionButton fab = (FloatingActionButton) this.findViewById(R.id.fab);
-        fab.setOnClickListener(clickSearchIcon);
+        fab = (FloatingActionButton) this.findViewById(R.id.fab);
+
 
         googleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -59,10 +61,13 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
     View.OnClickListener clickSearchIcon = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent searchIntent = new Intent(HomeScreen.this,SearchScreen.class);
+            Intent searchIntent = new Intent(HomeScreen.this, SearchScreen.class);
             startActivity(searchIntent);
         }
     };
+
+
+
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_home_screen, menu);
@@ -97,10 +102,13 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
             case 0:
                 fm.beginTransaction().replace(R.id.fragment_container, new HomeScreenFragment()).commit();
                 title = getString(R.string.title_home);
+                fab.setOnClickListener(clickSearchIcon);
+                fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_search_black_24dp));
                 break;
             case 1:
                 fm.beginTransaction().replace(R.id.fragment_container, new FavoritesScreenFragment()).commit();
                 title = getString(R.string.title_favourites);
+                fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_dark_plus_24dp));
                 break;
             case 2:
                 fm.beginTransaction().replace(R.id.fragment_container, new AboutScreenFragment()).commit();

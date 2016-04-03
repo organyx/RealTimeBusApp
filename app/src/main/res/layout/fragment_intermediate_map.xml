@@ -1,30 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <LinearLayout
         android:id="@+id/ll_fav_item_fields"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginTop="8dp"
         android:orientation="vertical"
         android:paddingLeft="@dimen/fav_screen_input_padding_left_right"
         android:paddingRight="@dimen/fav_screen_input_padding_left_right">
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/input_layout_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:id="@+id/et_fav_item_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:hint="@string/hint_fav_item_name" />
-        </android.support.design.widget.TextInputLayout>
+
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_email"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:hintTextAppearance="@style/TextInputLayoutLabel">
 
             <AutoCompleteTextView
                 android:id="@+id/atv_autocomplete_fav_item_address"
@@ -32,22 +25,46 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/fav_screen_input_margin_top"
-                android:hint="@string/hint_fav_item_address"/>
+                android:hint="@string/hint_fav_item_address" />
         </android.support.design.widget.TextInputLayout>
-        <Button android:id="@+id/btn_add_fav_item"
-            android:layout_width="fill_parent"
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/input_layout_name"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/btn_add_fav_item"
-            android:background="@color/colorPrimary"
+            app:hintTextAppearance="@style/TextInputLayoutLabel">
+
+            <EditText
+                android:id="@+id/et_fav_item_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_fav_item_name"
+                android:singleLine="true" />
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:id="@+id/btn_add_fav_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:layout_marginTop="@dimen/fav_screen_btn_margin_top"
-            android:textColor="@android:color/white"/>
+            android:background="@color/colorPrimary"
+            android:text="@string/btn_add_fav_item"
+            android:textColor="@android:color/white" />
+
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_above="@+id/f_intermediate_map"
+        android:background="@android:color/black" />
 
     <fragment
         android:id="@+id/f_intermediate_map"
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
-        android:layout_below="@+id/ll_fav_item_fields"
-        android:layout_height="@dimen/fav_screen_fragment_height"/>
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_fav_item_fields" />
 
 </RelativeLayout>

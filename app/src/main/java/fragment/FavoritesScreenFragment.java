@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.FragmentManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.R;
 
@@ -38,6 +40,8 @@ public class FavoritesScreenFragment extends Fragment {
     EditText editTextName;
     EditText editTextDescr;
 
+    FloatingActionButton fab;
+
     RecyclerView recyclerView;
     RecyclerView.Adapter adapter;
     RecyclerView.LayoutManager layoutManager;
@@ -53,7 +57,6 @@ public class FavoritesScreenFragment extends Fragment {
         View v = inflater.inflate(R.layout.content_favourites_screen, container, false);
 
         db = new DatabaseHelper(getActivity());
-
         final List<FavoriteItem> list = db.getAllFavourites();
 
         recyclerView = (RecyclerView) v.findViewById(R.id.rv_fav_list);
@@ -72,9 +75,11 @@ public class FavoritesScreenFragment extends Fragment {
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                FavoriteItem item = db.getAllFavourites().get(position);
-                editTextName.setText(item.getName());
-                editTextDescr.setText(item.getAddress());
+//                FavoriteItem item = db.getAllFavourites().get(position);
+//                editTextName.setText(item.getName());
+//                editTextDescr.setText(item.getAddress());
+                Toast.makeText(getActivity(), "Under Development",
+                        Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -97,16 +102,17 @@ public class FavoritesScreenFragment extends Fragment {
 
             }
         }));
+        fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.show();
 
-        btnAdd = (Button) v.findViewById(R.id.btn_add_fav);
-        btnUpdate = (Button) v.findViewById(R.id.btn_update_fav);
-        btnDelete = (Button) v.findViewById(R.id.btn_del_fav);
-        btnRefresh = (Button) v.findViewById(R.id.btn_refresh_fav);
-        editTextName = (EditText) v.findViewById(R.id.et_fav_name);
-        editTextDescr = (EditText) v.findViewById(R.id.et_fav_address);
+//        btnUpdate = (Button) v.findViewById(R.id.btn_update_fav);
+//        btnDelete = (Button) v.findViewById(R.id.btn_del_fav);
+//        btnRefresh = (Button) v.findViewById(R.id.btn_refresh_fav);
+//        editTextName = (EditText) v.findViewById(R.id.et_fav_name);
+//        editTextDescr = (EditText) v.findViewById(R.id.et_fav_address);
 
 
-        btnAdd.setOnClickListener(new View.OnClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                db.addNewFavourite(editTextName.getText().toString(), editTextDescr.getText().toString(), 55.86544499999999, 9.843203000000017, 0);
@@ -132,40 +138,40 @@ public class FavoritesScreenFragment extends Fragment {
                 transaction.replace(R.id.fragment_container, mapFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
+                fab.hide();
             }
         });
 
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                db.updateFavouriteItem(editTextName.getText().toString(), editTextDescr.getText().toString(), 0, 0, 0);
-                adapter.notifyDataSetChanged();
-            }
-        });
-
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                db.deleteFavouriteItem(editTextName.getText().toString());
-                adapter.notifyItemRemoved(list.size() - 1);
+//        btnUpdate.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                db.updateFavouriteItem(editTextName.getText().toString(), editTextDescr.getText().toString(), 0, 0, 0);
 //                adapter.notifyDataSetChanged();
-            }
-        });
+//            }
+//        });
 
-        btnRefresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adapter = new FavoriteListAdapter(getActivity(), db.getAllFavourites());
-                recyclerView.setAdapter(adapter);
-//                adapter.notifyDataSetChanged();
-            }
-        });
+//        btnDelete.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                db.deleteFavouriteItem(editTextName.getText().toString());
+//                adapter.notifyItemRemoved(list.size() - 1);
+////                adapter.notifyDataSetChanged();
+//            }
+//        });
+
+//        btnRefresh.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                adapter = new FavoriteListAdapter(getActivity(), db.getAllFavourites());
+//                recyclerView.setAdapter(adapter);
+////                adapter.notifyDataSetChanged();
+//            }
+//        });
 
         return v;
     }
 
-    public void refreshActivity()
-    {
+    public void refreshActivity() {
         Intent intent = getActivity().getIntent();
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_NO_ANIMATION);
