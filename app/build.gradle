@@ -34,7 +34,6 @@ dependencies {
     compile 'com.android.support:support-v4:23.2.0'
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
-
     compile 'com.pubnub:pubnub-android:3.7.6'
     compile 'com.google.code.gson:gson:2.6.2'
 }
