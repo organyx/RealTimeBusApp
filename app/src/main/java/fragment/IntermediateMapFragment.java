@@ -58,7 +58,7 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_intermediate_map,container,false);
+        View v = inflater.inflate(R.layout.fragment_intermediate_map, container, false);
 
         googleApiClient = new GoogleApiClient.Builder(getActivity())
                 .addApi(Places.GEO_DATA_API)
@@ -81,7 +81,7 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
             public void onClick(View v) {
 
                 DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
-                databaseHelper.addNewFavourite(placeToAdd.getName().toString(), placeToAdd.getAddress().toString(), placeToAdd.getLatLng().latitude, placeToAdd.getLatLng().longitude, 0, 1);
+                databaseHelper.addNewLocation(placeToAdd.getName().toString(), placeToAdd.getAddress().toString(), placeToAdd.getLatLng().latitude, placeToAdd.getLatLng().longitude, 0, 1);
 
                 FavoritesScreenFragment favoritesScreenFragment = new FavoritesScreenFragment();
 
@@ -142,8 +142,7 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
         }
     };
 
-    private void addMarker(Place place)
-    {
+    private void addMarker(Place place) {
         String name = place.getName() + "";
         LatLng newLoc = place.getLatLng();
 

@@ -5,7 +5,6 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
-
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -13,15 +12,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,22 +35,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import adapter.CustomListViewAdapter;
-import async_tasks.GetDirectionsTask;
-import async_tasks.GetNearestBusStations;
 import model.BusStationInfo;
-import model.LocationItem;
 import model.HomeListView;
-import service.GPSTracker;
-import utils.PubNubManager;
-import utils.TaskParameters;
+import model.LocationItem;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -169,7 +156,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         };
 
 
-       // expandMap();
+        // expandMap();
 
         slidingPaneLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -181,8 +168,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             }
         });
 
-       // mActivity = getActivity();
-       // setHasOptionsMenu(true); // For Handling Fragment calls to menu items
+        // mActivity = getActivity();
+        // setHasOptionsMenu(true); // For Handling Fragment calls to menu items
 
         return v;
     }
@@ -233,7 +220,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-      //  Log.d(TAG, "Map Ready");
+        //  Log.d(TAG, "Map Ready");
 ////        this.googleMap = googleMap;
 ////        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
 ////                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -275,15 +262,12 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //        this.googleMap = googleMap;
 //        if(!requestingLocationUpdates)
 //        {
-            if(favoriteItem == null)
-            {
-                setDefaultLocation(googleMap);
-            }
-            else
-            {
-                setFavLocation(googleMap);
-            }
+        if (favoriteItem == null) {
+            setDefaultLocation(googleMap);
+        } else {
+            setFavLocation(googleMap);
         }
+    }
 
 //        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 //            // TODO: Consider calling
@@ -442,7 +426,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 return;
             }
             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if(location != null) {
+            if (location != null) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 defaultLocation.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 defaultLocation.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
@@ -451,7 +435,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                         .position(latLng));
 
             }
-        }else {
+        } else {
             defaultLocation.moveCamera(CameraUpdateFactory.newLatLng(horsens));
             defaultLocation.moveCamera(CameraUpdateFactory.newLatLngZoom(horsens, 15));
             defaultLocation.addMarker(new MarkerOptions()
@@ -506,6 +490,4 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onPanelAnchored(View panel) {
     }
-
 }
-

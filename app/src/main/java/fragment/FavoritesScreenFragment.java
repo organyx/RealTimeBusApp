@@ -6,7 +6,6 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
@@ -110,7 +109,7 @@ public class FavoritesScreenFragment extends Fragment {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                db.addNewFavourite(editTextName.getText().toString(), editTextDescr.getText().toString(), 55.86544499999999, 9.843203000000017, 0);
+//                db.addNewLocation(editTextName.getText().toString(), editTextDescr.getText().toString(), 55.86544499999999, 9.843203000000017, 0);
 //                adapter.notifyItemInserted(list.size());
 //                adapter.notifyDataSetChanged();
 
@@ -139,7 +138,7 @@ public class FavoritesScreenFragment extends Fragment {
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                db.updateFavouriteItem(editTextName.getText().toString(), editTextDescr.getText().toString(), 0, 0, 0);
+                db.updateLocation(editTextName.getText().toString(), editTextDescr.getText().toString(), 0, 0, 0);
                 adapter.notifyDataSetChanged();
             }
         });
@@ -147,7 +146,7 @@ public class FavoritesScreenFragment extends Fragment {
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                db.deleteFavouriteItem(editTextName.getText().toString());
+                db.deleteLocation(editTextName.getText().toString());
                 adapter.notifyItemRemoved(list.size() - 1);
 //                adapter.notifyDataSetChanged();
             }
@@ -165,8 +164,7 @@ public class FavoritesScreenFragment extends Fragment {
         return v;
     }
 
-    public void refreshActivity()
-    {
+    public void refreshActivity() {
         Intent intent = getActivity().getIntent();
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_NO_ANIMATION);
