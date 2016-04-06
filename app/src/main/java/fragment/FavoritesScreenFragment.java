@@ -22,7 +22,7 @@ import com.example.vacho.realtimebusapp.R;
 import java.util.List;
 
 import adapter.FavoriteListAdapter;
-import model.FavoriteItem;
+import model.LocationItem;
 import utils.DatabaseHelper;
 
 /**
@@ -54,7 +54,7 @@ public class FavoritesScreenFragment extends Fragment {
 
         db = new DatabaseHelper(getActivity());
 
-        final List<FavoriteItem> list = db.getAllFavourites();
+        final List<LocationItem> list = db.getAllFavourites();
 
         recyclerView = (RecyclerView) v.findViewById(R.id.rv_fav_list);
         recyclerView.setHasFixedSize(true);
@@ -72,14 +72,14 @@ public class FavoritesScreenFragment extends Fragment {
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                FavoriteItem item = db.getAllFavourites().get(position);
+                LocationItem item = db.getAllFavourites().get(position);
                 editTextName.setText(item.getName());
                 editTextDescr.setText(item.getAddress());
             }
 
             @Override
             public void onLongClick(View view, int position) {
-                FavoriteItem item = db.getAllFavourites().get(position);
+                LocationItem item = db.getAllFavourites().get(position);
                 HomeScreenFragment homeScreenFragment = new HomeScreenFragment();
                 Bundle args = new Bundle();
                 args.putString("fav_item_name", item.getName());
@@ -87,6 +87,7 @@ public class FavoritesScreenFragment extends Fragment {
                 args.putDouble("fav_item_lat", item.getLat());
                 args.putDouble("fav_item_lng", item.getLng());
                 args.putString("fav_item_zoom", item.getZoom());
+                args.putBoolean("fav_item_favourited", item.isFavourited());
                 homeScreenFragment.setArguments(args);
 
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();

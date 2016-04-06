@@ -81,7 +81,7 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
             public void onClick(View v) {
 
                 DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
-                databaseHelper.addNewFavourite(placeToAdd.getName().toString(), placeToAdd.getAddress().toString(), placeToAdd.getLatLng().latitude, placeToAdd.getLatLng().longitude, 0);
+                databaseHelper.addNewFavourite(placeToAdd.getName().toString(), placeToAdd.getAddress().toString(), placeToAdd.getLatLng().latitude, placeToAdd.getLatLng().longitude, 0, 1);
 
                 FavoritesScreenFragment favoritesScreenFragment = new FavoritesScreenFragment();
 

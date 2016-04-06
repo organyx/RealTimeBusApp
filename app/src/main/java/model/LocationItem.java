@@ -3,7 +3,7 @@ package model;
 /**
  * Created by Aleks on 05-Apr-16.
  */
-public class Location {
+public class LocationItem {
 
     private boolean showNotify;
     private long id;
@@ -14,7 +14,7 @@ public class Location {
     private String zoom;
     private boolean isFavourited;
 
-    public Location(long id, String name, String address, double lat, double lng, String zoom, boolean isFavourited) {
+    public LocationItem(long id, String name, String address, double lat, double lng, String zoom, boolean isFavourited) {
         this.isFavourited = isFavourited;
         this.id = id;
         this.name = name;
@@ -24,7 +24,7 @@ public class Location {
         this.zoom = zoom;
     }
 
-    public Location(String name, String address, double lat, double lng, String zoom, boolean isFavourited) {
+    public LocationItem(String name, String address, double lat, double lng, String zoom, boolean isFavourited) {
         this.name = name;
         this.address = address;
         this.lat = lat;
@@ -33,7 +33,7 @@ public class Location {
         this.isFavourited = isFavourited;
     }
 
-    public Location() {
+    public LocationItem() {
     }
 
     public boolean isShowNotify() {

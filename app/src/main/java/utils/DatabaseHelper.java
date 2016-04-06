@@ -10,11 +10,11 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.FavoriteItem;
-import model.Location;
+import model.LocationItem;
 
 /**
  * Created by Aleks on 05-Mar-16.
+ * Database Helper class for storing data in SQLite Database.
  */
 public class DatabaseHelper {
 
@@ -23,21 +23,6 @@ public class DatabaseHelper {
     private SQLiteOpenHelper _opeSqLiteOpenHelper;
 
     private static final String DATABASE_NAME = "Locations.db";
-
-    private static final String FAVOURITES = "FAVOURITES";
-    private static final String FAVOURITES_COL_ID = "FAVOURITES_COL_ID";
-    private static final String FAVOURITES_COL_NAME = "FAVOURITES_COL_NAME";
-    private static final String FAVOURITES_COL_ADDRESS = "FAVOURITES_COL_ADDRESS";
-    private static final String FAVOURITES_COL_LAT = "FAVOURITES_COL_LAT";
-    private static final String FAVOURITES_COL_LNG = "FAVOURITES_COL_LNG";
-    private static final String FAVOURITES_COL_ZOOM = "FAVOURITES_COL_ZOOM";
-    private static final String CREATE_TABLE_FAVOURITES = "create table " + FAVOURITES + " (" +
-            FAVOURITES_COL_ID + " integer primary key autoincrement, " +
-            FAVOURITES_COL_NAME + " text, " +
-            FAVOURITES_COL_ADDRESS + " text, " +
-            FAVOURITES_COL_LAT + " double, " +
-            FAVOURITES_COL_LNG + " double, " +
-            FAVOURITES_COL_ZOOM + " text )";
 
     private static final String LOCATIONS = "LOCATIONS";
     private static final String LOCATIONS_COL_ID = "LOCATIONS_COL_ID";
@@ -75,8 +60,31 @@ public class DatabaseHelper {
 
     private static final int DATABASE_VERSION = 2;
 
-    private String[] allColumns = {FAVOURITES_COL_ID,
-            FAVOURITES_COL_NAME, FAVOURITES_COL_ADDRESS, FAVOURITES_COL_LAT, FAVOURITES_COL_LNG, FAVOURITES_COL_LNG};
+    private String[] allColumns_locations = {
+            LOCATIONS_COL_ID,
+            LOCATIONS_COL_NAME,
+            LOCATIONS_COL_ADDRESS,
+            LOCATIONS_COL_LAT,
+            LOCATIONS_COL_LNG,
+            LOCATIONS_COL_ZOOM,
+            LOCATIONS_COL_FAVORITED
+    };
+    private String[] allColumns_busLines = {
+            BUS_LINE_COL_ID,
+            BUS_LINE_COL_NAME
+    };
+
+    private String[] allColumns_busLine_busStops = {
+            BUS_LINE_BUS_STOPS_COL_BUS_LINE_ID,
+            BUS_LINE_BUS_STOPS_COL_LOCATION_ID
+    };
+
+    private String[] columns = null;
+    private String selection = null;
+    private String[] selectionArgs = null;
+    private String groupBy = null;
+    private String having = null;
+    private String orderBy = null;
 
     public DatabaseHelper(Context context){
         _opeSqLiteOpenHelper = new mySQLiteOpenHelper(context);
@@ -91,7 +99,6 @@ public class DatabaseHelper {
         public void onCreate(SQLiteDatabase db)
         {
             Log.d(TAG, "onCreate");
-            db.execSQL(CREATE_TABLE_FAVOURITES);
             db.execSQL(CREATE_TABLE_LOCATIONS);
             db.execSQL(CREATE_TABLE_BUS_LINES);
             db.execSQL(CREATE_TABLE_BUS_LINE_BUS_STOPS);
@@ -100,7 +107,6 @@ public class DatabaseHelper {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.d(TAG, "onUpgrade");
-            db.execSQL("DROP TABLE IF EXISTS " + FAVOURITES);
             db.execSQL("DROP TABLE IF EXISTS " + LOCATIONS);
             db.execSQL("DROP TABLE IF EXISTS " + BUS_LINE);
             db.execSQL("DROP TABLE IF EXISTS " + BUS_LINE_BUS_STOPS);
@@ -108,15 +114,17 @@ public class DatabaseHelper {
         }
     }
 
-    public List<FavoriteItem> getAllFavourites()
+    public List<LocationItem> getAllFavourites()
     {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
-        List<FavoriteItem> favoriteItemList = new ArrayList<FavoriteItem>();
-        Cursor cursor = db.query(FAVOURITES, allColumns, null, null, null, null, null );
+        List<LocationItem> favoriteItemList = new ArrayList<LocationItem>();
+        columns = allColumns_locations;
+        selection = "LOCATIONS_COL_FAVORITED = 1";
+        Cursor cursor = db.query(LOCATIONS, columns, selection, null, null, null, null );
         cursor.moveToFirst();
         while (!cursor.isAfterLast())
         {
-            FavoriteItem favoriteItem = cursorToFavouriteItem(cursor);
+            LocationItem favoriteItem = cursorToLocation(cursor);
             favoriteItemList.add(favoriteItem);
             cursor.moveToNext();
         }
@@ -126,7 +134,7 @@ public class DatabaseHelper {
         return favoriteItemList;
     }
 
-    public long addNewFavourite(String name, String address, double lat, double lng, float zoom)
+    public long addNewFavourite(String name, String address, double lat, double lng, float zoom, int favorited)
     {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if(db==null)
@@ -134,15 +142,16 @@ public class DatabaseHelper {
             return 0;
         }
         ContentValues row = new ContentValues();
-        if(!nameExists(name, FAVOURITES)) {
-            row.put(FAVOURITES_COL_NAME, name);
-            row.put(FAVOURITES_COL_ADDRESS, address);
-            row.put(FAVOURITES_COL_LAT, lat);
-            row.put(FAVOURITES_COL_LNG, lng);
-            row.put(FAVOURITES_COL_ZOOM, zoom);
-            long id = db.insert(FAVOURITES, null, row);
+        if(!nameExists(name, LOCATIONS)) {
+            row.put(LOCATIONS_COL_NAME, name);
+            row.put(LOCATIONS_COL_ADDRESS, address);
+            row.put(LOCATIONS_COL_LAT, lat);
+            row.put(LOCATIONS_COL_LNG, lng);
+            row.put(LOCATIONS_COL_ZOOM, zoom);
+            row.put(LOCATIONS_COL_FAVORITED, favorited);
+            long id = db.insert(LOCATIONS, null, row);
             db.close();
-            Log.d(TAG, "DB Inserted ID = " + id + " NAME = " + name + " ADDRESS = " + address + " LAT = " + lat + " LNG = " + lng + " ZOOM = " + zoom);
+            Log.d(TAG, "DB Inserted ID = " + id + " NAME = " + name + " ADDRESS = " + address + " LAT = " + lat + " LNG = " + lng + " ZOOM = " + zoom + " FAVORITED = " + favorited);
             return id;
         }
         else
@@ -150,7 +159,6 @@ public class DatabaseHelper {
             Log.d(TAG, "DB Inserted = " + 0);
             return 0;
         }
-
     }
 
     public void deleteFavouriteItem(String name)
@@ -158,7 +166,7 @@ public class DatabaseHelper {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if(db==null)
             return;
-        int deleted = db.delete(FAVOURITES, FAVOURITES_COL_NAME + " = ? ", new String[]{String.valueOf(name)});
+        int deleted = db.delete(LOCATIONS, LOCATIONS_COL_NAME + " = ?", new String[]{String.valueOf(name)});
 
         if(deleted > 0)
             Log.d(TAG, "DB Deleted ID = " + deleted);
@@ -176,15 +184,15 @@ public class DatabaseHelper {
             return;
         }
         ContentValues row = new ContentValues();
-        row.put(FAVOURITES_COL_NAME, name);
-        row.put(FAVOURITES_COL_ADDRESS, address);
+        row.put(LOCATIONS_COL_NAME, name);
+        row.put(LOCATIONS_COL_ADDRESS, address);
         if(lat != 0 && lng != 0)
         {
-            row.put(FAVOURITES_COL_LAT, lat);
-            row.put(FAVOURITES_COL_LNG, lng);
-            row.put(FAVOURITES_COL_ZOOM, zoom);
+            row.put(LOCATIONS_COL_LAT, lat);
+            row.put(LOCATIONS_COL_LNG, lng);
+            row.put(LOCATIONS_COL_ZOOM, zoom);
         }
-        int updated = db.update(FAVOURITES, row, FAVOURITES_COL_NAME + " = ?", new String[]{String.valueOf(name)});
+        int updated = db.update(LOCATIONS, row, LOCATIONS_COL_NAME + " = ? ", new String[]{String.valueOf(name)});
 
         if(updated > 0)
             Log.d(TAG, "DB Updated ID = " + updated);
@@ -209,33 +217,18 @@ public class DatabaseHelper {
         cursor.moveToFirst();
         int count = cursor.getInt(0);
         boolean empty;
-        if(count > 0)
-        {
-            empty = false;
-            Log.d(TAG, "DB Table " + table_name + " Empty? = " + empty);
-        }
-        else
-        {
-            empty = true;
-            Log.d(TAG, "DB Table " + table_name + " Empty? = " + empty);
-        }
+        empty = count <= 0;
+//        if(count > 0)
+//            empty = false;
+//        else
+//            empty = true;
+        Log.d(TAG, "DB Table " + table_name + " Empty? = " + empty);
         cursor.close();
         return empty;
     }
 
-    private FavoriteItem cursorToFavouriteItem(Cursor cursor) {
-        FavoriteItem favoriteItem = new FavoriteItem();
-        favoriteItem.setId(cursor.getLong(0));
-        favoriteItem.setName(cursor.getString(1));
-        favoriteItem.setAddress(cursor.getString(2));
-        favoriteItem.setLat(cursor.getDouble(3));
-        favoriteItem.setLng(cursor.getDouble(4));
-        favoriteItem.setZoom(cursor.getString(5));
-        return favoriteItem;
-    }
-
-    private Location cursorToLocation(Cursor cursor) {
-        Location location = new Location();
+    private LocationItem cursorToLocation(Cursor cursor) {
+        LocationItem location = new LocationItem();
         location.setId(cursor.getLong(0));
         location.setName(cursor.getString(1));
         location.setAddress(cursor.getString(2));
