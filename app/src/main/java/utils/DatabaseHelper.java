@@ -361,7 +361,7 @@ public class DatabaseHelper {
         return location;
     }
 
-    private List<LocationItem> populateBusStations() {
+    private List<LocationItem> busStationsRoute1() {
         List<LocationItem> stations = new ArrayList<>();
         stations.add(new LocationItem("Horsens Trafikterminal", 55.8629951, 9.8365588));
         stations.add(new LocationItem("V. Berings Plads", 55.8622125, 9.8420348));
@@ -375,24 +375,47 @@ public class DatabaseHelper {
         stations.add(new LocationItem("Stensballeskolen", 55.8727596, 9.9206771));
         stations.add(new LocationItem("Risengård", 55.8757571, 9.9293246));
         stations.add(new LocationItem("Griffenfeldtsparken", 55.8778275, 9.9186386));
+        stations.add(new LocationItem("Brådhusvej", 55.8729523, 9.9131026));
         return stations;
     }
 
-    private BusLineItem pupulateBusLines() {
-        return new BusLineItem("Route 1", populateBusStations());
+    private List<LocationItem> busStationsRoute2() {
+        List<LocationItem> stations = new ArrayList<>();
+        stations.add(new LocationItem("Horsens Trafikterminal", 55.8629951, 9.8365588));
+        stations.add(new LocationItem("V. Berings Plads", 55.8622125, 9.8420348));
+        stations.add(new LocationItem("Rådhuset/O. Jensens Allé", 55.8601490, 9.8469450));
+        stations.add(new LocationItem("Sundhedshuset", 55.8586177, 9.8516971));
+        stations.add(new LocationItem("Gasvej", 55.8614597, 9.8604733));
+        stations.add(new LocationItem("Sundvej/Sygehuset", 55.8645606, 9.8721935));
+        stations.add(new LocationItem("Bakkesvinget", 55.8696416, 9.8752405));
+        stations.add(new LocationItem("Hybenvej", 55.8718567, 9.8820211));
+        stations.add(new LocationItem("VIA, Chr. M. Østergårdsve", 55.8695091, 9.8858728));
+        stations.add(new LocationItem("Husoddevej/Højagervej", 55.8687460, 9.9171801));
+        stations.add(new LocationItem("Bygaden/Højmarksvej", 55.8721698, 9.9110426));
+        stations.add(new LocationItem("Stensballe v/landevejen", 55.8663139, 9.9040051));
+        return stations;
+    }
+
+    private List<BusLineItem> busLines() {
+        List<BusLineItem> routes = new ArrayList<>();
+        routes.add(new BusLineItem("Route 1", busStationsRoute1()));
+        routes.add(new BusLineItem("Route 2", busStationsRoute2()));
+        return routes;
     }
 
     public void populateBusLineBusStations() {
-        BusLineItem busLineItem = pupulateBusLines();
-        for (int i = 0; i < busLineItem.getBusStations().size(); i++) {
-            addNewLocation(busLineItem.getBusStations().get(i).getName(),   // NAME
-                    "Bus Station",                                          // ADDRESS
-                    busLineItem.getBusStations().get(i).getLat(),           // LAT
-                    busLineItem.getBusStations().get(i).getLng(),           // LNG
-                    0,                                                      // ZOOM
-                    0);                                                     // FAVOURITED
+        List<BusLineItem> busLineItems = busLines();
+        for (BusLineItem item : busLineItems) {
+            for (int i = 0; i < item.getBusStations().size(); i++) {
+                addNewLocation(item.getBusStations().get(i).getName(),   // NAME
+                        "Bus Station",                                   // ADDRESS
+                        item.getBusStations().get(i).getLat(),           // LAT
+                        item.getBusStations().get(i).getLng(),           // LNG
+                        0,                                               // ZOOM
+                        0);                                              // FAVOURITED
+            }
+            addNewBusLine(item.getBusLineName());
+            populateBusLine(item);
         }
-        addNewBusLine(busLineItem.getBusLineName());
-        populateBusLine(busLineItem);
     }
 }

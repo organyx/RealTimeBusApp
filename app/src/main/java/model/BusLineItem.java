@@ -1,5 +1,6 @@
 package model;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -9,6 +10,7 @@ import java.util.List;
 public class BusLineItem {
     private String busLineName;
     private List<LocationItem> busStations;
+    private int[] busStationOrder;
 
     /**
      * Default empty constructor
@@ -17,13 +19,33 @@ public class BusLineItem {
     }
 
     /**
-     * Constructor for complete initialization.
+     * Constructor for initialization without order.
      * @param busLineName Bus Line name.
      * @param busStations Bus Station list.
      */
     public BusLineItem(String busLineName, List<LocationItem> busStations) {
         this.busLineName = busLineName;
         this.busStations = busStations;
+    }
+
+    /**
+     * Constructor for complete initialization.
+     * @param busLineName Bus Line name.
+     * @param busStations Bus Station list.
+     * @param busStationOrder Bus Station order.
+     */
+    public BusLineItem(String busLineName, List<LocationItem> busStations, int[] busStationOrder) {
+        this.busLineName = busLineName;
+        this.busStations = busStations;
+        this.busStationOrder = busStationOrder;
+    }
+
+    public int[] getBusStationOrder() {
+        return busStationOrder;
+    }
+
+    public void setBusStationOrder(int[] busStationOrder) {
+        this.busStationOrder = busStationOrder;
     }
 
     public String getBusLineName() {
@@ -55,6 +77,7 @@ public class BusLineItem {
         return "BusLineItem{" +
                 "busLineName='" + busLineName + '\'' +
                 ", busStations=" + busStations +
+                ", busStationOrder=" + Arrays.toString(busStationOrder) +
                 '}';
     }
 }

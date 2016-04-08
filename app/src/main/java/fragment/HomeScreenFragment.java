@@ -12,6 +12,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -168,7 +169,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             }
         });
 
-        // mActivity = getActivity();
+         mActivity = getActivity();
         // setHasOptionsMenu(true); // For Handling Fragment calls to menu items
 
         return v;
@@ -220,31 +221,32 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-        //  Log.d(TAG, "Map Ready");
-////        this.googleMap = googleMap;
-////        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-////                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-////            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-////                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
-////            else
-////            {
-////                this.googleMap.setMyLocationEnabled(true);
-////                Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
-////            }
-////        }
+          Log.d(TAG, "Map Ready");
+//        this.googleMap = googleMap;
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+            else
+            {
+                this.googleMap.setMyLocationEnabled(true);
+                Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+            }
+        }
+
 //        googleMap.setMyLocationEnabled(true);
 //        Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
 //
 ////        this.googleMap.setTrafficEnabled(true);
 ////        this.googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 ////        googleMap.setPadding(20, 20, 20, 20);
-//        googleMap.getUiSettings().setCompassEnabled(true);
-//        googleMap.getUiSettings().setMapToolbarEnabled(true);
-//        googleMap.getUiSettings().setZoomControlsEnabled(true);
-//        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-//
-//        Log.d(TAG, "isCompassEnabled: " + googleMap.getUiSettings().isCompassEnabled());
-//        Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
+        googleMap.getUiSettings().setCompassEnabled(true);
+        googleMap.getUiSettings().setMapToolbarEnabled(true);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+        Log.d(TAG, "isCompassEnabled: " + googleMap.getUiSettings().isCompassEnabled());
+        Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
 //
 //        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 //            @Override
@@ -259,7 +261,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //                return false;
 //            }
 //        });
-//        this.googleMap = googleMap;
+        this.googleMap = googleMap;
 //        if(!requestingLocationUpdates)
 //        {
         if (favoriteItem == null) {
@@ -387,24 +389,24 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //        }
 //    };
 //
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        switch (requestCode) {
-//            case REQUEST_LOCATION:
-//                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    // Permission Granted
-//                    Toast.makeText(getActivity(), "REQUEST_LOCATION Allowed", Toast.LENGTH_SHORT)
-//                            .show();
-//                } else {
-//                    // Permission Denied
-//                    Toast.makeText(getActivity(), "REQUEST_LOCATION Denied", Toast.LENGTH_SHORT)
-//                            .show();
-//                }
-//                break;
-//            default:
-//                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        }
-//    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission Granted
+                    Toast.makeText(getActivity(), "REQUEST_LOCATION Allowed", Toast.LENGTH_SHORT)
+                            .show();
+                } else {
+                    // Permission Denied
+                    Toast.makeText(getActivity(), "REQUEST_LOCATION Denied", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
 
 //    private void setDefaultLocation(GoogleMap defaultLocation){
 //                LatLng horsens = new LatLng(55.866, 9.833);
