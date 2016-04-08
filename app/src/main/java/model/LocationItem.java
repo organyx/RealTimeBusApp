@@ -2,6 +2,7 @@ package model;
 
 /**
  * Created by Aleks on 05-Apr-16.
+ * Model class for Location information.
  */
 public class LocationItem {
 

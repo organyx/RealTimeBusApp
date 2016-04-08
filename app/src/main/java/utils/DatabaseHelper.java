@@ -115,7 +115,7 @@ public class DatabaseHelper {
 
     public List<LocationItem> getAllFavourites() {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
-        List<LocationItem> favoriteItemList = new ArrayList<LocationItem>();
+        List<LocationItem> favoriteItemList = new ArrayList<>();
         columns = allColumns_locations;
         selection = "LOCATIONS_COL_FAVORITED = 1";
         Cursor cursor = db.query(LOCATIONS, columns, selection, null, null, null, null);
@@ -267,37 +267,30 @@ public class DatabaseHelper {
         Log.d(TAG, "DB Inserted Bus Line ID = " + id);
     }
 
-    public String[] getBusLine(String busLine) {
+    public List<LocationItem> getBusLine(String busLine) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        List<LocationItem> busStationList = new ArrayList<>();
         if (db == null)
             return null;
-        String[] busLineDetails = new String[]{};
-        int i = 0;
-        /*
-        QUERY TO RUN
-        SELECT *
-FROM LOCATIONS
- LEFT JOIN BUS_LINE_BUS_STOPS ON LOCATIONS.LOCATIONS_COL_ID = BUS_LINE_BUS_STOPS.BUS_LINE_BUS_STOPS_COL_LOCATION_ID
- LEFT JOIN BUS_LINE ON BUS_LINE_BUS_STOPS.BUS_LINE_BUS_STOPS_COL_BUS_LINE_ID = BUS_LINE.BUS_LINE_COL_ID
-WHERE BUS_LINE.BUS_LINE_COL_ID = 1
-         */
-        columns = allColumns_locations;
-        selection = "BUS_LINE_COL_NAME = ?";
-        selectionArgs = new String[]{String.valueOf(busLine)};
-        Cursor cursor = db.query(BUS_LINE, columns, selection, selectionArgs, null, null, null);
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + LOCATIONS +
+                " LEFT JOIN " + BUS_LINE_BUS_STOPS + " ON LOCATIONS.LOCATIONS_COL_ID = BUS_LINE_BUS_STOPS.BUS_LINE_BUS_STOPS_COL_LOCATION_ID" +
+                " LEFT JOIN " + BUS_LINE + " ON BUS_LINE_BUS_STOPS.BUS_LINE_BUS_STOPS_COL_BUS_LINE_ID = BUS_LINE.BUS_LINE_COL_ID" +
+                " WHERE BUS_LINE.BUS_LINE_COL_ID = ?", new String[]{String.valueOf(getBusLineID(busLine))});
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            busLineDetails[i] = cursor.getString(0);
-            i++;
+            LocationItem busStation = cursorToLocation(cursor);
+            busStationList.add(busStation);
+            cursor.moveToNext();
         }
         cursor.close();
-        Log.d(TAG, "DB Items retrieved = " + busLineDetails.length);
-        return busLineDetails;
+        Log.d(TAG, "DB Items retrieved = " + busStationList.size());
+        return busStationList;
     }
 
     public int getBusLineID(String busLine) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
-        int id = 0;
+        int id;
         columns = new String[]{BUS_LINE_COL_ID};
         selection = "BUS_LINE_COL_NAME = ?";
         selectionArgs = new String[]{String.valueOf(busLine)};
@@ -311,7 +304,7 @@ WHERE BUS_LINE.BUS_LINE_COL_ID = 1
 
     public int getBusStationID(String busStation) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
-        int id = 0;
+        int id;
         columns = new String[]{LOCATIONS_COL_ID};
         selection = "LOCATIONS_COL_NAME = ?";
         selectionArgs = new String[]{String.valueOf(busStation)};
