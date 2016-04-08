@@ -267,7 +267,7 @@ public class DatabaseHelper {
         db.close();
     }
 
-    public List<LocationItem> getBusLine(String busLine) {
+    public BusLineItem getBusLine(String busLine) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
         List<LocationItem> busStationList = new ArrayList<>();
         if (db == null)
@@ -285,7 +285,7 @@ public class DatabaseHelper {
         }
         cursor.close();
         Log.d(TAG, "DB Items retrieved = " + busStationList.size());
-        return busStationList;
+        return new BusLineItem(busLine, busStationList);
     }
 
     private int getBusLineID(String busLine) {
