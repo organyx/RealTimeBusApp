@@ -10,9 +10,17 @@ public class BusLineItem {
     private String busLineName;
     private List<LocationItem> busStations;
 
+    /**
+     * Default empty constructor
+     */
     public BusLineItem() {
     }
 
+    /**
+     * Constructor for complete initialization.
+     * @param busLineName Bus Line name.
+     * @param busStations Bus Station list.
+     */
     public BusLineItem(String busLineName, List<LocationItem> busStations) {
         this.busLineName = busLineName;
         this.busStations = busStations;
@@ -40,5 +48,13 @@ public class BusLineItem {
 
     public LocationItem getBusStation(int i) {
         return this.busStations.get(i);
+    }
+
+    @Override
+    public String toString() {
+        return "BusLineItem{" +
+                "busLineName='" + busLineName + '\'' +
+                ", busStations=" + busStations +
+                '}';
     }
 }

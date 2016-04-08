@@ -10,6 +10,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.BusLineItem;
 import model.LocationItem;
 
 /**
@@ -244,27 +245,26 @@ public class DatabaseHelper {
         db.close();
     }
 
-    public void populateBusLine(String busLine, String[] busStations) {
+    private void populateBusLine(BusLineItem busLineItem) {
 
-        int busLineID = getBusLineID(busLine);
-        int[] busStationsIDs = new int[busStations.length];
-        for (int i = 0; i < busStations.length; i++) {
-            busStationsIDs[i] = getBusStationID(busStations[i]);
+        int busLineID = getBusLineID(busLineItem.getBusLineName());
+        int[] busStationsIDs = new int[busLineItem.getBusStations().size()];
+        for (int i = 0; i < busLineItem.getBusStations().size(); i++) {
+            busStationsIDs[i] = getBusStationID(String.valueOf(busLineItem.getBusStations().get(i).getName()));
         }
 
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if (db == null)
             return;
         ContentValues row = new ContentValues();
-
+        long inserted_id;
         for (int id : busStationsIDs) {
             row.put(BUS_LINE_BUS_STOPS_COL_BUS_LINE_ID, busLineID);
             row.put(BUS_LINE_BUS_STOPS_COL_LOCATION_ID, id);
+            inserted_id = db.insert(BUS_LINE_BUS_STOPS, null, row);
+            Log.d(TAG, "DB Inserted Bus Line ID = " + inserted_id);
         }
-        long id = db.insert(BUS_LINE_BUS_STOPS, null, row);
         db.close();
-
-        Log.d(TAG, "DB Inserted Bus Line ID = " + id);
     }
 
     public List<LocationItem> getBusLine(String busLine) {
@@ -288,13 +288,13 @@ public class DatabaseHelper {
         return busStationList;
     }
 
-    public int getBusLineID(String busLine) {
+    private int getBusLineID(String busLine) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
         int id;
         columns = new String[]{BUS_LINE_COL_ID};
         selection = "BUS_LINE_COL_NAME = ?";
         selectionArgs = new String[]{String.valueOf(busLine)};
-        Cursor cursor = db.query(LOCATIONS, columns, selection, selectionArgs, null, null, null);
+        Cursor cursor = db.query(BUS_LINE, columns, selection, selectionArgs, null, null, null);
         cursor.moveToFirst();
         id = cursor.getInt(0);
         cursor.close();
@@ -302,7 +302,7 @@ public class DatabaseHelper {
         return id;
     }
 
-    public int getBusStationID(String busStation) {
+    private int getBusStationID(String busStation) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
         int id;
         columns = new String[]{LOCATIONS_COL_ID};
@@ -316,7 +316,7 @@ public class DatabaseHelper {
         return id;
     }
 
-    public boolean nameExists(String name, String tableName) {
+    private boolean nameExists(String name, String tableName) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + tableName + " WHERE " + tableName + "_COL_NAME = ?;", new String[]{name});
         boolean exists = (cursor.getCount() > 0);
@@ -324,7 +324,7 @@ public class DatabaseHelper {
         return exists;
     }
 
-    public boolean isEmpty(String table_name) {
+    private boolean isEmpty(String table_name) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + table_name, null);
         cursor.moveToFirst();
@@ -340,7 +340,7 @@ public class DatabaseHelper {
         return empty;
     }
 
-    public boolean isFavourite(String name) {
+    private boolean isFavourite(String name) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT " + LOCATIONS_COL_FAVORITED + " FROM " + LOCATIONS + " WHERE " + LOCATIONS + "_COL_NAME = ?;", new String[]{name});
         cursor.moveToFirst();
@@ -359,5 +359,40 @@ public class DatabaseHelper {
         location.setZoom(cursor.getString(5));
         location.setIsFavourited(cursor.getInt(6) != 0);
         return location;
+    }
+
+    private List<LocationItem> populateBusStations() {
+        List<LocationItem> stations = new ArrayList<>();
+        stations.add(new LocationItem("Horsens Trafikterminal", 55.8629951, 9.8365588));
+        stations.add(new LocationItem("V. Berings Plads", 55.8622125, 9.8420348));
+        stations.add(new LocationItem("Nørregade", 55.8630615, 9.8481180));
+        stations.add(new LocationItem("Sundvej/Sygehuset", 55.8645606, 9.8721935));
+        stations.add(new LocationItem("Bakkesvinget", 55.8696416, 9.8752405));
+        stations.add(new LocationItem("Hybenvej", 55.8718567, 9.8820211));
+        stations.add(new LocationItem("VIA, Chr. M. Østergårdsve", 55.8695091, 9.8858728));
+        stations.add(new LocationItem("Haldrupvej/Sundbakken", 55.8696295, 9.8958077));
+        stations.add(new LocationItem("Bygaden/Højmarksvej", 55.8721698, 9.9110426));
+        stations.add(new LocationItem("Stensballeskolen", 55.8727596, 9.9206771));
+        stations.add(new LocationItem("Risengård", 55.8757571, 9.9293246));
+        stations.add(new LocationItem("Griffenfeldtsparken", 55.8778275, 9.9186386));
+        return stations;
+    }
+
+    private BusLineItem pupulateBusLines() {
+        return new BusLineItem("Route 1", populateBusStations());
+    }
+
+    public void populateBusLineBusStations() {
+        BusLineItem busLineItem = pupulateBusLines();
+        for (int i = 0; i < busLineItem.getBusStations().size(); i++) {
+            addNewLocation(busLineItem.getBusStations().get(i).getName(),   // NAME
+                    "Bus Station",                                          // ADDRESS
+                    busLineItem.getBusStations().get(i).getLat(),           // LAT
+                    busLineItem.getBusStations().get(i).getLng(),           // LNG
+                    0,                                                      // ZOOM
+                    0);                                                     // FAVOURITED
+        }
+        addNewBusLine(busLineItem.getBusLineName());
+        populateBusLine(busLineItem);
     }
 }
