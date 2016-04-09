@@ -31,6 +31,8 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
     public static GoogleApiClient googleApiClient;
     FloatingActionButton fab;
 
+    private FavoritesScreenFragment fsf;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +69,6 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
     };
 
 
-
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_home_screen, menu);
@@ -96,7 +97,15 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
     }
 
     private void displayView(int position) {
+
         FragmentManager fm = getFragmentManager();
+
+//            fsf = FavoritesScreenFragment.newInstance(position);
+//            Bundle args = new Bundle();
+//            args.putInt(FavoritesScreenFragment.IMAGE_RES, position);
+//            fsf.setArguments(args);
+//
+
         String title = getString(R.string.app_name);
         switch (position) {
             case 0:
@@ -107,6 +116,7 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
                 break;
             case 1:
                 fm.beginTransaction().replace(R.id.fragment_container, new FavoritesScreenFragment()).commit();
+
                 title = getString(R.string.title_favourites);
                 fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_dark_plus_24dp));
                 break;
@@ -120,6 +130,7 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
 
         getSupportActionBar().setTitle(title);
     }
+
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {

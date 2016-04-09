@@ -67,7 +67,7 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
                 .build();
         atv_fav_item_address = (AutoCompleteTextView) v.findViewById(R.id
                 .atv_autocomplete_fav_item_address);
-        atv_fav_item_address.setThreshold(3);
+        atv_fav_item_address.setThreshold(1);
         tv_fav_item_name = (EditText) v.findViewById(R.id.et_fav_item_name);
 
         atv_fav_item_address.setOnItemClickListener(mAutocompleteClickListener);
