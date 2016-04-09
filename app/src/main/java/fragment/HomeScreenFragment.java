@@ -190,13 +190,13 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         String dot = "\u2022 Bullet";
 
         BusStationInfo busStationInfos[] = new BusStationInfo[]{
-                new BusStationInfo(R.drawable.ic_flag_24dp, "Åboulevarden", "3 min a pe " + "\u2022" + " 15, 3A"),
-                new BusStationInfo(R.drawable.ic_flag_24dp, "Gasve", "3 min a pe " + "\u2022" + " 1, 3"),
-                new BusStationInfo(R.drawable.ic_flag_24dp, "Sundhedshuset", "5 min a pe " + "\u2022" + " 11, 3A, 6G"),
-                new BusStationInfo(R.drawable.ic_flag_24dp, "V. Berings Plads", "8 min a pe " + "\u2022" + " 15"),
-                new BusStationInfo(R.drawable.ic_flag_24dp, "Hybenvej", "9 min a pe " + "\u2022" + " 3A"),
-                new BusStationInfo(R.drawable.ic_flag_24dp, "VIA, Chr. M. Østergårdsve", "9 min a pe " + "\u2022" + " 6G"),
-                new BusStationInfo(R.drawable.ic_flag_24dp, "Rådhuse", "12 min a pe " + "\u2022" + " 15, 4A")
+                new BusStationInfo("Åboulevarden", "3 min a pe " + "\u2022" + " 15, 3A"),
+                new BusStationInfo("Gasve", "3 min a pe " + "\u2022" + " 1, 3"),
+                new BusStationInfo("Sundhedshuset", "5 min a pe " + "\u2022" + " 11, 3A, 6G"),
+                new BusStationInfo("V. Berings Plads", "8 min a pe " + "\u2022" + " 15"),
+                new BusStationInfo("Hybenvej", "9 min a pe " + "\u2022" + " 3A"),
+                new BusStationInfo("VIA, Chr. M. Østergårdsve", "9 min a pe " + "\u2022" + " 6G"),
+                new BusStationInfo("Rådhuse", "12 min a pe " + "\u2022" + " 15, 4A")
         };
 
         homeListView.addHeaderView(transparentHeaderView);
