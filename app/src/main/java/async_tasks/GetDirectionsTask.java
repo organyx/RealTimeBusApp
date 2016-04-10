@@ -26,6 +26,7 @@ import javax.net.ssl.HttpsURLConnection;
 import model.google_route_items.Leg;
 import model.google_route_items.Route;
 import model.google_route_items.Step;
+import utils.JSONParser;
 import utils.TaskParameters;
 
 
@@ -43,15 +44,16 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
         JSONObject result = new JSONObject();
         URL url;
         HttpsURLConnection urlConnection;
+        StringBuilder stringBuilder = new StringBuilder("https://maps.googleapis.com/maps/api/directions/json");
         for (TaskParameters p : params)
         {
             try {
                 taskMap = p.getGmap();
-                url = new URL("https://maps.googleapis.com/maps/api/directions/json?origin=" + p.getFrom().latitude + "," + p.getFrom().longitude
-                        + "&destination=" + p.getTo().latitude + "," + p.getTo().longitude
-                        + "&waypoints=55.8622125,9.8420348|55.8630615,9.8481180|55.8645606,9.8721935|55.8696416,9.8752405|55.8718567,9.8820211"
-                        + "&region=dk"
-                        + "&key=" + BuildConfig.SERVER_KEY);
+
+                buildUrl(stringBuilder, p);
+
+                url = new URL(stringBuilder.toString());
+
                 urlConnection = (HttpsURLConnection)url.openConnection();
 
                 urlConnection.setRequestMethod("POST");
@@ -104,6 +106,53 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
         return null;
     }
 
+    private void buildUrl(StringBuilder stringBuilder, TaskParameters p) {
+        // origin
+        final LatLng origin = p.getFrom();
+        stringBuilder.append("?origin=")
+                .append(origin.latitude)
+                .append(',')
+                .append(origin.longitude);
+
+        // destination
+        final LatLng destination = p.getTo();
+        stringBuilder.append("&destination=")
+                .append(destination.latitude)
+                .append(',')
+                .append(destination.longitude);
+
+        // travel
+        stringBuilder.append("&mode=").append(p.getTravelMode().getValue());
+
+        // waypoints
+        if (p.getWaypoints().size() > 0) {
+            stringBuilder.append("&waypoints=");
+            if(p.isOptimize())
+                stringBuilder.append("optimize:true|");
+            for (int i = 0; i < p.getWaypoints().size(); i++) {
+                final LatLng points = p.getWaypoints().get(i);
+                stringBuilder.append("via:"); // we don't want to parse the resulting JSON for 'legs'.
+                stringBuilder.append(points.latitude);
+                stringBuilder.append(",");
+                stringBuilder.append(points.longitude);
+                stringBuilder.append("|");
+            }
+        }
+
+        // sensor
+        stringBuilder.append("&sensor=true");
+
+        // language
+        if (p.getLanguage() != null) {
+            stringBuilder.append("&language=").append(p.getLanguage());
+        }
+
+        // API key
+        if(p.getKey() != null) {
+            stringBuilder.append("&key=").append(p.getKey());
+        }
+    }
+
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
@@ -131,13 +180,9 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
 
                 Log.d(TAG, path.toString());
 
-                for (int n = 0; n < path.getLegs().size(); n++){
-                    Leg leg = path.getLegs().get(n);
-                    for (int m = 0; m < leg.getSteps().size(); m++)
-                    {
-                        Step step = leg.getSteps().get(m);
-                        for (int k = 0; k < step.getPoints().size(); k++){
-                            LatLng position = step.getPoints().get(k);
+                for (Leg leg: path.getLegs()) {
+                    for (Step step: leg.getSteps()) {
+                        for (LatLng position: step.getPoints()) {
                             points.add(position);
                         }
                     }

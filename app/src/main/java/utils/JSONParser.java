@@ -1,4 +1,4 @@
-package async_tasks;
+package utils;
 
 import com.google.android.gms.maps.model.LatLng;
 
