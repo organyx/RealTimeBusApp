@@ -9,7 +9,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,11 +19,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import model.google_route_items.Leg;
+import model.google_route_items.Route;
+import model.google_route_items.Step;
 import utils.TaskParameters;
 
 
@@ -97,7 +98,10 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
             }
         }
         resultSet = result;
-        return result.toString();
+        if (result != null) {
+            return result.toString();
+        }
+        return null;
     }
 
     @Override
@@ -107,32 +111,42 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
 
     @Override
     protected void onPostExecute(String routes) {
-        List<List<HashMap<String, String>>> routesJson = null;
+        List<Route> routesJson = null;
         JSONParser parser = new JSONParser();
-        routesJson = parser.parse(resultSet);
-
-        ArrayList<LatLng> points = null;
+//        routesJson = parser.parse(resultSet);
+        try {
+            routesJson = parser.parse(routes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ArrayList<LatLng> points;
         PolylineOptions polyLineOptions = null;
 
         // traversing through routes
-        for (int i = 0; i < routesJson.size(); i++) {
-            points = new ArrayList<LatLng>();
-            polyLineOptions = new PolylineOptions();
-            List<HashMap<String, String>> path = routesJson.get(i);
+        if (routesJson != null) {
+            for (int i = 0; i < routesJson.size(); i++) {
+                points = new ArrayList<>();
+                polyLineOptions = new PolylineOptions();
+                Route path = routesJson.get(i);
 
-            for (int j = 0; j < path.size(); j++) {
-                HashMap<String, String> point = path.get(j);
+                Log.d(TAG, path.toString());
 
-                double lat = Double.parseDouble(point.get("lat"));
-                double lng = Double.parseDouble(point.get("lng"));
-                LatLng position = new LatLng(lat, lng);
+                for (int n = 0; n < path.getLegs().size(); n++){
+                    Leg leg = path.getLegs().get(n);
+                    for (int m = 0; m < leg.getSteps().size(); m++)
+                    {
+                        Step step = leg.getSteps().get(m);
+                        for (int k = 0; k < step.getPoints().size(); k++){
+                            LatLng position = step.getPoints().get(k);
+                            points.add(position);
+                        }
+                    }
+                }
 
-                points.add(position);
+                polyLineOptions.addAll(points);
+                polyLineOptions.width(2);
+                polyLineOptions.color(Color.BLUE);
             }
-
-            polyLineOptions.addAll(points);
-            polyLineOptions.width(2);
-            polyLineOptions.color(Color.BLUE);
         }
 
         taskMap.addPolyline(polyLineOptions);

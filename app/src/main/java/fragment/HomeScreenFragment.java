@@ -40,9 +40,11 @@ import com.pubnub.api.Pubnub;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import adapter.CustomListViewAdapter;
+import async_tasks.GetDirectionsTask;
 import model.BusStationInfo;
 import model.HomeListView;
 import model.LocationItem;
+import utils.TaskParameters;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -234,7 +236,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             }
         }
 
-//        googleMap.setMyLocationEnabled(true);
+        googleMap.setMyLocationEnabled(true);
 //        Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
 //
 ////        this.googleMap.setTrafficEnabled(true);
@@ -248,20 +250,24 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         Log.d(TAG, "isCompassEnabled: " + googleMap.getUiSettings().isCompassEnabled());
         Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
 //
+
+//        final LatLng trafikTerminal = new LatLng(55.8629951, 9.8365588);
+//        final LatLng via = new LatLng(55.8695091, 9.8858728);
 //        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 //            @Override
 //            public boolean onMarkerClick(Marker marker) {
 //                Log.d(TAG, "MarkerCLicked");
 //                // Draw polyline between 2 points
-////                LatLng trafikTerminal = new LatLng(55.8629951, 9.8365588);
-////                LatLng via = new LatLng(55.8695091, 9.8858728);
-////                new GetDirectionsTask().execute(new TaskParameters(googleMap, trafikTerminal, via));
+//
+//
+//                new GetDirectionsTask().execute(new TaskParameters(googleMap, trafikTerminal, via));
 //                // Get nearest bus stations
-//                new GetNearestBusStations().execute(new TaskParameters(googleMap, marker.getPosition()));
+////                new GetNearestBusStations().execute(new TaskParameters(googleMap, marker.getPosition()));
 //                return false;
 //            }
 //        });
         this.googleMap = googleMap;
+//        this.googleMap.addMarker(new MarkerOptions().title("Marker").position(trafikTerminal));
 //        if(!requestingLocationUpdates)
 //        {
         if (favoriteItem == null) {
