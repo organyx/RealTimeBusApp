@@ -93,6 +93,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private Object m;
 
     FloatingActionButton fab;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -76,7 +76,7 @@ public class FavoritesScreenFragment extends Fragment {
                             ).show();
                         } else {
 
-                            db.deleteFavouriteItem(temp.toString());
+                            db.updateLocationFavourite(temp.toString(), false);
                             favoriteListAdapter.notifyItemRemoved(list.size() - 1);
                             favoriteListAdapter.notifyDataSetChanged();
                             favoriteListAdapter = new FavoriteListAdapter(getActivity(), db.getAllFavourites());

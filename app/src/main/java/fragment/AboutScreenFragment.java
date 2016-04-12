@@ -42,11 +42,11 @@ public class AboutScreenFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_about_screen, container, false);
         ImageView v = (ImageView) view.findViewById(R.id.omg);
-        if(v != null){
+        if (v != null) {
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(v.getContext(),"DODO", Toast.LENGTH_LONG).show();
+                    Toast.makeText(v.getContext(), "DODO", Toast.LENGTH_LONG).show();
                 }
             });
         }

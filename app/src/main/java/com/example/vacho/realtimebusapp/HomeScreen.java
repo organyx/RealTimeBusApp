@@ -68,8 +68,7 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
 
         // THIS BLOCK EXECUTES ONLY ON THE 1ST LAUNCH OF THE APP
         loadFirstTime();
-        if(firstStart)
-        {
+        if (firstStart) {
             DatabaseHelper databaseHelper = new DatabaseHelper(this);
             databaseHelper.populateBusLineBusStations();
             firstStart = false;
