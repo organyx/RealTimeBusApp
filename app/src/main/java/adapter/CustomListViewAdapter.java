@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import com.example.vacho.realtimebusapp.R;
 
+import java.util.List;
+
 import model.BusStationInfo;
 
 /**
@@ -20,9 +22,9 @@ public class CustomListViewAdapter extends ArrayAdapter {
 
     Context context;
     int layoutResourceId;
-    BusStationInfo data[] = null;
+    List<BusStationInfo> data = null;
 
-    public CustomListViewAdapter(Context context, int layoutResourceId, BusStationInfo[] data) {
+    public CustomListViewAdapter(Context context, int layoutResourceId, List<BusStationInfo> data) {
         super(context, layoutResourceId, data);
         this.context = context;
         this.layoutResourceId = layoutResourceId;
@@ -32,7 +34,7 @@ public class CustomListViewAdapter extends ArrayAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        BusStationInfoHolder holder = null;
+        BusStationInfoHolder holder;
 
         if (row == null) {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
@@ -48,7 +50,7 @@ public class CustomListViewAdapter extends ArrayAdapter {
             holder = (BusStationInfoHolder) row.getTag();
         }
 
-        BusStationInfo b = data[position];
+        BusStationInfo b = data.get(position);
         holder.imgIcon.setImageResource(b.getIcon());
         holder.txtTitle1.setText(b.getBusStationName());
         holder.txtTitle2.setText(b.getBusLines());

@@ -36,6 +36,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -47,17 +48,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import adapter.CustomListViewAdapter;
+import async_tasks.AsyncResponse;
 import async_tasks.GetDirectionsTask;
 import async_tasks.GetNearestBusStations;
+import model.BusLineItem;
 import model.BusStationInfo;
 import model.HomeListView;
 import model.LocationItem;
+import model.google_items.Place;
 import utils.TaskParameters;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, SlidingUpPanelLayout.PanelSlideListener {
+public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, SlidingUpPanelLayout.PanelSlideListener, AsyncResponse {
 
     private View transparentView;
     private View whiteSpaceView;
@@ -80,7 +84,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private static final String TAG = "HomeScreenFrag";
     public int pos = 0;
     LocationItem favoriteItem;
-
 
     private MenuItem btnTrack;
     private static final String PUBNUB_TAG = "PUBNUB";
@@ -198,18 +201,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         whiteSpaceView.setVisibility(View.VISIBLE);
         String dot = "\u2022 Bullet";
 
-        BusStationInfo busStationInfos[] = new BusStationInfo[]{
-                new BusStationInfo("Åboulevarden", "3 min a pe " + "\u2022" + " 15, 3A"),
-                new BusStationInfo("Gasve", "3 min a pe " + "\u2022" + " 1, 3"),
-                new BusStationInfo("Sundhedshuset", "5 min a pe " + "\u2022" + " 11, 3A, 6G"),
-                new BusStationInfo("V. Berings Plads", "8 min a pe " + "\u2022" + " 15"),
-                new BusStationInfo("Hybenvej", "9 min a pe " + "\u2022" + " 3A"),
-                new BusStationInfo("VIA, Chr. M. Østergårdsve", "9 min a pe " + "\u2022" + " 6G"),
-                new BusStationInfo("Rådhuse", "12 min a pe " + "\u2022" + " 15, 4A")
-        };
-
         homeListView.addHeaderView(transparentHeaderView);
-        homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, busStationInfos));
+
         homeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -261,28 +254,28 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         final LatLng via = new LatLng(55.8695091, 9.8858728);
         this.googleMap = googleMap;
 //        this.googleMap.addMarker(new MarkerOptions().title("Marker").position(trafikTerminal));
-        this.googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Log.d(TAG, "MarkerCLicked");
-                // Draw polyline between 2 points
-
-//                TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, via);
-//                getDirections.setKey(BuildConfig.SERVER_KEY);
-//                getDirections.setOptimize(true);
-//                getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
-//                getDirections.setWaypoints(waipoints());
-//                new GetDirectionsTask().execute(getDirections);
-
-                // Get nearest bus stations
-
-                TaskParameters getPlaces = new TaskParameters(googleMap, marker.getPosition());
-                getPlaces.setPlaceType(TaskParameters.PlaceType.BUS_STATION);
-                getPlaces.setRadius(500);
-                new GetNearestBusStations().execute(getPlaces);
-                return false;
-            }
-        });
+//        this.googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+//            @Override
+//            public boolean onMarkerClick(Marker marker) {
+//                Log.d(TAG, "MarkerCLicked");
+//                // Draw polyline between 2 points
+//
+////                TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, via);
+////                getDirections.setKey(BuildConfig.SERVER_KEY);
+////                getDirections.setOptimize(true);
+////                getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
+////                getDirections.setWaypoints(waipoints());
+////                new GetDirectionsTask().execute(getDirections);
+//
+////                 Get nearest bus stations
+////
+////                TaskParameters getPlaces = new TaskParameters(googleMap, marker.getPosition());
+////                getPlaces.setPlaceType(TaskParameters.PlaceType.BUS_STATION);
+////                getPlaces.setRadius(500);
+////                new GetNearestBusStations().execute(getPlaces);
+//                return false;
+//            }
+//        });
 
 
 //        if(!requestingLocationUpdates)
@@ -305,27 +298,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     }
 
 
-//        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(getActivity())
-//                .addConnectionCallbacks(getActivity())
-//                .addOnConnectionFailedListener(getActivity())
-//                .addApi(LocationServices.API)
-//                .build();
-//        googleMap.setMyLocationEnabled(true);
-//
-//        googleMap.setM
-//
-//        gpsTracker = new GPSTracker(getActivity());
-//        if(gpsTracker.canGetLocation()) {
-//            LatLng loc = new LatLng(gpsTracker.getLatitude(), gpsTracker.getLongitude());
-//            googleMap.setLocationSource((LocationSource) gpsTracker.getLocation());
-//        }
-//        else
-//        {
-//            gpsTracker.showSettingsAlert();
-//        }
-//    }
-//
-//    @Override
+    //    @Override
 //    public boolean onOptionsItemSelected(MenuItem item) {
 //        // Handle presses on the action bar items
 //        switch (item.getItemId()) {
@@ -442,8 +415,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //    }
 
     private void setDefaultLocation(GoogleMap defaultLocation) {
-        LatLng horsens = new LatLng(55.866, 9.833);
-
+        horsens = new LatLng(55.866, 9.833);
+        TaskParameters parameters = null;
         defaultLocation.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
 
         if (isGPSEnabled) {
@@ -458,7 +431,9 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 defaultLocation.addMarker(new MarkerOptions()
                         .title("Current Location")
                         .position(latLng));
-
+                //--------------------------
+                currentLocation = latLng;
+                parameters = new TaskParameters(googleMap, new LatLng(location.getLatitude(), location.getLongitude()));
             }
         } else {
             defaultLocation.moveCamera(CameraUpdateFactory.newLatLng(horsens));
@@ -466,9 +441,12 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             defaultLocation.addMarker(new MarkerOptions()
                     .title("Horsens")
                     .position(horsens));
+            parameters = new TaskParameters(googleMap, horsens);
         }
 
-
+        GetNearestBusStations task = new GetNearestBusStations();
+        task.delegate = this;
+        task.execute(parameters);
     }
 
     private void setFavLocation(GoogleMap favLocation) {
@@ -514,5 +492,46 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
     @Override
     public void onPanelAnchored(View panel) {
+    }
+
+    @Override
+    public void onTaskEndWithResult(int success) {
+        switch (success) {
+            case 0:
+                Log.d(TAG, "Task Success = " + success);
+                break;
+            case 1:
+                Log.d(TAG, "Task Success = " + success);
+                break;
+            default:
+                Log.d(TAG, "Task Success = " + success);
+                break;
+        }
+    }
+
+    @Override
+    public void processFinish(final List<Place> places) {
+
+        final List<BusStationInfo> busStationInfos = new ArrayList<>();
+
+        if (places != null) {
+            Log.d(TAG, places.toString());
+            for (Place place : places) {
+                busStationInfos.add(new BusStationInfo(place.getName(), place.getVicinity()));
+            }
+
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, busStationInfos));
+                    for (Place p : places) {
+                        googleMap.addMarker(new MarkerOptions()
+                                .title(p.getName())
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
+                                .position(p.getLocation()));
+                    }
+                }
+            });
+        }
     }
 }

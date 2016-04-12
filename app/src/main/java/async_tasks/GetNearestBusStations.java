@@ -32,12 +32,13 @@ import utils.TaskParameters;
  * Created by Aleks on 29-Mar-16.
  * Async Task for retrieving nearby bus stations.
  */
-public class GetNearestBusStations extends AsyncTask<TaskParameters, String, String> {
+public class GetNearestBusStations extends AsyncTask<TaskParameters, String, List<Place>> {
     private static final String TAG = "GetNearestBusStations";
     GoogleMap taskMap;
+    public AsyncResponse delegate;
 
     @Override
-    protected String doInBackground(TaskParameters... params) {
+    protected List<Place> doInBackground(TaskParameters... params) {
         JSONObject result = new JSONObject();
         URL url;
         HttpsURLConnection urlConnection;
@@ -89,7 +90,29 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Str
             }
         }
 
-        return result.toString();
+        List<Place> placesJson = null;
+        JSONParser parser = new JSONParser();
+
+        try {
+            placesJson = parser.parsePlaces(result.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (placesJson != null) {
+            for (int j = 0; j < placesJson.size(); j++) {
+//                taskMap.addMarker(new MarkerOptions()
+//                        .title(placesJson.get(j).getName())
+//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
+//                        .position(placesJson.get(j).getLocation()));
+                Log.d(TAG, placesJson.get(j).toString());
+            }
+        }
+
+        if (delegate != null) {
+            delegate.processFinish(placesJson);
+        }
+        return placesJson;
     }
 
     private void buildUrl(StringBuilder stringBuilder, TaskParameters p) {
@@ -131,25 +154,36 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Str
     }
 
     @Override
-    protected void onPostExecute(String result) {
-//            Toast.makeText(getActivity(), "Loaded\n" + result, Toast.LENGTH_SHORT).show();
-        List<Place> placesJson = null;
-        JSONParser parser = new JSONParser();
+    protected void onPostExecute(List<Place> places) {
+        if (delegate != null) {
+            if (places != null)
+                delegate.onTaskEndWithResult(1);
 
-        try {
-            placesJson = parser.parsePlaces(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (placesJson != null) {
-            for (int j = 0; j < placesJson.size(); j++) {
-                taskMap.addMarker(new MarkerOptions()
-                        .title(placesJson.get(j).getName())
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
-                        .position(placesJson.get(j).getLocation()));
-                Log.d(TAG, placesJson.get(j).toString());
-            }
+            else
+                delegate.onTaskEndWithResult(0);
         }
     }
+
+//    @Override
+//    protected void onPostExecute(String result) {
+////            Toast.makeText(getActivity(), "Loaded\n" + result, Toast.LENGTH_SHORT).show();
+//        List<Place> placesJson = null;
+//        JSONParser parser = new JSONParser();
+//
+//        try {
+//            placesJson = parser.parsePlaces(result);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        if (placesJson != null) {
+//            for (int j = 0; j < placesJson.size(); j++) {
+//                taskMap.addMarker(new MarkerOptions()
+//                        .title(placesJson.get(j).getName())
+//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
+//                        .position(placesJson.get(j).getLocation()));
+//                Log.d(TAG, placesJson.get(j).toString());
+//            }
+//        }
+//    }
 }
