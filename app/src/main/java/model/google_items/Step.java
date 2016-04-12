@@ -1,25 +1,28 @@
-package model.google_route_items;
+package model.google_items;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Aleks on 10-Apr-16.
- * Leg class model for Google Directions API response.
+ * Step class model for Google Directions API response.
  */
-public class Leg {
+public class Step {
     private Distance distance;
     private Duration duration;
-    private String endAddress;
     private LatLng endLocation;
-    private String startAddress;
     private LatLng startLocation;
-    private List<Step> steps;
+    private String htmlInstructions;
+    private String travelMode;
+    private List<LatLng> points;
 
-    public Leg() {
-        steps = new ArrayList<>();
+    public List<LatLng> getPoints() {
+        return points;
+    }
+
+    public void setPoints(List<LatLng> points) {
+        this.points = points;
     }
 
     public Distance getDistance() {
@@ -38,28 +41,12 @@ public class Leg {
         this.duration = duration;
     }
 
-    public String getEndAddress() {
-        return endAddress;
-    }
-
-    public void setEndAddress(String endAddress) {
-        this.endAddress = endAddress;
-    }
-
     public LatLng getEndLocation() {
         return endLocation;
     }
 
     public void setEndLocation(LatLng endLocation) {
         this.endLocation = endLocation;
-    }
-
-    public String getStartAddress() {
-        return startAddress;
-    }
-
-    public void setStartAddress(String startAddress) {
-        this.startAddress = startAddress;
     }
 
     public LatLng getStartLocation() {
@@ -70,28 +57,32 @@ public class Leg {
         this.startLocation = startLocation;
     }
 
-    public List<Step> getSteps() {
-        return steps;
+    public String getHtmlInstructions() {
+        return htmlInstructions;
     }
 
-    public void setSteps(List<Step> steps) {
-        this.steps = steps;
+    public void setHtmlInstructions(String htmlInstructions) {
+        this.htmlInstructions = htmlInstructions;
     }
 
-    public void addStep(Step step) {
-        this.steps.add(step);
+    public String getTravelMode() {
+        return travelMode;
+    }
+
+    public void setTravelMode(String travelMode) {
+        this.travelMode = travelMode;
     }
 
     @Override
     public String toString() {
-        return "Leg{" +
+        return "Step{" +
                 "distance=" + distance +
                 ", duration=" + duration +
-                ", endAddress='" + endAddress + '\'' +
                 ", endLocation=" + endLocation +
-                ", startAddress='" + startAddress + '\'' +
                 ", startLocation=" + startLocation +
-                ", steps=" + steps +
+                ", htmlInstructions='" + htmlInstructions + '\'' +
+                ", travelMode='" + travelMode + '\'' +
+                ", points=" + points +
                 '}';
     }
 }

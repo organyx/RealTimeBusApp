@@ -20,9 +20,12 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import model.google_items.Place;
+import utils.JSONParser;
 import utils.TaskParameters;
 
 /**
@@ -116,7 +119,7 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Str
             stringBuilder.append("&language=en");
 
         // API key
-        if(p.getKey() != null)
+        if (p.getKey() != null)
             stringBuilder.append("&key=").append(p.getKey());
         else
             stringBuilder.append("&key=").append(BuildConfig.SERVER_KEY);
@@ -130,25 +133,23 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Str
     @Override
     protected void onPostExecute(String result) {
 //            Toast.makeText(getActivity(), "Loaded\n" + result, Toast.LENGTH_SHORT).show();
+        List<Place> placesJson = null;
+        JSONParser parser = new JSONParser();
+
         try {
-            JSONObject obj = new JSONObject(result);
-            JSONArray objArray = obj.getJSONArray("results");
-            for (int i = 0; i < objArray.length(); i++) {
-                JSONObject explrObject = objArray.getJSONObject(i);
-                Log.d(TAG, explrObject.getString("name"));
-//                    Log.d(TAG, String.valueOf(explrObject.getJSONArray("geometry").getJSONArray(0).getDouble(0)));
-//                    Log.d(TAG, explrObject.getJSONObject("geometry").toString());
-//                    Log.d(TAG, explrObject.getJSONObject("geometry").getJSONObject("location").toString());
-                Log.d(TAG, String.valueOf(explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lat")));
-                taskMap.addMarker(new MarkerOptions()
-                        .title(explrObject.getString("name"))
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
-                        .position(new LatLng(
-                                explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
-                                explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lng"))));
-            }
-        } catch (JSONException e) {
+            placesJson = parser.parsePlaces(result);
+        } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        if (placesJson != null) {
+            for (int j = 0; j < placesJson.size(); j++) {
+                taskMap.addMarker(new MarkerOptions()
+                        .title(placesJson.get(j).getName())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
+                        .position(placesJson.get(j).getLocation()));
+                Log.d(TAG, placesJson.get(j).toString());
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package model.google_route_items;
+package model.google_items;
 
 import android.content.Context;
 
