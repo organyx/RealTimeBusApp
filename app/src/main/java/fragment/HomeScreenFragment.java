@@ -257,24 +257,24 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         final LatLng trafikTerminal = new LatLng(55.8629951, 9.8365588);
         final LatLng via = new LatLng(55.8695091, 9.8858728);
         this.googleMap = googleMap;
-        this.googleMap.addMarker(new MarkerOptions().title("Marker").position(trafikTerminal));
-        this.googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Log.d(TAG, "MarkerCLicked");
-                // Draw polyline between 2 points
-
-                TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, via);
-                getDirections.setKey(BuildConfig.SERVER_KEY);
-                getDirections.setOptimize(true);
-                getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
-                getDirections.setWaypoints(waipoints());
-                new GetDirectionsTask().execute(getDirections);
-                // Get nearest bus stations
-//                new GetNearestBusStations().execute(new TaskParameters(googleMap, marker.getPosition()));
-                return false;
-            }
-        });
+//        this.googleMap.addMarker(new MarkerOptions().title("Marker").position(trafikTerminal));
+//        this.googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+//            @Override
+//            public boolean onMarkerClick(Marker marker) {
+//                Log.d(TAG, "MarkerCLicked");
+//                // Draw polyline between 2 points
+//
+//                TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, via);
+//                getDirections.setKey(BuildConfig.SERVER_KEY);
+//                getDirections.setOptimize(true);
+//                getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
+//                getDirections.setWaypoints(waipoints());
+//                new GetDirectionsTask().execute(getDirections);
+//                // Get nearest bus stations
+////                new GetNearestBusStations().execute(new TaskParameters(googleMap, marker.getPosition()));
+//                return false;
+//            }
+//        });
 
 
 //        if(!requestingLocationUpdates)

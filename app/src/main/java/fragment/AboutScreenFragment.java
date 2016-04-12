@@ -42,7 +42,7 @@ public class AboutScreenFragment extends Fragment {
 
         setHasOptionsMenu(true); // For Handling Fragment calls to menu items
 
-        databaseHelper = new DatabaseHelper(getActivity());
+//        databaseHelper = new DatabaseHelper(getActivity());
 
         return v;
     }
@@ -59,8 +59,8 @@ public class AboutScreenFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.action_tracking:
                 Log.d(TAG, "'Tracking' Button Pressed");
-                route = databaseHelper.getBusLine(Constants.route1);
-                Log.d(TAG, route.toString());
+//                route = databaseHelper.getBusLine(Constants.route1);
+//                Log.d(TAG, route.toString());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
