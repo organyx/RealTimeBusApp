@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -109,6 +110,10 @@ public class FavoritesScreenFragment extends Fragment {
                 transaction.addToBackStack(null);
                 transaction.commit();
                 addButton.hide();
+//                Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+//                if (toolbar != null) {
+//                    toolbar.setNavigationIcon(R.drawable.ic_keyboard_backspace_white_24dp);
+//                }
             }
         });
 
