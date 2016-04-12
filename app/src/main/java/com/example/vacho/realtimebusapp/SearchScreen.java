@@ -2,36 +2,60 @@ package com.example.vacho.realtimebusapp;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import adapter.FragmentPagerAdapter;
+import adapter.PlaceArrayAdapter;
 
-public class SearchScreen extends AppCompatActivity {
+public class SearchScreen extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+
+    private static final String TAG = "SearchScreen";
 
     private ViewPager viewPager;
     private PagerSlidingTabStrip pagerSlidingTabStrip;
     private FragmentPagerAdapter fragmentPagerAdapter;
 
+    private GoogleApiClient googleApiClient;
+    private PlaceArrayAdapter placeArrayAdapter;
+    private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
+            new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
+
     LinearLayout contentSearchScreenMainLayout;
     TextView tabTitle;
-    TextInputEditText hintForSearchField;
+    AutoCompleteTextView hintForSearchField;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_screen);
-      //  Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-      //  setSupportActionBar(toolbar);
+        //  Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //  setSupportActionBar(toolbar);
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -42,7 +66,18 @@ public class SearchScreen extends AppCompatActivity {
 //            }
 //        });
 
-        hintForSearchField = (TextInputEditText) findViewById(R.id.editable_text);
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Places.GEO_DATA_API)
+//                .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this) // RECREATED WITHIN onStart and onStop METHODS
+                .addConnectionCallbacks(this)
+                .build();
+
+        hintForSearchField = (AutoCompleteTextView) findViewById(R.id.atv_autocomplete_fav_item_address);
+        hintForSearchField.setOnItemClickListener(mAutocompleteClickListener);
+        placeArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
+                BOUNDS_MOUNTAIN_VIEW, null);
+        hintForSearchField.setAdapter(placeArrayAdapter);
+
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(fragmentPagerAdapter);
@@ -69,20 +104,83 @@ public class SearchScreen extends AppCompatActivity {
                     if (i == position) {
                         tabTitle.setTextColor(Color.parseColor("#FFCC80"));
                         hintForSearchField.setHint("Type your line number: ");
-                    }  else {
+                    } else {
                         hintForSearchField.setHint("Where do you want to go?");
                         tabTitle.setTextColor(Color.GRAY);
                     }
                 }
-
-
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
             }
         });
+    }
 
+    private AdapterView.OnItemClickListener mAutocompleteClickListener
+            = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            final PlaceArrayAdapter.PlaceAutocomplete item = placeArrayAdapter.getItem(position);
+            final String placeId = String.valueOf(item.placeId);
+            Log.i(TAG, "Selected: " + item.description);
+            PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
+                    .getPlaceById(googleApiClient, placeId);
+            placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+            Log.i(TAG, "Fetching details for ID: " + item.placeId);
+        }
+    };
+
+    private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback
+            = new ResultCallback<PlaceBuffer>() {
+        @Override
+        public void onResult(@NonNull PlaceBuffer places) {
+            if (!places.getStatus().isSuccess()) {
+                Log.e(TAG, "Place query did not complete. Error: " +
+                        places.getStatus().toString());
+                return;
+            }
+            // Selecting the first object buffer.
+            final Place place = places.get(0);
+            CharSequence attributions = places.getAttributions();
+
+//            tv_fav_item_name.setText(Html.fromHtml(place.getName() + ""));
+//            addMarker(place);
+        }
+    };
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        placeArrayAdapter.setGoogleApiClient(googleApiClient);
+        Log.i(TAG, "Google Places API connected.");
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        placeArrayAdapter.setGoogleApiClient(null);
+        Log.e(TAG, "Google Places API connection suspended.");
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.e(TAG, "Google Places API connection failed with error code: "
+                + connectionResult.getErrorCode());
+
+        Toast.makeText(this,
+                "Google Places API connection failed with error code:" +
+                        connectionResult.getErrorCode(),
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        googleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        googleApiClient.disconnect();
     }
 }

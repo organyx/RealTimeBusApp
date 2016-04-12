@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">RealTimeBusApp</string>
+    <string name="app_name">IB BusTracker</string>
     <string name="action_settings">Settings</string>
     <string name="action_search">Search</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
-
+    <string name="nav_item_back">Back</string>
     <string name="nav_item_home">Home</string>
     <string name="nav_item_favourites">Favourites</string>
     <string name="nav_item_about">About</string>

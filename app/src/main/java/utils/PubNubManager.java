@@ -13,15 +13,26 @@ import org.json.JSONObject;
 
 /**
  * Created by Aleks on 24-Mar-16.
+ * Class for managing PubNub API
  */
 public class PubNubManager {
     public final static String TAG = "PUBNUB";
 
+    /**
+     * Method for initializing PubNub.
+     * @return new Instance initialized with PubNub keys.
+     */
     public static Pubnub startPubnub() {
         Log.d(TAG, "Initializing PubNub");
         return new Pubnub(BuildConfig.PUBLISH_KEY, BuildConfig.SUBSCRIBE_KEY);
     }
 
+    /**
+     * Method for subscribing to specific channel.
+     * @param mPubnub PubNub instance.
+     * @param channelName PubNub channel name.
+     * @param subscribeCallback PubNub callback.
+     */
     public static void subscribe(Pubnub mPubnub, String channelName, Callback subscribeCallback) {
         // Subscribe to channel
         try {
@@ -32,6 +43,14 @@ public class PubNubManager {
         }
     }
 
+    /**
+     * Method for posting data to specific channel.
+     * @param pubnub PubNub instance.
+     * @param channelName PubNub channel name.
+     * @param latitude Device latitude.
+     * @param longitude Device longitude.
+     * @param altitude Device altitude.
+     */
     public static void broadcastLocation(Pubnub pubnub, String channelName, double latitude,
                                          double longitude, double altitude) {
         JSONObject message = new JSONObject();
@@ -46,6 +65,9 @@ public class PubNubManager {
         pubnub.publish(channelName, message, publishCallback);
     }
 
+    /**
+     * Callback for handling responses.
+     */
     public static Callback publishCallback = new Callback() {
 
         @Override

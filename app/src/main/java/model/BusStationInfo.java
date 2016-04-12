@@ -1,5 +1,7 @@
 package model;
 
+import com.example.vacho.realtimebusapp.R;
+
 /**
  * Created by Vacho on 3/11/2016.
  */
@@ -9,14 +11,14 @@ public class BusStationInfo {
     private String busStationName;
     private String busLines;
 
-    public BusStationInfo(int icon, String busStationName, String busLines) {
-        this.icon = icon;
+    public BusStationInfo(String busStationName, String busLines) {
+        this.icon = R.drawable.ic_flag_24dp;
         this.busStationName = busStationName;
         this.busLines = busLines;
     }
 
-    public BusStationInfo(int icon, String busLines){
-        this.icon = icon;
+    public BusStationInfo(String busLines){
+        this.icon = R.drawable.ic_flag_24dp;
         this.busLines = busLines;
     }
 

@@ -18,6 +18,7 @@ import com.example.vacho.realtimebusapp.R;
 import java.util.Collections;
 import java.util.List;
 
+import model.LocationItem;
 import fragment.FavoritesScreenFragment;
 import model.FavoriteItem;
 import utils.DatabaseHelper;
@@ -27,7 +28,7 @@ import utils.DatabaseHelper;
  */
 public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapter.MyFavViewHolder> {
 
-    List<FavoriteItem> data = Collections.emptyList();
+    List<LocationItem> data = Collections.emptyList();
     private LayoutInflater inflater;
     private Context context;
 
@@ -44,7 +45,7 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
         this.listener = listener;
     }
 
-    public FavoriteListAdapter(Context context, List<FavoriteItem> data)
+    public FavoriteListAdapter(Context context, List<LocationItem> data)
     {
         this.context = context;
         inflater = LayoutInflater.from(context);
@@ -65,11 +66,9 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
 
     @Override
     public void onBindViewHolder(final MyFavViewHolder holder, final int position) {
-
-        FavoriteItem current = data.get(position);
+        LocationItem current = data.get(position);
         holder.name.setText(current.getName());
         holder.descr.setText(current.getAddress());
-
     }
 
     @Override
@@ -110,14 +109,14 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
         }
     }
 
-    public void removeItem(FavoriteItem item)
+    public void removeItem(LocationItem item)
     {
         int currentPos = data.indexOf(item);
         data.remove(currentPos);
         notifyItemRemoved(currentPos);
     }
 
-    public void addItem(int position, FavoriteItem item)
+    public void addItem(int position, LocationItem item)
     {
         data.add(position, item);
         notifyItemInserted(position);

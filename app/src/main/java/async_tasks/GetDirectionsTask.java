@@ -9,7 +9,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,11 +19,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import model.google_route_items.Leg;
+import model.google_route_items.Route;
+import model.google_route_items.Step;
+import utils.JSONParser;
 import utils.TaskParameters;
 
 
@@ -42,15 +44,16 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
         JSONObject result = new JSONObject();
         URL url;
         HttpsURLConnection urlConnection;
+        StringBuilder stringBuilder = new StringBuilder("https://maps.googleapis.com/maps/api/directions/json");
         for (TaskParameters p : params)
         {
             try {
                 taskMap = p.getGmap();
-                url = new URL("https://maps.googleapis.com/maps/api/directions/json?origin=" + p.getFrom().latitude + "," + p.getFrom().longitude
-                        + "&destination=" + p.getTo().latitude + "," + p.getTo().longitude
-                        + "&waypoints=55.8622125,9.8420348|55.8630615,9.8481180|55.8645606,9.8721935|55.8696416,9.8752405|55.8718567,9.8820211"
-                        + "&region=dk"
-                        + "&key=" + BuildConfig.SERVER_KEY);
+
+                buildUrl(stringBuilder, p);
+
+                url = new URL(stringBuilder.toString());
+
                 urlConnection = (HttpsURLConnection)url.openConnection();
 
                 urlConnection.setRequestMethod("POST");
@@ -97,7 +100,57 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
             }
         }
         resultSet = result;
-        return result.toString();
+        if (result != null) {
+            return result.toString();
+        }
+        return null;
+    }
+
+    private void buildUrl(StringBuilder stringBuilder, TaskParameters p) {
+        // origin
+        final LatLng origin = p.getFrom();
+        stringBuilder.append("?origin=")
+                .append(origin.latitude)
+                .append(',')
+                .append(origin.longitude);
+
+        // destination
+        final LatLng destination = p.getTo();
+        stringBuilder.append("&destination=")
+                .append(destination.latitude)
+                .append(',')
+                .append(destination.longitude);
+
+        // travel
+        stringBuilder.append("&mode=").append(p.getTravelMode().getValue());
+
+        // waypoints
+        if (p.getWaypoints().size() > 0) {
+            stringBuilder.append("&waypoints=");
+            if(p.isOptimize())
+                stringBuilder.append("optimize:true|");
+            for (int i = 0; i < p.getWaypoints().size(); i++) {
+                final LatLng points = p.getWaypoints().get(i);
+                stringBuilder.append("via:"); // we don't want to parse the resulting JSON for 'legs'.
+                stringBuilder.append(points.latitude);
+                stringBuilder.append(",");
+                stringBuilder.append(points.longitude);
+                stringBuilder.append("|");
+            }
+        }
+
+        // sensor
+        stringBuilder.append("&sensor=true");
+
+        // language
+        if (p.getLanguage() != null) {
+            stringBuilder.append("&language=").append(p.getLanguage());
+        }
+
+        // API key
+        if(p.getKey() != null) {
+            stringBuilder.append("&key=").append(p.getKey());
+        }
     }
 
     @Override
@@ -107,32 +160,38 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
 
     @Override
     protected void onPostExecute(String routes) {
-        List<List<HashMap<String, String>>> routesJson = null;
+        List<Route> routesJson = null;
         JSONParser parser = new JSONParser();
-        routesJson = parser.parse(resultSet);
-
-        ArrayList<LatLng> points = null;
+//        routesJson = parser.parse(resultSet);
+        try {
+            routesJson = parser.parse(routes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ArrayList<LatLng> points;
         PolylineOptions polyLineOptions = null;
 
         // traversing through routes
-        for (int i = 0; i < routesJson.size(); i++) {
-            points = new ArrayList<LatLng>();
-            polyLineOptions = new PolylineOptions();
-            List<HashMap<String, String>> path = routesJson.get(i);
+        if (routesJson != null) {
+            for (int i = 0; i < routesJson.size(); i++) {
+                points = new ArrayList<>();
+                polyLineOptions = new PolylineOptions();
+                Route path = routesJson.get(i);
 
-            for (int j = 0; j < path.size(); j++) {
-                HashMap<String, String> point = path.get(j);
+                Log.d(TAG, path.toString());
 
-                double lat = Double.parseDouble(point.get("lat"));
-                double lng = Double.parseDouble(point.get("lng"));
-                LatLng position = new LatLng(lat, lng);
+                for (Leg leg: path.getLegs()) {
+                    for (Step step: leg.getSteps()) {
+                        for (LatLng position: step.getPoints()) {
+                            points.add(position);
+                        }
+                    }
+                }
 
-                points.add(position);
+                polyLineOptions.addAll(points);
+                polyLineOptions.width(2);
+                polyLineOptions.color(Color.BLUE);
             }
-
-            polyLineOptions.addAll(points);
-            polyLineOptions.width(2);
-            polyLineOptions.color(Color.BLUE);
         }
 
         taskMap.addPolyline(polyLineOptions);

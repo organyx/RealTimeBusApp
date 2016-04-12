@@ -2,15 +2,17 @@ package com.example.vacho.realtimebusapp;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -22,16 +24,21 @@ import fragment.FavoritesScreenFragment;
 import fragment.HomeScreenFragment;
 import fragment.IntermediateMapFragment;
 import fragment.NavigationDrawerFragment;
+import utils.DatabaseHelper;
 
 
 public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "HomeScreen";
+    public static final String SAVED_PREFERENCES = "SAVED_PREFERENCES";
+    public static final String SAVED_FIRST_START = "SAVED_FIRST_START";
     private NavigationDrawerFragment navigationDrawerFragment;
     public static GoogleApiClient googleApiClient;
     FloatingActionButton fab;
 
     private FavoritesScreenFragment fsf;
+
+    private boolean firstStart = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +65,16 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
 
 
         displayView(0);
+
+        // THIS BLOCK EXECUTES ONLY ON THE 1ST LAUNCH OF THE APP
+        loadFirstTime();
+        if(firstStart)
+        {
+            DatabaseHelper databaseHelper = new DatabaseHelper(this);
+            databaseHelper.populateBusLineBusStations();
+            firstStart = false;
+            saveFirstTime();
+        }
     }
 
     View.OnClickListener clickSearchIcon = new View.OnClickListener() {
@@ -133,7 +150,7 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
 
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e(TAG, "Google Places API connection failed with error code: "
                 + connectionResult.getErrorCode());
 
@@ -141,5 +158,26 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
                 "Google Places API connection failed with error code:" +
                         connectionResult.getErrorCode(),
                 Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadFirstTime();
+    }
+
+    private boolean loadFirstTime() {
+        SharedPreferences prefs = getSharedPreferences(SAVED_PREFERENCES, MODE_PRIVATE);
+        firstStart = prefs.getBoolean(SAVED_FIRST_START, true);
+        Log.d(TAG, "Loaded value: " + firstStart);
+        return firstStart;
+    }
+
+    private void saveFirstTime() {
+        SharedPreferences prefs = getSharedPreferences(SAVED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(SAVED_FIRST_START, firstStart);
+        Log.d(TAG, "Saved value: " + firstStart);
+        editor.apply();
     }
 }

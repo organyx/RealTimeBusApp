@@ -40,23 +40,23 @@ public class BusLinesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_bus_lines, container, false);
 
         BusStationInfo busLinesInfo[] = new BusStationInfo[]{
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "Bus Line 1"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "2"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "3"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "4"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "5"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "6"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "7"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "8"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "9"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "10"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "12"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "13"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "14"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "15"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "16"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "17"),
-                new BusStationInfo(R.drawable.ic_directions_bus_black_24dp, "18")
+                new BusStationInfo("Bus Line 1"),
+                new BusStationInfo("2"),
+                new BusStationInfo("3"),
+                new BusStationInfo("4"),
+                new BusStationInfo("5"),
+                new BusStationInfo("6"),
+                new BusStationInfo("7"),
+                new BusStationInfo("8"),
+                new BusStationInfo("9"),
+                new BusStationInfo("10"),
+                new BusStationInfo("12"),
+                new BusStationInfo("13"),
+                new BusStationInfo("14"),
+                new BusStationInfo("15"),
+                new BusStationInfo("16"),
+                new BusStationInfo("17"),
+                new BusStationInfo("18")
 
         };
 

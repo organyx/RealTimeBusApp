@@ -33,7 +33,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyD5lSUj_6jmw6PsRmIhw4yGckP_cTOQNaw" />
+            android:value="AIzaSyCcwMBsRjVEwrvCxXDJ90lfJUm0askpA24" />
 
         <activity
             android:name=".HomeScreen"

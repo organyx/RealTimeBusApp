@@ -20,7 +20,7 @@ import com.example.vacho.realtimebusapp.R;
 import java.util.List;
 
 import adapter.FavoriteListAdapter;
-import model.FavoriteItem;
+import model.LocationItem;
 import utils.DatabaseHelper;
 
 /**
@@ -43,7 +43,8 @@ public class FavoritesScreenFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.content_favourites_screen, container, false);
         db = new DatabaseHelper(getActivity());
-        final List<FavoriteItem> list = db.getAllFavourites();
+
+        final List<LocationItem> list = db.getAllFavourites();
 
         recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_fav_list);
         recyclerView.setHasFixedSize(true);
@@ -57,7 +58,7 @@ public class FavoritesScreenFragment extends Fragment {
         favoriteListAdapter.setOnItemClickListener(new FavoriteListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(final View itemView, int position) {
-                FavoriteItem item = db.getAllFavourites().get(position);
+                LocationItem item = db.getAllFavourites().get(position);
                 temp = item.getName();
                 popupMenu = new PopupMenu(getActivity(), itemView);
                 popupMenu.getMenuInflater().inflate(R.menu.menu_favourites, popupMenu.getMenu());
@@ -99,6 +100,9 @@ public class FavoritesScreenFragment extends Fragment {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                db.addNewLocation(editTextName.getText().toString(), editTextDescr.getText().toString(), 55.86544499999999, 9.843203000000017, 0);
+//                adapter.notifyItemInserted(list.size());
+//                adapter.notifyDataSetChanged();
 
                 IntermediateMapFragment mapFragment = new IntermediateMapFragment();
                 Bundle args = new Bundle();
