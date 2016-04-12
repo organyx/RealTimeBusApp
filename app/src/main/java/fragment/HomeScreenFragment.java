@@ -20,6 +20,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +48,7 @@ import java.util.List;
 
 import adapter.CustomListViewAdapter;
 import async_tasks.GetDirectionsTask;
+import async_tasks.GetNearestBusStations;
 import model.BusStationInfo;
 import model.HomeListView;
 import model.LocationItem;
@@ -176,7 +179,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         });
 
         mActivity = getActivity();
-        // setHasOptionsMenu(true); // For Handling Fragment calls to menu items
+//         setHasOptionsMenu(true); // For Handling Fragment calls to menu items
 
         return v;
     }
@@ -264,14 +267,19 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //                Log.d(TAG, "MarkerCLicked");
 //                // Draw polyline between 2 points
 //
-//                TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, via);
-//                getDirections.setKey(BuildConfig.SERVER_KEY);
-//                getDirections.setOptimize(true);
-//                getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
-//                getDirections.setWaypoints(waipoints());
-//                new GetDirectionsTask().execute(getDirections);
+////                TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, via);
+////                getDirections.setKey(BuildConfig.SERVER_KEY);
+////                getDirections.setOptimize(true);
+////                getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
+////                getDirections.setWaypoints(waipoints());
+////                new GetDirectionsTask().execute(getDirections);
+//
 //                // Get nearest bus stations
-////                new GetNearestBusStations().execute(new TaskParameters(googleMap, marker.getPosition()));
+//
+////                TaskParameters getPlaces = new TaskParameters(googleMap, marker.getPosition());
+////                getPlaces.setPlaceType(TaskParameters.PlaceType.BUS_STATION);
+////                getPlaces.setRadius(500);
+////                new GetNearestBusStations().execute(getPlaces);
 //                return false;
 //            }
 //        });
@@ -296,17 +304,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         return points;
     }
 
-    //        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return;
-//        }
-//
+
 //        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(getActivity())
 //                .addConnectionCallbacks(getActivity())
 //                .addOnConnectionFailedListener(getActivity())

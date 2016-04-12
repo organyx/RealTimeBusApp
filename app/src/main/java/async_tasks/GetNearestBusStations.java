@@ -38,11 +38,16 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Str
         JSONObject result = new JSONObject();
         URL url;
         HttpsURLConnection urlConnection;
+        StringBuilder stringBuilder = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
         for (TaskParameters p : params) {
-            try{
+            try {
                 taskMap = p.getGmap();
-                url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + p.getLocation().latitude + "," + p.getLocation().longitude + "&radius=500&type=bus_station&key=" + BuildConfig.SERVER_KEY);
-                urlConnection = (HttpsURLConnection)url.openConnection();
+
+                buildUrl(stringBuilder, p);
+
+                url = new URL(stringBuilder.toString());
+
+                urlConnection = (HttpsURLConnection) url.openConnection();
 
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -52,56 +57,69 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Str
                 urlConnection.setDoInput(true);
                 urlConnection.setUseCaches(false);
 
-//                String parameters = "?location=" + 55.866 + "," + 9.833;
-//                parameters+="&radius=500";
-//                parameters+="&type=bus_station";
-//                parameters+="&key="+ BuildConfig.SERVER_KEY;
-//                byte[] postData = parameters.getBytes(Charset.forName("UTF-8"));
-//
-//                int postDataLength = postData.length;
-//                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-//                DataOutputStream data = new DataOutputStream(urlConnection.getOutputStream());
-//                data.writeBytes(parameters);
-//                data.flush();
-//                data.close();
-
-                StringBuilder sb= new StringBuilder();
+                StringBuilder sb = new StringBuilder();
                 int HttpResult = urlConnection.getResponseCode();
 
-                if(HttpResult == HttpURLConnection.HTTP_OK){
+                if (HttpResult == HttpURLConnection.HTTP_OK) {
                     BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
                     String line;
-                    while ((line = br.readLine()) != null){
+                    while ((line = br.readLine()) != null) {
                         sb.append(line + "\n");
                     }
                     br.close();
                     Log.d(TAG, "json: " + sb.toString());
                     // Parse the String to a JSON Object
                     result = new JSONObject(sb.toString());
-                }
-                else
-                {
+                } else {
                     Log.d(TAG, "urlConnection.getResponseMessage(): " + urlConnection.getResponseMessage());
                     result = null;
                 }
-            }
-            catch (UnsupportedEncodingException e){
+            } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
                 Log.d(TAG, "UnsuppoertedEncodingException: " + e.toString());
-            }
-            catch (JSONException e)
-            {
+            } catch (JSONException e) {
                 e.printStackTrace();
                 Log.d(TAG, "Error JSONException: " + e.toString());
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(TAG, "IOException: " + e.toString());
             }
         }
 
         return result.toString();
+    }
+
+    private void buildUrl(StringBuilder stringBuilder, TaskParameters p) {
+        // Location
+        final LatLng location = p.getLocation();
+        stringBuilder.append("?location=")
+                .append(location.latitude)
+                .append(",")
+                .append(location.longitude);
+
+        // Radius
+        if (p.getRadius() != 0)
+            stringBuilder.append("&radius=").append(p.getRadius());
+        else
+            stringBuilder.append("&radius=500");
+
+        // Type
+        if (p.getPlaceType() != null)
+            stringBuilder.append("&type=").append(p.getPlaceType().getValue());
+        else
+            stringBuilder.append("&type=bus_station");
+
+        // language
+        if (p.getLanguage() != null)
+            stringBuilder.append("&language=").append(p.getLanguage());
+        else
+            stringBuilder.append("&language=en");
+
+        // API key
+        if(p.getKey() != null)
+            stringBuilder.append("&key=").append(p.getKey());
+        else
+            stringBuilder.append("&key=").append(BuildConfig.SERVER_KEY);
     }
 
     @Override

@@ -22,6 +22,27 @@ public class TaskParameters {
     private String language;
     private String key;
 
+    private int radius;
+    private PlaceType placeType;
+
+    public enum PlaceType {
+        BUS_STATION("bus_station"),
+        GAS_STATION("gas_station"),
+        TRAIN_STATION("train_station"),
+        TRANSIT_STATION("transit_station"),
+        SUBWAY_STATION("subway_station");
+
+        protected String _sValue;
+
+        PlaceType(String sValue) {
+            this._sValue = sValue;
+        }
+
+        public String getValue() {
+            return _sValue;
+        }
+    }
+
     public enum TravelMode {
         BIKING("bicycling"),
         DRIVING("driving"),
@@ -41,23 +62,23 @@ public class TaskParameters {
 
     /**
      * Constructor for requesting information about a specific location.
-     * @param map GoogleMap that displays the information.
+     *
+     * @param map      GoogleMap that displays the information.
      * @param location Location for research.
      */
-    public TaskParameters(GoogleMap map, LatLng location)
-    {
+    public TaskParameters(GoogleMap map, LatLng location) {
         this.gmap = map;
         this.location = location;
     }
 
     /**
      * Constructor for requesting information about a specific route.
-     * @param map GoogleMap that displays the information.
+     *
+     * @param map  GoogleMap that displays the information.
      * @param from Starting location for the route.
-     * @param to Destination location for the route.
+     * @param to   Destination location for the route.
      */
-    public TaskParameters(GoogleMap map, LatLng from, LatLng to)
-    {
+    public TaskParameters(GoogleMap map, LatLng from, LatLng to) {
         this.gmap = map;
         this.from = from;
         this.to = to;
@@ -65,9 +86,10 @@ public class TaskParameters {
 
     /**
      * Constructor for requesting information about a specific route with waipoints.
-     * @param gmap GoogleMap that displays the information.
-     * @param from Starting location for the route.
-     * @param to Destination location for the route.
+     *
+     * @param gmap      GoogleMap that displays the information.
+     * @param from      Starting location for the route.
+     * @param to        Destination location for the route.
      * @param wayPoints Waypoints for the route.
      */
     public TaskParameters(GoogleMap gmap, LatLng from, LatLng to, List<LatLng> wayPoints) {
@@ -155,5 +177,21 @@ public class TaskParameters {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public int getRadius() {
+        return radius;
+    }
+
+    public void setRadius(int radius) {
+        this.radius = radius;
+    }
+
+    public PlaceType getPlaceType() {
+        return placeType;
+    }
+
+    public void setPlaceType(PlaceType placeType) {
+        this.placeType = placeType;
     }
 }
