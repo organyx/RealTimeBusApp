@@ -22,6 +22,7 @@ public class DatabaseHelper {
     private static final String TAG = "DatabaseHelper";
 
     private SQLiteOpenHelper _opeSqLiteOpenHelper;
+    private static DatabaseHelper instance = null;
 
     private static final String DATABASE_NAME = "Locations.db";
 
@@ -112,6 +113,17 @@ public class DatabaseHelper {
             db.execSQL("DROP TABLE IF EXISTS " + BUS_LINE_BUS_STOPS);
             onCreate(db);
         }
+    }
+
+    public static DatabaseHelper getInstance(Context context) {
+
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (instance == null) {
+            instance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return instance;
     }
 
     public List<LocationItem> getAllFavourites() {

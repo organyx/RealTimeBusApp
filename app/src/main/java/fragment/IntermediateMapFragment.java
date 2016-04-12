@@ -109,7 +109,8 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
 
-                DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
+//                DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
+                DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getActivity());
                 databaseHelper.addNewLocation(placeToAdd.getName().toString(), placeToAdd.getAddress().toString(), placeToAdd.getLatLng().latitude, placeToAdd.getLatLng().longitude, 0, 1);
 
                 FavoritesScreenFragment favoritesScreenFragment = new FavoritesScreenFragment();

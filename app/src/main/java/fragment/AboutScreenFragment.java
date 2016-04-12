@@ -54,7 +54,7 @@ public class AboutScreenFragment extends Fragment {
         setHasOptionsMenu(true); // For Handling Fragment calls to menu items
 
 //        databaseHelper = new DatabaseHelper(getActivity());
-
+        databaseHelper = DatabaseHelper.getInstance(getActivity());
         return view;
     }
 

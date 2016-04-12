@@ -42,7 +42,8 @@ public class FavoritesScreenFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.content_favourites_screen, container, false);
-        db = new DatabaseHelper(getActivity());
+//        db = new DatabaseHelper(getActivity());
+        db = DatabaseHelper.getInstance(getActivity());
 
         final List<LocationItem> list = db.getAllFavourites();
 
@@ -76,7 +77,7 @@ public class FavoritesScreenFragment extends Fragment {
                             ).show();
                         } else {
 
-                            db.updateLocationFavourite(temp.toString(), false);
+                            db.updateLocationFavourite(temp, false);
                             favoriteListAdapter.notifyItemRemoved(list.size() - 1);
                             favoriteListAdapter.notifyDataSetChanged();
                             favoriteListAdapter = new FavoriteListAdapter(getActivity(), db.getAllFavourites());
