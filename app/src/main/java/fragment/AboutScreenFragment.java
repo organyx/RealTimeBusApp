@@ -10,6 +10,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.R;
 
@@ -38,13 +40,22 @@ public class AboutScreenFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_about_screen, container, false);
+        View view = inflater.inflate(R.layout.fragment_about_screen, container, false);
+        ImageView v = (ImageView) view.findViewById(R.id.omg);
+        if(v != null){
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(v.getContext(),"DODO", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
 
         setHasOptionsMenu(true); // For Handling Fragment calls to menu items
 
 //        databaseHelper = new DatabaseHelper(getActivity());
 
-        return v;
+        return view;
     }
 
     @Override

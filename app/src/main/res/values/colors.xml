@@ -14,9 +14,8 @@
     <!-- Could be used to some icon text and so on -->
     <color name="colorAccent">#FFCC80</color>
 
+    <color name="background_favourites">#8D6E63</color>
     <color name="custom1">#EEEEEE</color>
     <color name="white">#FFFFFF</color>
-
-
 
 </resources>

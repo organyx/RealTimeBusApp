@@ -2,14 +2,20 @@ package fragment;
 
 import android.annotation.TargetApi;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -19,6 +25,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.vacho.realtimebusapp.HomeScreen;
 import com.example.vacho.realtimebusapp.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -62,6 +69,26 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_intermediate_map, container, false);
 
+//
+//        // set menu icon as back arrow
+//        Fragment f = getActivity().getFragmentManager().findFragmentById(R.id.fragment_container);
+//        if(f instanceof IntermediateMapFragment){
+//            Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+//            if(toolbar != null){
+//              //  toolbar.setNavigationIcon(R.drawable.ic_keyboard_backspace_white_24dp);
+//
+//                toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        FragmentManager fm = getFragmentManager();
+//                        fm.beginTransaction().replace(R.id.fragment_container, new FavoritesScreenFragment()).commit();
+//                        ((AppCompatActivity)getActivity()).getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+//                        ((AppCompatActivity)getActivity()).getSupportActionBar().setHomeButtonEnabled(true);
+//                    }
+//                });
+//            }
+//        }
+
         googleApiClient = new GoogleApiClient.Builder(getActivity())
                 .addApi(Places.GEO_DATA_API)
 //                .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this) // RECREATED WITHIN onStart and onStop METHODS
@@ -69,7 +96,7 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
                 .build();
         atv_fav_item_address = (AutoCompleteTextView) v.findViewById(R.id
                 .atv_autocomplete_fav_item_address);
-        atv_fav_item_address.setThreshold(3);
+        atv_fav_item_address.setThreshold(1);
         tv_fav_item_name = (EditText) v.findViewById(R.id.et_fav_item_name);
 
         atv_fav_item_address.setOnItemClickListener(mAutocompleteClickListener);
@@ -153,7 +180,6 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
 
         placeToAdd = place;
     }
-
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

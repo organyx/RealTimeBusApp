@@ -10,10 +10,10 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <!--Favorites Dimensions-->
-    <dimen name="fav_item_height">60dp</dimen>
-    <dimen name="fav_item_layout_margin">2dp</dimen>
+    <dimen name="fav_item_height">64dp</dimen>
+    <dimen name="fav_item_layout_margin">5dp</dimen>
     <dimen name="fav_item_icon_width_height">30dp</dimen>
-    <dimen name="fav_item_icon_margin_left_right">15dp</dimen>
+    <dimen name="fav_item_icon_margin_left_right">5dp</dimen>
     <dimen name="fav_item_input_layout_width">250dp</dimen>
     <dimen name="fav_item_input_padding_left">15dp</dimen>
     <dimen name="fav_item_input_padding_top_bottom">5dp</dimen>

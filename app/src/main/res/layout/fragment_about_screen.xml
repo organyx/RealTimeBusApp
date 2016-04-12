@@ -10,4 +10,16 @@
         android:layout_height="match_parent"
         android:text="@string/hello_blank_fragment" />
 
+    <ImageView
+        android:id="@+id/omg"
+        android:layout_width="@dimen/fav_item_icon_width_height"
+        android:layout_height="@dimen/fav_item_icon_width_height"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/fav_item_icon_margin_left_right"
+        android:layout_marginEnd="@dimen/fav_item_icon_margin_left_right"
+        android:background="@android:color/white"
+        android:src="@drawable/ic_more_vert_black_24dp"
+        />
 </FrameLayout>

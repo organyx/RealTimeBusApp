@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
@@ -91,10 +92,14 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private Activity mActivity;
     private Object m;
 
+    FloatingActionButton fab;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home_screen, container, false);
+
+        fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.show();
 
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -122,12 +127,9 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         slidingPaneLayout = (SlidingUpPanelLayout) v.findViewById(R.id.sliding_drawer);
         slidingPaneLayout.setEnableDragViewTouchEvents(true);
 
-        //Getting the display Height
-        DisplayMetrics dm = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-        int height = dm.heightPixels;
         int mapHeight = getResources().getDimensionPixelSize(R.dimen.map_height);
 
+        //When map is expanded
         slidingPaneLayout.setPanelHeight(mapHeight); // you can use different height here
         slidingPaneLayout.setScrollableView(homeListView, mapHeight);
         slidingPaneLayout.setPanelSlideListener(this);
@@ -161,9 +163,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
             }
         };
-
-
-        // expandMap();
 
         slidingPaneLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
