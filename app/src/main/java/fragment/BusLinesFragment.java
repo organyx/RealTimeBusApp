@@ -9,19 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.R;
 import com.example.vacho.realtimebusapp.RouteScreen;
-import com.example.vacho.realtimebusapp.SearchScreen;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import adapter.BusListViewAdapter;
+import adapter.BusLinesListViewAdapter;
 import model.BusLineItem;
 import model.HomeListView;
-import model.LocationItem;
 import utils.Constants;
 import utils.DatabaseHelper;
 
@@ -56,7 +53,7 @@ public class BusLinesFragment extends Fragment {
         busLinesInfo.add(route2);
 
         busLines = (ListView) view.findViewById(android.R.id.list);
-        BusListViewAdapter a = new BusListViewAdapter(getActivity(), R.layout.bus_lines_list_view_row, busLinesInfo);
+        BusLinesListViewAdapter a = new BusLinesListViewAdapter(getActivity(), R.layout.bus_lines_list_view_row, busLinesInfo);
         busLines.setAdapter(a);
         busLines.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

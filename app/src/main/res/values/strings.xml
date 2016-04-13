@@ -61,4 +61,6 @@
 
     <string name="title_activity_route_screen">RouteScreen</string>
 
+    <string name="location_item_icon">Location Icon</string>
+    <string name="bus_line_icon">Bus Line Icon</string>
 </resources>

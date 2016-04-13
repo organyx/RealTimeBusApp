@@ -144,6 +144,24 @@ public class DatabaseHelper {
         return favoriteItemList;
     }
 
+    public List<LocationItem> getAllLocations() {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        List<LocationItem> favoriteItemList = new ArrayList<>();
+        columns = allColumns_locations;
+//        selection = "LOCATIONS_COL_FAVORITED = 1";
+        Cursor cursor = db.query(LOCATIONS, columns, null, null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            LocationItem favoriteItem = cursorToLocation(cursor);
+            favoriteItemList.add(favoriteItem);
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        Log.d(TAG, "DB Items retrieved = " + favoriteItemList.size());
+        return favoriteItemList;
+    }
+
     public long addNewLocation(String name, String address, double lat, double lng, float zoom, int favorited) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if (db == null) {
