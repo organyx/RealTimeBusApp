@@ -61,6 +61,12 @@ public class TaskParameters {
     }
 
     /**
+     * Default empty constructor.
+     */
+    public TaskParameters() {
+    }
+
+    /**
      * Constructor for requesting information about a specific location.
      *
      * @param map      GoogleMap that displays the information.
@@ -193,5 +199,23 @@ public class TaskParameters {
 
     public void setPlaceType(PlaceType placeType) {
         this.placeType = placeType;
+    }
+
+    @Override
+    public String toString() {
+        return "TaskParameters{" +
+                "gmap=" + gmap +
+                ", location=" + location +
+                ", from=" + from +
+                ", to=" + to +
+                ", travelMode=" + travelMode +
+                ", alternativeRoutes=" + alternativeRoutes +
+                ", waypoints=" + waypoints +
+                ", optimize=" + optimize +
+                ", language='" + language + '\'' +
+                ", key='" + key + '\'' +
+                ", radius=" + radius +
+                ", placeType=" + placeType +
+                '}';
     }
 }

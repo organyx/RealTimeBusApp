@@ -10,6 +10,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.example.vacho.realtimebusapp.R;
 
+import java.util.List;
+
+import model.BusLineItem;
 import model.BusStationInfo;
 
 /**
@@ -19,9 +22,9 @@ public class BusListViewAdapter extends ArrayAdapter {
 
     Context context;
     int layoutResourceId;
-    BusStationInfo data[] = null;
+    List<BusLineItem> data;
 
-    public BusListViewAdapter(Context context, int resource,  BusStationInfo data[]) {
+    public BusListViewAdapter(Context context, int resource,  List<BusLineItem> data) {
         super(context, resource, data);
         this.context = context;
         this.layoutResourceId = resource;
@@ -46,9 +49,9 @@ public class BusListViewAdapter extends ArrayAdapter {
             holder = (BusLineInfoHolder) row.getTag();
         }
 
-        BusStationInfo b = data[position];
-        holder.imgIcon.setImageResource(b.getIcon());
-        holder.txtTitle1.setText(b.getBusLines());
+        BusLineItem b = data.get(position);
+        holder.imgIcon.setImageResource(R.drawable.ic_flag_24dp);
+        holder.txtTitle1.setText(b.getBusLineName());
 
         return row;
     }

@@ -297,7 +297,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         return points;
     }
 
-
     //    @Override
 //    public boolean onOptionsItemSelected(MenuItem item) {
 //        // Handle presses on the action bar items
@@ -416,12 +415,17 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
     private void setDefaultLocation(GoogleMap defaultLocation) {
         horsens = new LatLng(55.866, 9.833);
-        TaskParameters parameters = null;
+        TaskParameters parameters = new TaskParameters();
+        parameters.setLocation(horsens);
         defaultLocation.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-
         if (isGPSEnabled) {
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+                else {
+                    Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+                }
             }
             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (location != null) {
@@ -443,7 +447,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                     .position(horsens));
             parameters = new TaskParameters(googleMap, horsens);
         }
-
+        Log.d(TAG, parameters.toString());
         GetNearestBusStations task = new GetNearestBusStations();
         task.delegate = this;
         task.execute(parameters);

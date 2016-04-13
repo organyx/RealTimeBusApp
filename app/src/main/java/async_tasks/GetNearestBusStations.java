@@ -34,7 +34,6 @@ import utils.TaskParameters;
  */
 public class GetNearestBusStations extends AsyncTask<TaskParameters, String, List<Place>> {
     private static final String TAG = "GetNearestBusStations";
-    GoogleMap taskMap;
     public AsyncResponse delegate;
 
     @Override
@@ -45,8 +44,6 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Lis
         StringBuilder stringBuilder = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
         for (TaskParameters p : params) {
             try {
-                taskMap = p.getGmap();
-
                 buildUrl(stringBuilder, p);
 
                 url = new URL(stringBuilder.toString());
@@ -101,10 +98,6 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Lis
 
         if (placesJson != null) {
             for (int j = 0; j < placesJson.size(); j++) {
-//                taskMap.addMarker(new MarkerOptions()
-//                        .title(placesJson.get(j).getName())
-//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
-//                        .position(placesJson.get(j).getLocation()));
                 Log.d(TAG, placesJson.get(j).toString());
             }
         }
@@ -163,27 +156,4 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Lis
                 delegate.onTaskEndWithResult(0);
         }
     }
-
-//    @Override
-//    protected void onPostExecute(String result) {
-////            Toast.makeText(getActivity(), "Loaded\n" + result, Toast.LENGTH_SHORT).show();
-//        List<Place> placesJson = null;
-//        JSONParser parser = new JSONParser();
-//
-//        try {
-//            placesJson = parser.parsePlaces(result);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        if (placesJson != null) {
-//            for (int j = 0; j < placesJson.size(); j++) {
-//                taskMap.addMarker(new MarkerOptions()
-//                        .title(placesJson.get(j).getName())
-//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
-//                        .position(placesJson.get(j).getLocation()));
-//                Log.d(TAG, placesJson.get(j).toString());
-//            }
-//        }
-//    }
 }
