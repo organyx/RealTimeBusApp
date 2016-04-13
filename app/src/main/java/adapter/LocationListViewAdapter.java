@@ -13,7 +13,6 @@ import com.example.vacho.realtimebusapp.R;
 
 import java.util.List;
 
-import model.BusLineItem;
 import model.LocationItem;
 
 /**
@@ -57,7 +56,7 @@ public class LocationListViewAdapter extends ArrayAdapter {
         }
 
         LocationItem b = data.get(position);
-        holder.imgIcon.setImageResource(R.drawable.ic_cast_light);
+        holder.imgIcon.setImageResource(R.drawable.ic_place_black_36dp);
         holder.txtTitle1.setText(b.getName());
 
         return row;

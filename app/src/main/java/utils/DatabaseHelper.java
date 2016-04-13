@@ -199,6 +199,20 @@ public class DatabaseHelper {
         db.close();
     }
 
+    public void deleteLocation(int id) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
+        if (db == null)
+            return;
+        int deleted = db.delete(LOCATIONS, LOCATIONS_COL_ID + " = ?", new String[]{String.valueOf(id)});
+
+        if (deleted > 0)
+            Log.d(TAG, "DB Deleted Bus Line ID = " + deleted);
+        else
+            Log.d(TAG, "DB Deleted Bus Line = " + deleted);
+
+        db.close();
+    }
+
     public void updateLocation(String name, String address, double lat, double lng, float zoom) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if (db == null) {
@@ -225,6 +239,32 @@ public class DatabaseHelper {
         }
     }
 
+    public void updateLocation(int id, String name, String address, double lat, double lng, float zoom) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
+        if (db == null) {
+            return;
+        }
+        ContentValues row = new ContentValues();
+        if (nameExists(name, LOCATIONS)) {
+            row.put(LOCATIONS_COL_NAME, name);
+            row.put(LOCATIONS_COL_ADDRESS, address);
+            if (lat != 0 && lng != 0) {
+                row.put(LOCATIONS_COL_LAT, lat);
+                row.put(LOCATIONS_COL_LNG, lng);
+                row.put(LOCATIONS_COL_ZOOM, zoom);
+            }
+            int updated = db.update(LOCATIONS, row, LOCATIONS_COL_ID + " = ? ", new String[]{String.valueOf(id)});
+
+            if (updated > 0)
+                Log.d(TAG, "DB Updated ID = " + updated);
+            else
+                Log.d(TAG, "DB Updated = " + updated);
+            db.close();
+        } else {
+            Log.d(TAG, "DB Updated = false");
+        }
+    }
+
     public void updateLocationFavourite(String name, boolean favourite) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if (db == null) {
@@ -234,6 +274,25 @@ public class DatabaseHelper {
         if (nameExists(name, LOCATIONS)) {
             row.put(LOCATIONS_COL_FAVORITED, favourite);
             int updated = db.update(LOCATIONS, row, LOCATIONS_COL_NAME + " = ?", new String[]{String.valueOf(name)});
+            if (updated > 0)
+                Log.d(TAG, "DB Updated ID = " + updated);
+            else
+                Log.d(TAG, "DB Updated = " + updated);
+            db.close();
+        } else {
+            Log.d(TAG, "DB Updated = false");
+        }
+    }
+
+    public void updateLocationFavourite(int id, boolean favourite) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
+        if (db == null) {
+            return;
+        }
+        ContentValues row = new ContentValues();
+        if (idExists(id, LOCATIONS)) {
+            row.put(LOCATIONS_COL_FAVORITED, favourite);
+            int updated = db.update(LOCATIONS, row, LOCATIONS_COL_ID + " = ?", new String[]{String.valueOf(id)});
             if (updated > 0)
                 Log.d(TAG, "DB Updated ID = " + updated);
             else
@@ -267,6 +326,19 @@ public class DatabaseHelper {
         if (db == null)
             return;
         int deleted = db.delete(BUS_LINE, BUS_LINE_COL_NAME + " = ?", new String[]{String.valueOf(name)});
+
+        if (deleted > 0)
+            Log.d(TAG, "DB Deleted Bus Line ID = " + deleted);
+        else
+            Log.d(TAG, "DB Deleted Bus Line = " + deleted);
+        db.close();
+    }
+
+    public void deleteBusLine(int id) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
+        if (db == null)
+            return;
+        int deleted = db.delete(BUS_LINE, BUS_LINE_COL_ID + " = ?", new String[]{String.valueOf(id)});
 
         if (deleted > 0)
             Log.d(TAG, "DB Deleted Bus Line ID = " + deleted);
@@ -349,6 +421,14 @@ public class DatabaseHelper {
     private boolean nameExists(String name, String tableName) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + tableName + " WHERE " + tableName + "_COL_NAME = ?;", new String[]{name});
+        boolean exists = (cursor.getCount() > 0);
+        cursor.close();
+        return exists;
+    }
+
+    private boolean idExists(int id, String tableName) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + tableName + " WHERE " + tableName + "_COL_ID = ?;", new String[]{String .valueOf(id)});
         boolean exists = (cursor.getCount() > 0);
         cursor.close();
         return exists;
