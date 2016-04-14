@@ -1,6 +1,7 @@
 package fragment;
 
 
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,9 +28,9 @@ import utils.DatabaseHelper;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FavoritesScreenFragment extends Fragment {
+public class FavoritesScreenFragment extends Fragment implements EditFavFragment.NoticeDialogListener {
 
-
+    private static final String TAG = "FavoritesFrag";
 
     DatabaseHelper db;
     private FloatingActionButton addButton;
@@ -37,12 +39,12 @@ public class FavoritesScreenFragment extends Fragment {
     private FavoriteListAdapter favoriteListAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private String temp;
+    private int editableItemID = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.content_favourites_screen, container, false);
-//        db = new DatabaseHelper(getActivity());
         db = DatabaseHelper.getInstance(getActivity());
 
         final List<LocationItem> list = db.getAllFavourites();
@@ -59,8 +61,8 @@ public class FavoritesScreenFragment extends Fragment {
         favoriteListAdapter.setOnItemClickListener(new FavoriteListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(final View itemView, int position) {
-                LocationItem item = db.getAllFavourites().get(position);
-                temp = item.getName();
+                final LocationItem editable_item = db.getAllFavourites().get(position);
+                temp = editable_item.getName();
                 popupMenu = new PopupMenu(getActivity(), itemView);
                 popupMenu.getMenuInflater().inflate(R.menu.menu_favourites, popupMenu.getMenu());
 
@@ -70,17 +72,8 @@ public class FavoritesScreenFragment extends Fragment {
                     public boolean onMenuItemClick(MenuItem item) {
 
                         if (item.getTitle().equals("Edit")) {
-                            Toast.makeText(
-                                    itemView.getContext(),
-                                    "You Clicked : " + item.getTitle(),
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                            db.updateLocationVisits(temp, 1);
-                            favoriteListAdapter.notifyItemChanged(0);
-                            favoriteListAdapter.notifyDataSetChanged();
-                            favoriteListAdapter = new FavoriteListAdapter(getActivity(), db.getAllFavourites());
-                            recyclerView.setAdapter(favoriteListAdapter);
-                            favoriteListAdapter.notifyDataSetChanged();
+                            editableItemID = editable_item.getId();
+                            openEditFavDialog(editable_item);
                         } else {
                             db.updateLocationFavourite(temp, false);
                             favoriteListAdapter.notifyItemRemoved(list.size() - 1);
@@ -106,10 +99,6 @@ public class FavoritesScreenFragment extends Fragment {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                db.addNewLocation(editTextName.getText().toString(), editTextDescr.getText().toString(), 55.86544499999999, 9.843203000000017, 0);
-//                adapter.notifyItemInserted(list.size());
-//                adapter.notifyDataSetChanged();
-
                 IntermediateMapFragment mapFragment = new IntermediateMapFragment();
                 Bundle args = new Bundle();
                 mapFragment.setArguments(args);
@@ -128,5 +117,38 @@ public class FavoritesScreenFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    public void openEditFavDialog(LocationItem item)
+    {
+//        DialogFragment newFragment = new EditFavFragment();
+//        Bundle ars = new Bundle();
+//        ars.putString("item_name", item.getName());
+//        ars.putString("item_address", item.getAddress());
+////        Log.d(TAG, ars.toString());
+//        newFragment.setArguments(ars);
+//        Log.d(TAG, newFragment.getArguments().toString());
+//        newFragment.show(getFragmentManager(), "Edit Favourite");
+
+        DialogFragment newFragment = EditFavFragment.newInstance(item.getName(), item.getAddress());
+        newFragment.setTargetFragment(this, 0);
+        newFragment.show(getFragmentManager(), "Edit Favourite");
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog, String edited_name, String edited_address) {
+        Log.d(TAG, "CLICKED: OK");
+        Log.d(TAG, edited_address + " " + edited_name);
+        db.updateLocation(editableItemID, edited_name, edited_address, 0,0,0);
+        favoriteListAdapter.notifyItemChanged(0);
+        favoriteListAdapter.notifyDataSetChanged();
+        favoriteListAdapter = new FavoriteListAdapter(getActivity(), db.getAllFavourites());
+        recyclerView.setAdapter(favoriteListAdapter);
+        favoriteListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        Log.d(TAG, "CLICKED: CANCEL");
     }
 }

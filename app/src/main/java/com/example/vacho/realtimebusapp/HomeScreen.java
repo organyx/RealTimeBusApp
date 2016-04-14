@@ -1,5 +1,6 @@
 package com.example.vacho.realtimebusapp;
 
+import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,6 +21,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Places;
 
 import fragment.AboutScreenFragment;
+import fragment.EditFavFragment;
 import fragment.FavoritesScreenFragment;
 import fragment.HomeScreenFragment;
 import fragment.IntermediateMapFragment;
@@ -27,7 +29,7 @@ import fragment.NavigationDrawerFragment;
 import utils.DatabaseHelper;
 
 
-public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener, GoogleApiClient.OnConnectionFailedListener {
+public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener, GoogleApiClient.OnConnectionFailedListener, EditFavFragment.NoticeDialogListener {
 
     private static final String TAG = "HomeScreen";
     public static final String SAVED_PREFERENCES = "SAVED_PREFERENCES";
@@ -179,5 +181,16 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         editor.putBoolean(SAVED_FIRST_START, firstStart);
         Log.d(TAG, "Saved value: " + firstStart);
         editor.apply();
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog, String edited_name, String edited_address) {
+        Log.d(TAG, "CLICKED: OK");
+        Log.d(TAG, edited_address + " " + edited_name);
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        Log.d(TAG, "CLICKED: CANCEL");
     }
 }

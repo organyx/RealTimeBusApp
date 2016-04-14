@@ -278,7 +278,7 @@ public class DatabaseHelper {
         }
         int visits = getLocationVisits(id);
         ContentValues row = new ContentValues();
-        if (nameExists(name, LOCATIONS)) {
+        if (idExists(id, LOCATIONS)) {
             row.put(LOCATIONS_COL_NAME, name);
             row.put(LOCATIONS_COL_ADDRESS, address);
             if (lat != 0 && lng != 0) {
@@ -475,7 +475,7 @@ public class DatabaseHelper {
         return return_id;
     }
 
-    private int getBusStationID(String busStation) {
+    public int getBusStationID(String busStation) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
         if (db == null)
             return 0;
@@ -575,7 +575,7 @@ public class DatabaseHelper {
 
     private LocationItem cursorToLocation(Cursor cursor) {
         LocationItem location = new LocationItem();
-        location.setId(cursor.getLong(0));
+        location.setId(cursor.getInt(0));
         location.setName(cursor.getString(1));
         location.setAddress(cursor.getString(2));
         location.setLat(cursor.getDouble(3));

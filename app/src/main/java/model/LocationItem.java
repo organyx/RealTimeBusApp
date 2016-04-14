@@ -1,5 +1,7 @@
 package model;
 
+import android.support.annotation.NonNull;
+
 /**
  * Created by Aleks on 05-Apr-16.
  * Model class for Location information.
@@ -7,7 +9,7 @@ package model;
 public class LocationItem implements Comparable<LocationItem>{
 
     private boolean showNotify;
-    private long id;
+    private int id;
     private String name;
     private String address;
     private double lat;
@@ -27,7 +29,7 @@ public class LocationItem implements Comparable<LocationItem>{
      * @param zoom Zoom value for using with Google Maps
      * @param isFavourited Check if the Location is favorite.
      */
-    public LocationItem(long id, String name, String address, double lat, double lng, String zoom, boolean isFavourited) {
+    public LocationItem(int id, String name, String address, double lat, double lng, String zoom, boolean isFavourited) {
         this.isFavourited = isFavourited;
         this.id = id;
         this.name = name;
@@ -99,11 +101,11 @@ public class LocationItem implements Comparable<LocationItem>{
         this.showNotify = showNotify;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -185,7 +187,7 @@ public class LocationItem implements Comparable<LocationItem>{
     }
 
     @Override
-    public int compareTo(LocationItem another) {
+    public int compareTo(@NonNull LocationItem another) {
         return (visits - another.visits);
     }
 }
