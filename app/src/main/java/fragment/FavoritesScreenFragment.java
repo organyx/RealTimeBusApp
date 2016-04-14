@@ -75,8 +75,13 @@ public class FavoritesScreenFragment extends Fragment {
                                     "You Clicked : " + item.getTitle(),
                                     Toast.LENGTH_SHORT
                             ).show();
+                            db.updateLocationVisits(temp, 1);
+                            favoriteListAdapter.notifyItemChanged(0);
+                            favoriteListAdapter.notifyDataSetChanged();
+                            favoriteListAdapter = new FavoriteListAdapter(getActivity(), db.getAllFavourites());
+                            recyclerView.setAdapter(favoriteListAdapter);
+                            favoriteListAdapter.notifyDataSetChanged();
                         } else {
-
                             db.updateLocationFavourite(temp, false);
                             favoriteListAdapter.notifyItemRemoved(list.size() - 1);
                             favoriteListAdapter.notifyDataSetChanged();

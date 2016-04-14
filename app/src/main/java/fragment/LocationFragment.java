@@ -64,11 +64,8 @@ public class LocationFragment extends Fragment {
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        Toast.makeText(
-                                getActivity(),
-                                "Under Development",
-                                Toast.LENGTH_SHORT
-                        ).show();
+                        databaseHelper.clearRecentHistory();
+                        homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, new ArrayList<BusStationInfo>()));
                         return true;
                     }
                 });
