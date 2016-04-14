@@ -10,7 +10,7 @@
         android:id="@+id/bus_lines_image_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/bus_line_icon"
+        android:contentDescription="@string/icon_bus_line"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"/>
 

@@ -53,6 +53,11 @@ public class LocationItem {
         this.isFavourited = isFavourited;
     }
 
+    /**
+     * Constructor for partial initialization.
+     * @param name Name of the Location.
+     * @param address Address of the Location.
+     */
     public LocationItem(String name, String address){
         this.name = name;
         this.address = address;

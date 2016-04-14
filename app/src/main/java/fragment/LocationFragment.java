@@ -1,44 +1,29 @@
 package fragment;
 
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.R;
-import com.example.vacho.realtimebusapp.RouteScreen;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import adapter.BusLinesListViewAdapter;
-import adapter.LocationListViewAdapter;
-import model.LocationItem;
-import utils.DatabaseHelper;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import adapter.CustomListViewAdapter;
-import adapter.FavoriteListAdapter;
 import model.BusStationInfo;
 import model.HomeListView;
 import model.LocationItem;
+import utils.DatabaseHelper;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,16 +33,11 @@ public class LocationFragment extends Fragment {
     public static final String TAG = "LocationFrag";
     public static final String ARG_PAGE = "ARG_PAGE";
 
-//    private RecyclerView recyclerView;
-//    private FavoriteListAdapter favoriteListAdapter;
-//    private RecyclerView.LayoutManager layoutManager;
-
     private HomeListView homeListView;
     private ImageView imageView;
 
-    private BusStationInfo busStationInfos[];
+    private List<BusStationInfo> busStationInfos;
 
-    private ListView locations;
     private DatabaseHelper databaseHelper;
 
     public LocationFragment() {
@@ -72,13 +52,8 @@ public class LocationFragment extends Fragment {
 
         databaseHelper = DatabaseHelper.getInstance(getActivity());
 
-        List<LocationItem> locationsInfo;
-
-        locationsInfo = databaseHelper.getAllLocations();
-
         homeListView = (HomeListView) rootView.findViewById(android.R.id.list);
         imageView = (ImageView) rootView.findViewById(R.id.vert_search_screen);
-        // recyclerView = (RecyclerView) rootView.findViewById(R.id.number1);
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,13 +83,12 @@ public class LocationFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        busStationInfos = new BusStationInfo[]{
-                new BusStationInfo("Torvet", "Torvet 26"),
-                new BusStationInfo("Borgergade", "Borgergade 3,3TV"),
-                new BusStationInfo("Rådhuse", "Rådhuse 4A")
-        };
+        List<LocationItem> locationsInfo = databaseHelper.getAllLocations();
 
-
+        busStationInfos = new ArrayList<>();
+        for (LocationItem item : locationsInfo){
+            busStationInfos.add(new BusStationInfo(item.getName(), item.getAddress()));
+        }
         homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, busStationInfos));
         homeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
