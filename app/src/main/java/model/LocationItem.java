@@ -4,7 +4,7 @@ package model;
  * Created by Aleks on 05-Apr-16.
  * Model class for Location information.
  */
-public class LocationItem {
+public class LocationItem implements Comparable<LocationItem>{
 
     private boolean showNotify;
     private long id;
@@ -14,6 +14,8 @@ public class LocationItem {
     private double lng;
     private String zoom;
     private boolean isFavourited;
+    private int visits;
+    private long date;
 
     /**
      * Constructor for complete initialization.
@@ -33,6 +35,8 @@ public class LocationItem {
         this.lat = lat;
         this.lng = lng;
         this.zoom = zoom;
+        this.visits = 0;
+        this.date = System.currentTimeMillis();
     }
 
     /**
@@ -51,6 +55,8 @@ public class LocationItem {
         this.lng = lng;
         this.zoom = zoom;
         this.isFavourited = isFavourited;
+        this.visits = 0;
+        this.date = System.currentTimeMillis();
     }
 
     /**
@@ -61,6 +67,8 @@ public class LocationItem {
     public LocationItem(String name, String address){
         this.name = name;
         this.address = address;
+        this.visits = 0;
+        this.date = System.currentTimeMillis();
     }
 
     /**
@@ -73,6 +81,8 @@ public class LocationItem {
         this.name = name;
         this.lat = lat;
         this.lng = lng;
+        this.visits = 0;
+        this.date = System.currentTimeMillis();
     }
 
     /**
@@ -145,6 +155,22 @@ public class LocationItem {
         this.isFavourited = isFavourited;
     }
 
+    public int getVisits() {
+        return visits;
+    }
+
+    public void setVisits(int visits) {
+        this.visits = visits;
+    }
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
+
     @Override
     public String toString() {
         return "Location{" +
@@ -156,5 +182,10 @@ public class LocationItem {
                 ", zoom='" + zoom + '\'' +
                 ", isFavourited=" + isFavourited +
                 '}';
+    }
+
+    @Override
+    public int compareTo(LocationItem another) {
+        return (visits - another.visits);
     }
 }

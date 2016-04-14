@@ -83,7 +83,7 @@ public class LocationFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        List<LocationItem> locationsInfo = databaseHelper.getAllLocations();
+        List<LocationItem> locationsInfo = databaseHelper.getRecentHistory();
 
         busStationInfos = new ArrayList<>();
         for (LocationItem item : locationsInfo){
