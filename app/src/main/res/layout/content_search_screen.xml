@@ -7,11 +7,9 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.vacho.realtimebusapp.SearchScreen"
-    tools:showIn="@layout/activity_search_screen"
-    >
+    tools:showIn="@layout/activity_search_screen">
 
     <LinearLayout
-        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"

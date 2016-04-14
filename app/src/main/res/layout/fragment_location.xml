@@ -1,13 +1,46 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#EEEEEE"
     android:orientation="vertical"
     tools:context="fragment.LocationFragment">
 
-    <ListView
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="5dp"
+            android:text="recent"
+            android:textSize="15sp"
+            android:textStyle="bold"></TextView>
+
+        <ImageView
+            android:id="@+id/vert_search_screen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/ic_more_vert_black_24dp" />
+    </RelativeLayout>
+
+
+    <model.HomeListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:background="@android:color/transparent"
+        android:cacheColorHint="@android:color/white"
+        android:divider="@color/custom1"
+        android:dividerHeight="5dp"
+        android:drawSelectorOnTop="true"
+        android:smoothScrollbar="false" />
 
 </FrameLayout>

@@ -53,6 +53,11 @@ public class LocationItem {
         this.isFavourited = isFavourited;
     }
 
+    public LocationItem(String name, String address){
+        this.name = name;
+        this.address = address;
+    }
+
     /**
      * Constructor for Bus station initialization.
      * @param name Name of the Location.
