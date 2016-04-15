@@ -114,13 +114,13 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             String fav_item_address = bundle.getString("fav_item_address");
             double fav_item_lat = bundle.getDouble("fav_item_lat");
             double fav_item_lng = bundle.getDouble("fav_item_lng");
-            String fav_item_zoom = bundle.getString("fav_item_zoom");
+            float fav_item_zoom = bundle.getFloat("fav_item_zoom");
             boolean fav_item_favourited = bundle.getBoolean("fav_item_favourited");
             if (fav_item_name != null &&
                     fav_item_address != null &&
                     fav_item_lat != 0 &&
                     fav_item_lng != 0 &&
-                    fav_item_zoom != null) {
+                    fav_item_zoom != 0) {
                 favoriteItem = new LocationItem(fav_item_name, fav_item_address, fav_item_lat, fav_item_lng, fav_item_zoom, fav_item_favourited);
                 Toast.makeText(getActivity(), "fav_item_name " + favoriteItem.getName(), Toast.LENGTH_LONG).show();
                 Log.d(TAG, "fav_item_name " + favoriteItem.getName() + " isFavourited = " + favoriteItem.isFavourited());

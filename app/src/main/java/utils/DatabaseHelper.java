@@ -189,7 +189,7 @@ public class DatabaseHelper {
         return favoriteItemList;
     }
 
-    public long addNewLocation(String name, String address, double lat, double lng, float zoom, int favorited) {
+    public long addNewLocation(String name, String address, double lat, double lng, double zoom, int favorited) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if (db == null) {
             return 0;
@@ -202,7 +202,10 @@ public class DatabaseHelper {
             row.put(LOCATIONS_COL_LNG, lng);
             row.put(LOCATIONS_COL_ZOOM, zoom);
             row.put(LOCATIONS_COL_FAVORITED, favorited);
-            row.put(LOCATIONS_COL_VISITS, LOCATION_VISITS);
+            if(favorited == 1)
+                row.put(LOCATIONS_COL_VISITS, LOCATION_VISITS + 1);
+            else
+                row.put(LOCATIONS_COL_VISITS, LOCATION_VISITS);
             row.put(LOCATIONS_COL_DATE, System.currentTimeMillis());
             long id = db.insert(LOCATIONS, null, row);
             db.close();
@@ -580,7 +583,7 @@ public class DatabaseHelper {
         location.setAddress(cursor.getString(2));
         location.setLat(cursor.getDouble(3));
         location.setLng(cursor.getDouble(4));
-        location.setZoom(cursor.getString(5));
+        location.setZoom(cursor.getFloat(5));
         location.setIsFavourited(cursor.getInt(6) != 0);
         return location;
     }

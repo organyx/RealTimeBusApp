@@ -14,7 +14,7 @@ public class LocationItem implements Comparable<LocationItem>{
     private String address;
     private double lat;
     private double lng;
-    private String zoom;
+    private float zoom;
     private boolean isFavourited;
     private int visits;
     private long date;
@@ -29,7 +29,7 @@ public class LocationItem implements Comparable<LocationItem>{
      * @param zoom Zoom value for using with Google Maps
      * @param isFavourited Check if the Location is favorite.
      */
-    public LocationItem(int id, String name, String address, double lat, double lng, String zoom, boolean isFavourited) {
+    public LocationItem(int id, String name, String address, double lat, double lng, float zoom, boolean isFavourited) {
         this.isFavourited = isFavourited;
         this.id = id;
         this.name = name;
@@ -50,7 +50,7 @@ public class LocationItem implements Comparable<LocationItem>{
      * @param zoom Zoom value for using with Google Maps
      * @param isFavourited Check if the Location is favorite.
      */
-    public LocationItem(String name, String address, double lat, double lng, String zoom, boolean isFavourited) {
+    public LocationItem(String name, String address, double lat, double lng, float zoom, boolean isFavourited) {
         this.name = name;
         this.address = address;
         this.lat = lat;
@@ -141,11 +141,11 @@ public class LocationItem implements Comparable<LocationItem>{
         this.lat = lat;
     }
 
-    public String getZoom() {
+    public float getZoom() {
         return zoom;
     }
 
-    public void setZoom(String zoom) {
+    public void setZoom(float zoom) {
         this.zoom = zoom;
     }
 
