@@ -20,6 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:contentDescription="@string/nav_item_back"
+            android:onClick="onBackClicked"
             android:src="@drawable/ic_keyboard_backspace_24dp" />
 
 
@@ -29,11 +30,13 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:background="@drawable/background"
+            android:layout_marginEnd="20dp"
             android:layout_marginRight="20dp">
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="7dp"
+                android:layout_marginEnd="7dp"
                 android:layout_marginTop="15dp"
                 android:contentDescription="@string/action_search"
                 android:src="@drawable/ic_search_black_24dp" />

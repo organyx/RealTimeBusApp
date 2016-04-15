@@ -1,4 +1,4 @@
-package model.google_route_items;
+package model.google_items;
 
 import com.google.android.gms.maps.model.LatLng;
 

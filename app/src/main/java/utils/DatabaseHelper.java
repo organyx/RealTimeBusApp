@@ -7,7 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import model.BusLineItem;
@@ -22,6 +24,7 @@ public class DatabaseHelper {
     private static final String TAG = "DatabaseHelper";
 
     private SQLiteOpenHelper _opeSqLiteOpenHelper;
+    private static DatabaseHelper instance = null;
 
     private static final String DATABASE_NAME = "Locations.db";
 
@@ -33,6 +36,8 @@ public class DatabaseHelper {
     private static final String LOCATIONS_COL_LNG = "LOCATIONS_COL_LNG";
     private static final String LOCATIONS_COL_ZOOM = "LOCATIONS_COL_ZOOM";
     private static final String LOCATIONS_COL_FAVORITED = "LOCATIONS_COL_FAVORITED";
+    private static final String LOCATIONS_COL_VISITS = "LOCATIONS_COL_VISITS";
+    private static final String LOCATIONS_COL_DATE = "LOCATIONS_COL_DATE";
     private static final String CREATE_TABLE_LOCATIONS = "create table " + LOCATIONS + " (" +
             LOCATIONS_COL_ID + " integer primary key autoincrement, " +
             LOCATIONS_COL_NAME + " text, " +
@@ -40,7 +45,9 @@ public class DatabaseHelper {
             LOCATIONS_COL_LAT + " double, " +
             LOCATIONS_COL_LNG + " double, " +
             LOCATIONS_COL_ZOOM + " text, " +
-            LOCATIONS_COL_FAVORITED + " integer )";
+            LOCATIONS_COL_FAVORITED + " integer, " +
+            LOCATIONS_COL_VISITS + " integer, " +
+            LOCATIONS_COL_DATE + " integer )";
 
     private static final String BUS_LINE = "BUS_LINE";
     private static final String BUS_LINE_COL_ID = "BUS_LINE_COL_ID";
@@ -59,7 +66,8 @@ public class DatabaseHelper {
             "CONSTRAINT fk_route_bus_stop_bus_line_id FOREIGN KEY (" + BUS_LINE_BUS_STOPS_COL_BUS_LINE_ID + ") REFERENCES " + BUS_LINE + "(" + BUS_LINE_COL_ID + ") ON DELETE CASCADE," +
             "CONSTRAINT fk_route_bus_stop_bus_stop_id FOREIGN KEY (" + BUS_LINE_BUS_STOPS_COL_LOCATION_ID + ") REFERENCES " + LOCATIONS + "(" + LOCATIONS_COL_ID + ") ON DELETE CASCADE)";
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
+    private static final int LOCATION_VISITS = 0;
 
     private String[] allColumns_locations = {
             LOCATIONS_COL_ID,
@@ -68,7 +76,9 @@ public class DatabaseHelper {
             LOCATIONS_COL_LAT,
             LOCATIONS_COL_LNG,
             LOCATIONS_COL_ZOOM,
-            LOCATIONS_COL_FAVORITED
+            LOCATIONS_COL_FAVORITED,
+            LOCATIONS_COL_VISITS,
+            LOCATIONS_COL_DATE
     };
     private String[] allColumns_busLines = {
             BUS_LINE_COL_ID,
@@ -114,6 +124,17 @@ public class DatabaseHelper {
         }
     }
 
+    public static DatabaseHelper getInstance(Context context) {
+
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (instance == null) {
+            instance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return instance;
+    }
+
     public List<LocationItem> getAllFavourites() {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
         List<LocationItem> favoriteItemList = new ArrayList<>();
@@ -132,7 +153,43 @@ public class DatabaseHelper {
         return favoriteItemList;
     }
 
-    public long addNewLocation(String name, String address, double lat, double lng, float zoom, int favorited) {
+    public List<LocationItem> getAllLocations() {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        List<LocationItem> favoriteItemList = new ArrayList<>();
+        columns = allColumns_locations;
+//        selection = "LOCATIONS_COL_FAVORITED = 1";
+        Cursor cursor = db.query(LOCATIONS, columns, null, null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            LocationItem favoriteItem = cursorToLocation(cursor);
+            favoriteItemList.add(favoriteItem);
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        Log.d(TAG, "DB Items retrieved = " + favoriteItemList.size());
+        return favoriteItemList;
+    }
+
+    public List<LocationItem> getRecentHistory() {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        List<LocationItem> favoriteItemList = new ArrayList<>();
+        columns = allColumns_locations;
+        selection = "LOCATIONS_COL_VISITS > 0";
+        Cursor cursor = db.query(LOCATIONS, columns, selection, null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            LocationItem favoriteItem = cursorToLocation(cursor);
+            favoriteItemList.add(favoriteItem);
+            cursor.moveToNext();
+        }
+        Collections.sort(favoriteItemList); // Sorting the history items
+        cursor.close();
+        Log.d(TAG, "DB Items retrieved = " + favoriteItemList.size());
+        return favoriteItemList;
+    }
+
+    public long addNewLocation(String name, String address, double lat, double lng, double zoom, int favorited) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if (db == null) {
             return 0;
@@ -145,6 +202,11 @@ public class DatabaseHelper {
             row.put(LOCATIONS_COL_LNG, lng);
             row.put(LOCATIONS_COL_ZOOM, zoom);
             row.put(LOCATIONS_COL_FAVORITED, favorited);
+            if(favorited == 1)
+                row.put(LOCATIONS_COL_VISITS, LOCATION_VISITS + 1);
+            else
+                row.put(LOCATIONS_COL_VISITS, LOCATION_VISITS);
+            row.put(LOCATIONS_COL_DATE, System.currentTimeMillis());
             long id = db.insert(LOCATIONS, null, row);
             db.close();
             Log.d(TAG, "DB Inserted Location ID = " + id + " NAME = " + name + " ADDRESS = " + address + " LAT = " + lat + " LNG = " + lng + " ZOOM = " + zoom + " FAVORITED = " + favorited);
@@ -169,11 +231,26 @@ public class DatabaseHelper {
         db.close();
     }
 
+    public void deleteLocation(int id) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
+        if (db == null)
+            return;
+        int deleted = db.delete(LOCATIONS, LOCATIONS_COL_ID + " = ?", new String[]{String.valueOf(id)});
+
+        if (deleted > 0)
+            Log.d(TAG, "DB Deleted Bus Line ID = " + deleted);
+        else
+            Log.d(TAG, "DB Deleted Bus Line = " + deleted);
+
+        db.close();
+    }
+
     public void updateLocation(String name, String address, double lat, double lng, float zoom) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
         if (db == null) {
             return;
         }
+        int visits = getLocationVisits(name);
         ContentValues row = new ContentValues();
         if (nameExists(name, LOCATIONS)) {
             row.put(LOCATIONS_COL_NAME, name);
@@ -183,7 +260,38 @@ public class DatabaseHelper {
                 row.put(LOCATIONS_COL_LNG, lng);
                 row.put(LOCATIONS_COL_ZOOM, zoom);
             }
+            row.put(LOCATIONS_COL_VISITS, visits + 1);
+            row.put(LOCATIONS_COL_DATE, System.currentTimeMillis());
             int updated = db.update(LOCATIONS, row, LOCATIONS_COL_NAME + " = ? ", new String[]{String.valueOf(name)});
+
+            if (updated > 0)
+                Log.d(TAG, "DB Updated ID = " + updated);
+            else
+                Log.d(TAG, "DB Updated = " + updated);
+            db.close();
+        } else {
+            Log.d(TAG, "DB Updated = false");
+        }
+    }
+
+    public void updateLocation(int id, String name, String address, double lat, double lng, float zoom) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
+        if (db == null) {
+            return;
+        }
+        int visits = getLocationVisits(id);
+        ContentValues row = new ContentValues();
+        if (idExists(id, LOCATIONS)) {
+            row.put(LOCATIONS_COL_NAME, name);
+            row.put(LOCATIONS_COL_ADDRESS, address);
+            if (lat != 0 && lng != 0) {
+                row.put(LOCATIONS_COL_LAT, lat);
+                row.put(LOCATIONS_COL_LNG, lng);
+                row.put(LOCATIONS_COL_ZOOM, zoom);
+            }
+            row.put(LOCATIONS_COL_VISITS, visits + 1);
+            row.put(LOCATIONS_COL_DATE, System.currentTimeMillis());
+            int updated = db.update(LOCATIONS, row, LOCATIONS_COL_ID + " = ? ", new String[]{String.valueOf(id)});
 
             if (updated > 0)
                 Log.d(TAG, "DB Updated ID = " + updated);
@@ -203,6 +311,47 @@ public class DatabaseHelper {
         ContentValues row = new ContentValues();
         if (nameExists(name, LOCATIONS)) {
             row.put(LOCATIONS_COL_FAVORITED, favourite);
+            row.put(LOCATIONS_COL_DATE, System.currentTimeMillis());
+            int updated = db.update(LOCATIONS, row, LOCATIONS_COL_NAME + " = ?", new String[]{String.valueOf(name)});
+            if (updated > 0)
+                Log.d(TAG, "DB Updated ID = " + updated);
+            else
+                Log.d(TAG, "DB Updated = " + updated);
+            db.close();
+        } else {
+            Log.d(TAG, "DB Updated = false");
+        }
+    }
+
+    public void updateLocationFavourite(int id, boolean favourite) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
+        if (db == null) {
+            return;
+        }
+        ContentValues row = new ContentValues();
+        if (idExists(id, LOCATIONS)) {
+            row.put(LOCATIONS_COL_FAVORITED, favourite);
+            row.put(LOCATIONS_COL_DATE, System.currentTimeMillis());
+            int updated = db.update(LOCATIONS, row, LOCATIONS_COL_ID + " = ?", new String[]{String.valueOf(id)});
+            if (updated > 0)
+                Log.d(TAG, "DB Updated ID = " + updated);
+            else
+                Log.d(TAG, "DB Updated = " + updated);
+            db.close();
+        } else {
+            Log.d(TAG, "DB Updated = false");
+        }
+    }
+
+    public void updateLocationVisits(String name, int visits) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
+        if (db == null) {
+            return;
+        }
+        ContentValues row = new ContentValues();
+        if (nameExists(name, LOCATIONS)) {
+            row.put(LOCATIONS_COL_VISITS, visits);
+            row.put(LOCATIONS_COL_DATE, System.currentTimeMillis());
             int updated = db.update(LOCATIONS, row, LOCATIONS_COL_NAME + " = ?", new String[]{String.valueOf(name)});
             if (updated > 0)
                 Log.d(TAG, "DB Updated ID = " + updated);
@@ -237,6 +386,19 @@ public class DatabaseHelper {
         if (db == null)
             return;
         int deleted = db.delete(BUS_LINE, BUS_LINE_COL_NAME + " = ?", new String[]{String.valueOf(name)});
+
+        if (deleted > 0)
+            Log.d(TAG, "DB Deleted Bus Line ID = " + deleted);
+        else
+            Log.d(TAG, "DB Deleted Bus Line = " + deleted);
+        db.close();
+    }
+
+    public void deleteBusLine(int id) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getWritableDatabase();
+        if (db == null)
+            return;
+        int deleted = db.delete(BUS_LINE, BUS_LINE_COL_ID + " = ?", new String[]{String.valueOf(id)});
 
         if (deleted > 0)
             Log.d(TAG, "DB Deleted Bus Line ID = " + deleted);
@@ -288,32 +450,80 @@ public class DatabaseHelper {
         return new BusLineItem(busLine, busStationList);
     }
 
+    public void clearRecentHistory() {
+        List<LocationItem> items = getAllLocations();
+        for (LocationItem i : items) {
+            if (isVisited(i.getName())) {
+                updateLocationVisits(i.getName(), 0);
+                Log.d(TAG, "DB Updated ID = " + i.getId());
+            } else {
+                Log.d(TAG, "DB Updated = false");
+            }
+        }
+    }
+
     private int getBusLineID(String busLine) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
-        int id;
+        if (db == null)
+            return 0;
+        int return_id;
         columns = new String[]{BUS_LINE_COL_ID};
         selection = "BUS_LINE_COL_NAME = ?";
         selectionArgs = new String[]{String.valueOf(busLine)};
         Cursor cursor = db.query(BUS_LINE, columns, selection, selectionArgs, null, null, null);
         cursor.moveToFirst();
-        id = cursor.getInt(0);
+        return_id = cursor.getInt(0);
         cursor.close();
-        Log.d(TAG, "DB Bus Line ID = " + id);
-        return id;
+        Log.d(TAG, "DB Bus Line ID = " + return_id);
+        return return_id;
     }
 
-    private int getBusStationID(String busStation) {
+    public int getBusStationID(String busStation) {
         SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
-        int id;
+        if (db == null)
+            return 0;
+        int return_id;
         columns = new String[]{LOCATIONS_COL_ID};
         selection = "LOCATIONS_COL_NAME = ?";
         selectionArgs = new String[]{String.valueOf(busStation)};
         Cursor cursor = db.query(LOCATIONS, columns, selection, selectionArgs, null, null, null);
         cursor.moveToFirst();
-        id = cursor.getInt(0);
+        return_id = cursor.getInt(0);
         cursor.close();
-        Log.d(TAG, "DB Bus Station ID = " + id);
-        return id;
+        Log.d(TAG, "DB Bus Station ID = " + return_id);
+        return return_id;
+    }
+
+    private int getLocationVisits(String busStation) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        if (db == null)
+            return 0;
+        int return_id;
+        columns = new String[]{LOCATIONS_COL_VISITS};
+        selection = "LOCATIONS_COL_NAME = ?";
+        selectionArgs = new String[]{String.valueOf(busStation)};
+        Cursor cursor = db.query(LOCATIONS, columns, selection, selectionArgs, null, null, null);
+        cursor.moveToFirst();
+        return_id = cursor.getInt(0);
+        cursor.close();
+        Log.d(TAG, "DB Bus Station ID = " + return_id);
+        return return_id;
+    }
+
+    private int getLocationVisits(int id) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        if (db == null)
+            return 0;
+        int return_id;
+        columns = new String[]{LOCATIONS_COL_VISITS};
+        selection = "LOCATIONS_COL_ID = ?";
+        selectionArgs = new String[]{String.valueOf(id)};
+        Cursor cursor = db.query(LOCATIONS, columns, selection, selectionArgs, null, null, null);
+        cursor.moveToFirst();
+        return_id = cursor.getInt(0);
+        cursor.close();
+        Log.d(TAG, "DB Bus Station ID = " + return_id);
+        return return_id;
     }
 
     private boolean nameExists(String name, String tableName) {
@@ -322,6 +532,23 @@ public class DatabaseHelper {
         boolean exists = (cursor.getCount() > 0);
         cursor.close();
         return exists;
+    }
+
+    private boolean idExists(int id, String tableName) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + tableName + " WHERE " + tableName + "_COL_ID = ?;", new String[]{String.valueOf(id)});
+        boolean exists = (cursor.getCount() > 0);
+        cursor.close();
+        return exists;
+    }
+
+    private boolean isVisited(String name) {
+        SQLiteDatabase db = _opeSqLiteOpenHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + LOCATIONS_COL_VISITS + " FROM " + LOCATIONS + " WHERE " + LOCATIONS + "_COL_NAME = ?;", new String[]{name});
+        cursor.moveToFirst();
+        boolean visited = (cursor.getInt(0) > 0);
+        cursor.close();
+        return visited;
     }
 
     private boolean isEmpty(String table_name) {
@@ -351,12 +578,12 @@ public class DatabaseHelper {
 
     private LocationItem cursorToLocation(Cursor cursor) {
         LocationItem location = new LocationItem();
-        location.setId(cursor.getLong(0));
+        location.setId(cursor.getInt(0));
         location.setName(cursor.getString(1));
         location.setAddress(cursor.getString(2));
         location.setLat(cursor.getDouble(3));
         location.setLng(cursor.getDouble(4));
-        location.setZoom(cursor.getString(5));
+        location.setZoom(cursor.getFloat(5));
         location.setIsFavourited(cursor.getInt(6) != 0);
         return location;
     }

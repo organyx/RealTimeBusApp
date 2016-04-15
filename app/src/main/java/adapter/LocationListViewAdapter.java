@@ -8,20 +8,29 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.example.vacho.realtimebusapp.R;
 
-import model.BusStationInfo;
+import java.util.List;
+
+import model.LocationItem;
 
 /**
- * Created by Vacho on 3/21/2016.
+ * Created by Aleks on 13-Apr-16.
+ * Adapter class for Location list.
  */
-public class BusListViewAdapter extends ArrayAdapter {
-
+public class LocationListViewAdapter extends ArrayAdapter {
     Context context;
     int layoutResourceId;
-    BusStationInfo data[] = null;
+    List<LocationItem> data;
 
-    public BusListViewAdapter(Context context, int resource,  BusStationInfo data[]) {
+    /**
+     * Adapter constructor.
+     * @param context Context.
+     * @param resource Resource.
+     * @param data Location List.
+     */
+    public LocationListViewAdapter(Context context, int resource, List<LocationItem> data) {
         super(context, resource, data);
         this.context = context;
         this.layoutResourceId = resource;
@@ -31,29 +40,29 @@ public class BusListViewAdapter extends ArrayAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        BusLineInfoHolder holder = null;
+        LocationInfoHolder holder;
 
         if (row == null) {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
             row = inflater.inflate(layoutResourceId, parent, false);
 
-            holder = new BusLineInfoHolder();
-            holder.imgIcon = (ImageView) row.findViewById(R.id.bus_lines_image_view);
-            holder.txtTitle1 = (TextView) row.findViewById(R.id.bus_lines_text_view);
+            holder = new LocationInfoHolder();
+            holder.imgIcon = (ImageView) row.findViewById(R.id.location_image_view);
+            holder.txtTitle1 = (TextView) row.findViewById(R.id.location_text_view);
 
             row.setTag(holder);
         } else {
-            holder = (BusLineInfoHolder) row.getTag();
+            holder = (LocationInfoHolder) row.getTag();
         }
 
-        BusStationInfo b = data[position];
-        holder.imgIcon.setImageResource(b.getIcon());
-        holder.txtTitle1.setText(b.getBusLines());
+        LocationItem b = data.get(position);
+        holder.imgIcon.setImageResource(R.drawable.ic_place_black_36dp);
+        holder.txtTitle1.setText(b.getName());
 
         return row;
     }
 
-    static class BusLineInfoHolder {
+    static class LocationInfoHolder {
         ImageView imgIcon;
         TextView txtTitle1;
     }

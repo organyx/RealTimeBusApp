@@ -16,16 +16,19 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="5dp"
-            android:text="recent"
+            android:text="@string/recent_locations"
             android:textSize="15sp"
-            android:textStyle="bold"></TextView>
+            android:textStyle="bold"/>
 
         <ImageView
             android:id="@+id/vert_search_screen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/icon_more"
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginTop="5dp"
             android:src="@drawable/ic_more_vert_black_24dp" />
     </RelativeLayout>
@@ -42,13 +45,5 @@
         android:dividerHeight="5dp"
         android:drawSelectorOnTop="true"
         android:smoothScrollbar="false" />
-
-    <!--<android.support.v7.widget.RecyclerView-->
-    <!--android:layout_weight="1"-->
-    <!--android:id="@+id/number1"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_marginTop="@dimen/fav_item_list_margin_top">-->
-    <!--</android.support.v7.widget.RecyclerView>-->
 
 </LinearLayout>

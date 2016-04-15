@@ -1,19 +1,23 @@
 package model;
 
+import android.support.annotation.NonNull;
+
 /**
  * Created by Aleks on 05-Apr-16.
  * Model class for Location information.
  */
-public class LocationItem {
+public class LocationItem implements Comparable<LocationItem>{
 
     private boolean showNotify;
-    private long id;
+    private int id;
     private String name;
     private String address;
     private double lat;
     private double lng;
-    private String zoom;
+    private float zoom;
     private boolean isFavourited;
+    private int visits;
+    private long date;
 
     /**
      * Constructor for complete initialization.
@@ -25,7 +29,7 @@ public class LocationItem {
      * @param zoom Zoom value for using with Google Maps
      * @param isFavourited Check if the Location is favorite.
      */
-    public LocationItem(long id, String name, String address, double lat, double lng, String zoom, boolean isFavourited) {
+    public LocationItem(int id, String name, String address, double lat, double lng, float zoom, boolean isFavourited) {
         this.isFavourited = isFavourited;
         this.id = id;
         this.name = name;
@@ -33,6 +37,8 @@ public class LocationItem {
         this.lat = lat;
         this.lng = lng;
         this.zoom = zoom;
+        this.visits = 0;
+        this.date = System.currentTimeMillis();
     }
 
     /**
@@ -44,18 +50,27 @@ public class LocationItem {
      * @param zoom Zoom value for using with Google Maps
      * @param isFavourited Check if the Location is favorite.
      */
-    public LocationItem(String name, String address, double lat, double lng, String zoom, boolean isFavourited) {
+    public LocationItem(String name, String address, double lat, double lng, float zoom, boolean isFavourited) {
         this.name = name;
         this.address = address;
         this.lat = lat;
         this.lng = lng;
         this.zoom = zoom;
         this.isFavourited = isFavourited;
+        this.visits = 0;
+        this.date = System.currentTimeMillis();
     }
 
+    /**
+     * Constructor for partial initialization.
+     * @param name Name of the Location.
+     * @param address Address of the Location.
+     */
     public LocationItem(String name, String address){
         this.name = name;
         this.address = address;
+        this.visits = 0;
+        this.date = System.currentTimeMillis();
     }
 
     /**
@@ -68,6 +83,8 @@ public class LocationItem {
         this.name = name;
         this.lat = lat;
         this.lng = lng;
+        this.visits = 0;
+        this.date = System.currentTimeMillis();
     }
 
     /**
@@ -84,11 +101,11 @@ public class LocationItem {
         this.showNotify = showNotify;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -124,11 +141,11 @@ public class LocationItem {
         this.lat = lat;
     }
 
-    public String getZoom() {
+    public float getZoom() {
         return zoom;
     }
 
-    public void setZoom(String zoom) {
+    public void setZoom(float zoom) {
         this.zoom = zoom;
     }
 
@@ -138,6 +155,22 @@ public class LocationItem {
 
     public void setIsFavourited(boolean isFavourited) {
         this.isFavourited = isFavourited;
+    }
+
+    public int getVisits() {
+        return visits;
+    }
+
+    public void setVisits(int visits) {
+        this.visits = visits;
+    }
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
     }
 
     @Override
@@ -151,5 +184,10 @@ public class LocationItem {
                 ", zoom='" + zoom + '\'' +
                 ", isFavourited=" + isFavourited +
                 '}';
+    }
+
+    @Override
+    public int compareTo(@NonNull LocationItem another) {
+        return (visits - another.visits);
     }
 }

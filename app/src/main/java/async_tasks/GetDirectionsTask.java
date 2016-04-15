@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.vacho.realtimebusapp.BuildConfig;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -23,9 +22,9 @@ import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import model.google_route_items.Leg;
-import model.google_route_items.Route;
-import model.google_route_items.Step;
+import model.google_items.Leg;
+import model.google_items.Route;
+import model.google_items.Step;
 import utils.JSONParser;
 import utils.TaskParameters;
 
@@ -131,7 +130,7 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
                 stringBuilder.append("optimize:true|");
             for (int i = 0; i < p.getWaypoints().size(); i++) {
                 final LatLng points = p.getWaypoints().get(i);
-                stringBuilder.append("via:"); // we don't want to parse the resulting JSON for 'legs'.
+                stringBuilder.append("via:"); // we don't want to parseRoutes the resulting JSON for 'legs'.
                 stringBuilder.append(points.latitude);
                 stringBuilder.append(",");
                 stringBuilder.append(points.longitude);
@@ -162,9 +161,9 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
     protected void onPostExecute(String routes) {
         List<Route> routesJson = null;
         JSONParser parser = new JSONParser();
-//        routesJson = parser.parse(resultSet);
+//        routesJson = parser.parseRoutes(resultSet);
         try {
-            routesJson = parser.parse(routes);
+            routesJson = parser.parseRoutes(routes);
         } catch (Exception e) {
             e.printStackTrace();
         }

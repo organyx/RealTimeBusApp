@@ -1,48 +1,47 @@
 package fragment;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.R;
+import com.example.vacho.realtimebusapp.SearchScreen;
+import com.google.android.gms.location.places.Place;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import adapter.CustomListViewAdapter;
-import adapter.FavoriteListAdapter;
 import model.BusStationInfo;
 import model.HomeListView;
 import model.LocationItem;
+import utils.DatabaseHelper;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LocationFragment extends Fragment {
+public class LocationFragment extends Fragment implements SearchScreen.AutocompleteItemClickListener {
 
+    public static final String TAG = "LocationFrag";
     public static final String ARG_PAGE = "ARG_PAGE";
 
-//    private RecyclerView recyclerView;
-//    private FavoriteListAdapter favoriteListAdapter;
-//    private RecyclerView.LayoutManager layoutManager;
-
-    private HomeListView homeListView;
+    private static HomeListView homeListView;
     private ImageView imageView;
 
-    private BusStationInfo busStationInfos[];
+    private static List<BusStationInfo> busStationInfos;
+    private static DatabaseHelper databaseHelper;
+    private static Context context;
 
     public LocationFragment() {
         // Required empty public constructor
@@ -54,9 +53,10 @@ public class LocationFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_location, container, false);
 
+        databaseHelper = DatabaseHelper.getInstance(getActivity());
+        context = getContext();
         homeListView = (HomeListView) rootView.findViewById(android.R.id.list);
         imageView = (ImageView) rootView.findViewById(R.id.vert_search_screen);
-        // recyclerView = (RecyclerView) rootView.findViewById(R.id.number1);
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,11 +67,8 @@ public class LocationFragment extends Fragment {
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        Toast.makeText(
-                                getActivity(),
-                                "Under Development",
-                                Toast.LENGTH_SHORT
-                        ).show();
+                        databaseHelper.clearRecentHistory();
+                        homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, new ArrayList<BusStationInfo>()));
                         return true;
                     }
                 });
@@ -86,14 +83,12 @@ public class LocationFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        busStationInfos = new BusStationInfo[]{
-                new BusStationInfo("Torvet", "Torvet 26"),
-                new BusStationInfo("Borgergade", "Borgergade 3,3TV"),
-                new BusStationInfo("Rådhuse", "Rådhuse 4A")
-        };
-
-
-        homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, busStationInfos));
+        List<LocationItem> locationsInfo = databaseHelper.getRecentHistory();
+        busStationInfos = new ArrayList<>();
+        for (LocationItem item : locationsInfo) {
+            busStationInfos.add(new BusStationInfo(item.getName(), item.getAddress()));
+        }
+        updateAdapter(busStationInfos);
         homeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -102,17 +97,36 @@ public class LocationFragment extends Fragment {
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+    }
 
-//        LocationItem item = new LocationItem("Torvet", "Torvet 26");
-//        List<LocationItem> list = new ArrayList<LocationItem>();
-//        list.add(0,item);
-//
-//
-//        layoutManager = new LinearLayoutManager(getActivity());
-//        recyclerView.setLayoutManager(layoutManager);
-//
-//        favoriteListAdapter = new FavoriteListAdapter(getActivity(), list);
-//        recyclerView.setAdapter(favoriteListAdapter);
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onAutoCompleteItemClick(Place place) {
+        LocationItem item2 = new LocationItem(place.getName().toString(), place.getAddress().toString(), place.getLatLng().latitude, place.getLatLng().longitude, 0, false);
+        Log.d(TAG, "Item clicked: " + item2.getName() + " " + item2.getAddress());
+
+        databaseHelper.addNewLocation(item2.getName(), item2.getAddress(), item2.getLat(), item2.getLng(), 0, 0);
+        databaseHelper.updateLocationVisits(item2.getName(), 1);
+        List<LocationItem> locationsInfo = databaseHelper.getRecentHistory();
+        busStationInfos = new ArrayList<>();
+        for (LocationItem item : locationsInfo) {
+            busStationInfos.add(new BusStationInfo(item.getName(), item.getAddress()));
+        }
+        updateAdapter(busStationInfos);
+    }
+
+    private void updateAdapter(List<BusStationInfo> i) {
+        if (homeListView != null)
+            if (context != null)
+                homeListView.setAdapter(new CustomListViewAdapter(context, R.layout.list_item, i));
     }
 }

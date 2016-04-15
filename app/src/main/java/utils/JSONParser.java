@@ -1,26 +1,29 @@
 package utils;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import model.google_route_items.Distance;
-import model.google_route_items.Duration;
-import model.google_route_items.Leg;
-import model.google_route_items.Route;
-import model.google_route_items.Step;
+import model.google_items.Distance;
+import model.google_items.Duration;
+import model.google_items.Leg;
+import model.google_items.Place;
+import model.google_items.Route;
+import model.google_items.Step;
 
 /**
  * Created by Aleks on 29-Mar-16.
  * Utility class for parsing Google Directions API response.
  */
 public class JSONParser {
+
+    private static final String TAG = "JSONParser";
 
     private static final String ROUTES = "routes";
     private static final String SUMMARY = "summary";
@@ -38,7 +41,15 @@ public class JSONParser {
     private static final String POINTS = "points";
     private static final String START_LOCATION = "start_location";
 
-    public List<Route> parse(String routesJSONString) throws Exception {
+    private static final String RESULTS = "results";
+    private static final String ID = "id";
+    private static final String NAME = "name";
+    private static final String VICINITY = "vicinity";
+    private static final String GEOMETRY = "geometry";
+    private static final String LOCATION = "location";
+
+    public List<Route> parseRoutes(String routesJSONString) throws Exception {
+        Log.d(TAG, "Parsing routes started");
         List<Route> routeList = new ArrayList<>();
         final JSONObject jSONObject = new JSONObject(routesJSONString);
         JSONArray routeJSONArray = jSONObject.getJSONArray(ROUTES);
@@ -88,11 +99,36 @@ public class JSONParser {
         }
         return routeList;
     }
+
+    public List<Place> parsePlaces(String routesJSONString) throws Exception {
+        Log.d(TAG, "Parsing places started");
+        List<Place> places = new ArrayList<>();
+        final JSONObject jSONObject = new JSONObject(routesJSONString);
+        JSONArray placeJSONArray = jSONObject.getJSONArray(RESULTS);
+        Place place;
+        JSONObject placesJSONObject;
+        {
+            for (int i = 0; i < placeJSONArray.length(); i++) {
+                place = new Place();
+                placesJSONObject = placeJSONArray.getJSONObject(i);
+                JSONObject geometryJSONObject;
+                place.setId(placesJSONObject.getString(ID));
+                place.setName(placesJSONObject.getString(NAME));
+                place.setVicinity(placesJSONObject.getString(VICINITY));
+                geometryJSONObject = placesJSONObject.getJSONObject(GEOMETRY);
+                JSONObject locationJSONObject = geometryJSONObject.getJSONObject(LOCATION);
+                place.setLocation(new LatLng(locationJSONObject.optDouble(LATITUDE), locationJSONObject.optDouble(LONGITUDE)));
+                places.add(place);
+            }
+        }
+        return places;
+    }
+
     /**
      * Method Courtesy :
      * jeffreysambells.com/2010/05/27
      * /decoding-polylines-from-google-maps-direction-api-with-java
-     * */
+     */
     private List<LatLng> decodePoly(String encoded) {
 
         List<LatLng> poly = new ArrayList<>();

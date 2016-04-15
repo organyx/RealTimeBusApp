@@ -20,29 +20,35 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import model.google_items.Place;
+import utils.JSONParser;
 import utils.TaskParameters;
 
 /**
  * Created by Aleks on 29-Mar-16.
  * Async Task for retrieving nearby bus stations.
  */
-public class GetNearestBusStations extends AsyncTask<TaskParameters, String, String> {
+public class GetNearestBusStations extends AsyncTask<TaskParameters, String, List<Place>> {
     private static final String TAG = "GetNearestBusStations";
-    GoogleMap taskMap;
+    public AsyncResponse delegate;
 
     @Override
-    protected String doInBackground(TaskParameters... params) {
+    protected List<Place> doInBackground(TaskParameters... params) {
         JSONObject result = new JSONObject();
         URL url;
         HttpsURLConnection urlConnection;
+        StringBuilder stringBuilder = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
         for (TaskParameters p : params) {
-            try{
-                taskMap = p.getGmap();
-                url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + p.getLocation().latitude + "," + p.getLocation().longitude + "&radius=500&type=bus_station&key=" + BuildConfig.SERVER_KEY);
-                urlConnection = (HttpsURLConnection)url.openConnection();
+            try {
+                buildUrl(stringBuilder, p);
+
+                url = new URL(stringBuilder.toString());
+
+                urlConnection = (HttpsURLConnection) url.openConnection();
 
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -52,56 +58,87 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Str
                 urlConnection.setDoInput(true);
                 urlConnection.setUseCaches(false);
 
-//                String parameters = "?location=" + 55.866 + "," + 9.833;
-//                parameters+="&radius=500";
-//                parameters+="&type=bus_station";
-//                parameters+="&key="+ BuildConfig.SERVER_KEY;
-//                byte[] postData = parameters.getBytes(Charset.forName("UTF-8"));
-//
-//                int postDataLength = postData.length;
-//                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-//                DataOutputStream data = new DataOutputStream(urlConnection.getOutputStream());
-//                data.writeBytes(parameters);
-//                data.flush();
-//                data.close();
-
-                StringBuilder sb= new StringBuilder();
+                StringBuilder sb = new StringBuilder();
                 int HttpResult = urlConnection.getResponseCode();
 
-                if(HttpResult == HttpURLConnection.HTTP_OK){
+                if (HttpResult == HttpURLConnection.HTTP_OK) {
                     BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
                     String line;
-                    while ((line = br.readLine()) != null){
+                    while ((line = br.readLine()) != null) {
                         sb.append(line + "\n");
                     }
                     br.close();
                     Log.d(TAG, "json: " + sb.toString());
                     // Parse the String to a JSON Object
                     result = new JSONObject(sb.toString());
-                }
-                else
-                {
+                } else {
                     Log.d(TAG, "urlConnection.getResponseMessage(): " + urlConnection.getResponseMessage());
                     result = null;
                 }
-            }
-            catch (UnsupportedEncodingException e){
+            } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
                 Log.d(TAG, "UnsuppoertedEncodingException: " + e.toString());
-            }
-            catch (JSONException e)
-            {
+            } catch (JSONException e) {
                 e.printStackTrace();
                 Log.d(TAG, "Error JSONException: " + e.toString());
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(TAG, "IOException: " + e.toString());
             }
         }
 
-        return result.toString();
+        List<Place> placesJson = null;
+        JSONParser parser = new JSONParser();
+
+        try {
+            placesJson = parser.parsePlaces(result.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (placesJson != null) {
+            for (int j = 0; j < placesJson.size(); j++) {
+                Log.d(TAG, placesJson.get(j).toString());
+            }
+        }
+
+        if (delegate != null) {
+            delegate.processFinish(placesJson);
+        }
+        return placesJson;
+    }
+
+    private void buildUrl(StringBuilder stringBuilder, TaskParameters p) {
+        // Location
+        final LatLng location = p.getLocation();
+        stringBuilder.append("?location=")
+                .append(location.latitude)
+                .append(",")
+                .append(location.longitude);
+
+        // Radius
+        if (p.getRadius() != 0)
+            stringBuilder.append("&radius=").append(p.getRadius());
+        else
+            stringBuilder.append("&radius=500");
+
+        // Type
+        if (p.getPlaceType() != null)
+            stringBuilder.append("&type=").append(p.getPlaceType().getValue());
+        else
+            stringBuilder.append("&type=bus_station");
+
+        // language
+        if (p.getLanguage() != null)
+            stringBuilder.append("&language=").append(p.getLanguage());
+        else
+            stringBuilder.append("&language=en");
+
+        // API key
+        if (p.getKey() != null)
+            stringBuilder.append("&key=").append(p.getKey());
+        else
+            stringBuilder.append("&key=").append(BuildConfig.SERVER_KEY);
     }
 
     @Override
@@ -110,27 +147,13 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Str
     }
 
     @Override
-    protected void onPostExecute(String result) {
-//            Toast.makeText(getActivity(), "Loaded\n" + result, Toast.LENGTH_SHORT).show();
-        try {
-            JSONObject obj = new JSONObject(result);
-            JSONArray objArray = obj.getJSONArray("results");
-            for (int i = 0; i < objArray.length(); i++) {
-                JSONObject explrObject = objArray.getJSONObject(i);
-                Log.d(TAG, explrObject.getString("name"));
-//                    Log.d(TAG, String.valueOf(explrObject.getJSONArray("geometry").getJSONArray(0).getDouble(0)));
-//                    Log.d(TAG, explrObject.getJSONObject("geometry").toString());
-//                    Log.d(TAG, explrObject.getJSONObject("geometry").getJSONObject("location").toString());
-                Log.d(TAG, String.valueOf(explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lat")));
-                taskMap.addMarker(new MarkerOptions()
-                        .title(explrObject.getString("name"))
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
-                        .position(new LatLng(
-                                explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
-                                explrObject.getJSONObject("geometry").getJSONObject("location").getDouble("lng"))));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+    protected void onPostExecute(List<Place> places) {
+        if (delegate != null) {
+            if (places != null)
+                delegate.onTaskEndWithResult(1);
+
+            else
+                delegate.onTaskEndWithResult(0);
         }
     }
 }

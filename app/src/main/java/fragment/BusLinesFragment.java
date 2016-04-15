@@ -9,25 +9,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.R;
 import com.example.vacho.realtimebusapp.RouteScreen;
-import com.example.vacho.realtimebusapp.SearchScreen;
 
-import adapter.BusListViewAdapter;
-import model.BusStationInfo;
+import java.util.ArrayList;
+import java.util.List;
+
+import adapter.BusLinesListViewAdapter;
+import model.BusLineItem;
 import model.HomeListView;
+import utils.Constants;
+import utils.DatabaseHelper;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class BusLinesFragment extends Fragment {
 
+    public static final String TAG = "BusLinesFrag";
     public static final String ARG_PAGE = "ARG_PAGE";
 
     private HomeListView homeListView;
     private ListView busLines;
+    private DatabaseHelper databaseHelper;
 
     public BusLinesFragment() {
         // Required empty public constructor
@@ -38,30 +43,17 @@ public class BusLinesFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_bus_lines, container, false);
+        databaseHelper = DatabaseHelper.getInstance(getActivity());
 
-        BusStationInfo busLinesInfo[] = new BusStationInfo[]{
-                new BusStationInfo("Bus Line 1"),
-                new BusStationInfo("2"),
-                new BusStationInfo("3"),
-                new BusStationInfo("4"),
-                new BusStationInfo("5"),
-                new BusStationInfo("6"),
-                new BusStationInfo("7"),
-                new BusStationInfo("8"),
-                new BusStationInfo("9"),
-                new BusStationInfo("10"),
-                new BusStationInfo("12"),
-                new BusStationInfo("13"),
-                new BusStationInfo("14"),
-                new BusStationInfo("15"),
-                new BusStationInfo("16"),
-                new BusStationInfo("17"),
-                new BusStationInfo("18")
+        BusLineItem route1 = databaseHelper.getBusLine(Constants.route1);
+        BusLineItem route2 = databaseHelper.getBusLine(Constants.route2);
 
-        };
+        List<BusLineItem> busLinesInfo = new ArrayList<>();
+        busLinesInfo.add(route1);
+        busLinesInfo.add(route2);
 
         busLines = (ListView) view.findViewById(android.R.id.list);
-        BusListViewAdapter a = new BusListViewAdapter(getActivity(), R.layout.bus_lines_list_view_row, busLinesInfo);
+        BusLinesListViewAdapter a = new BusLinesListViewAdapter(getActivity(), R.layout.bus_lines_list_view_row, busLinesInfo);
         busLines.setAdapter(a);
         busLines.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -77,7 +69,5 @@ public class BusLinesFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-
     }
 }

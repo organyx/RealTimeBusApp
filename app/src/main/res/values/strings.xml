@@ -37,7 +37,7 @@
     <string name="fav_item_icon2_description">Favourite Item More Icon</string>
     <string name="hint_fav_item_name">Name</string>
     <string name="hint_fav_item_descr">Description</string>
-    <string name="hint_fav_item_address">Enter Place Here</string>
+    <string name="hint_fav_item_address">Enter Place Address</string>
     <string name="btn_add_fav_item">Add</string>
     <string name="btn_update_fav_item">Update</string>
     <string name="btn_delete_fav_item">Delete</string>
@@ -61,4 +61,11 @@
 
     <string name="title_activity_route_screen">RouteScreen</string>
 
+    <string name="icon_location_item">Location Icon</string>
+    <string name="icon_bus_line">Bus Line Icon</string>
+    <string name="icon_more">More</string>
+    <string name="recent_locations">Recently searched locations</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

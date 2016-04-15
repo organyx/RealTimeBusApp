@@ -1,17 +1,17 @@
-package model.google_route_items;
+package model.google_items;
 
 /**
  * Created by Aleks on 10-Apr-16.
- * Distance class model for Google Directions API response.
+ * Duration class model for Google Directions API response.
  */
-public class Distance {
-    private String text;
-    private long value;
-
-    public Distance(String text, long value) {
+public class Duration {
+    public Duration(String text, long value) {
         this.text = text;
         this.value = value;
     }
+
+    private String text;
+    private long value;
 
     public String getText() {
         return text;
@@ -31,7 +31,7 @@ public class Distance {
 
     @Override
     public String toString() {
-        return "Distance{" +
+        return "Duration{" +
                 "text='" + text + '\'' +
                 ", value=" + value +
                 '}';

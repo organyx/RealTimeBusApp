@@ -4,13 +4,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputEditText;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,6 +27,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 
 import adapter.FragmentPagerAdapter;
 import adapter.PlaceArrayAdapter;
+import fragment.LocationFragment;
+import utils.DatabaseHelper;
 
 public class SearchScreen extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
@@ -49,6 +46,14 @@ public class SearchScreen extends AppCompatActivity implements GoogleApiClient.O
     LinearLayout contentSearchScreenMainLayout;
     TextView tabTitle;
     AutoCompleteTextView hintForSearchField;
+
+    DatabaseHelper databaseHelper;
+
+    public interface AutocompleteItemClickListener {
+        public void onAutoCompleteItemClick(Place place);
+    }
+
+    AutocompleteItemClickListener autocompleteItemClickListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +76,11 @@ public class SearchScreen extends AppCompatActivity implements GoogleApiClient.O
 //                .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this) // RECREATED WITHIN onStart and onStop METHODS
                 .addConnectionCallbacks(this)
                 .build();
-
+        databaseHelper = DatabaseHelper.getInstance(this);
         hintForSearchField = (AutoCompleteTextView) findViewById(R.id.atv_autocomplete_fav_item_address);
-        hintForSearchField.setOnItemClickListener(mAutocompleteClickListener);
+        if (hintForSearchField != null) {
+            hintForSearchField.setOnItemClickListener(mAutocompleteClickListener);
+        }
         placeArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
                 BOUNDS_MOUNTAIN_VIEW, null);
         hintForSearchField.setAdapter(placeArrayAdapter);
@@ -83,9 +90,13 @@ public class SearchScreen extends AppCompatActivity implements GoogleApiClient.O
         viewPager.setAdapter(fragmentPagerAdapter);
 
         pagerSlidingTabStrip = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-        pagerSlidingTabStrip.setViewPager(viewPager);
+        if (pagerSlidingTabStrip != null) {
+            pagerSlidingTabStrip.setViewPager(viewPager);
+        }
 
-        contentSearchScreenMainLayout = ((LinearLayout) pagerSlidingTabStrip.getChildAt(0));
+        if (pagerSlidingTabStrip != null) {
+            contentSearchScreenMainLayout = ((LinearLayout) pagerSlidingTabStrip.getChildAt(0));
+        }
         tabTitle = (TextView) contentSearchScreenMainLayout.getChildAt(0);
         tabTitle.setTextColor(Color.parseColor("#795548"));
         hintForSearchField.setHint("Where do you want to go?");
@@ -143,9 +154,8 @@ public class SearchScreen extends AppCompatActivity implements GoogleApiClient.O
             // Selecting the first object buffer.
             final Place place = places.get(0);
             CharSequence attributions = places.getAttributions();
-
-//            tv_fav_item_name.setText(Html.fromHtml(place.getName() + ""));
-//            addMarker(place);
+            Log.d(TAG, "Clicked " + place.getName() + " " + place.getAddress());
+            ((AutocompleteItemClickListener) new LocationFragment()).onAutoCompleteItemClick(place);
         }
     };
 
@@ -182,5 +192,9 @@ public class SearchScreen extends AppCompatActivity implements GoogleApiClient.O
     protected void onStop() {
         super.onStop();
         googleApiClient.disconnect();
+    }
+
+    public void onBackClicked(View view) {
+        onBackPressed();
     }
 }
