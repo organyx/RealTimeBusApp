@@ -62,7 +62,7 @@
 
     <fragment
         android:id="@+id/f_intermediate_map"
-        android:name="com.google.android.gms.maps.MapFragment"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_fav_item_fields" />

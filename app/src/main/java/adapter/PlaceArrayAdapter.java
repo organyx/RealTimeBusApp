@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Aleks on 09-Mar-16.
+ * Class for managing autocomplete results.
  */
 public class PlaceArrayAdapter extends ArrayAdapter<PlaceArrayAdapter.PlaceAutocomplete> implements Filterable {
     private static final String TAG = "PlaceArrayAdapter";

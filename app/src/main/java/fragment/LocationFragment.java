@@ -1,6 +1,8 @@
 package fragment;
 
 
+import android.content.Intent;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 
+import com.example.vacho.realtimebusapp.HomeScreen;
 import com.example.vacho.realtimebusapp.R;
 import com.example.vacho.realtimebusapp.SearchScreen;
 import com.google.android.gms.location.places.Place;
@@ -83,7 +86,7 @@ public class LocationFragment extends Fragment implements SearchScreen.Autocompl
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        List<LocationItem> locationsInfo = databaseHelper.getRecentHistory();
+        final List<LocationItem> locationsInfo = databaseHelper.getRecentHistory();
         busStationInfos = new ArrayList<>();
         for (LocationItem item : locationsInfo) {
             busStationInfos.add(new BusStationInfo(item.getName(), item.getAddress()));
@@ -92,6 +95,27 @@ public class LocationFragment extends Fragment implements SearchScreen.Autocompl
         homeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "onItemClick");
+//                HomeScreenFragment homeScreenFragment = new HomeScreenFragment();
+//                Bundle args = new Bundle();
+//                args.putString("fromFrag", "From Location Fragment");
+//                homeScreenFragment.setArguments(args);
+//
+//                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+//                transaction.replace(R.id.view_pager, homeScreenFragment);
+//                transaction.addToBackStack(null);
+//                transaction.commit();
+
+                Intent intent  = new Intent(getActivity(), HomeScreen.class); // need to set your Intent View here
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("fromFrag", "From Location Fragment");
+                LocationItem i = locationsInfo.get(position);
+                ArrayList<LocationItem> dataList = new ArrayList<>();
+                dataList.add(i);
+                intent.putParcelableArrayListExtra("custom_data_list", dataList);
+                getActivity().startActivity(intent);
+                getActivity().finish();
             }
         });
 

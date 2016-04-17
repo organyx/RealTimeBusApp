@@ -4,7 +4,7 @@ package fragment;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -17,11 +17,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,12 +27,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.vacho.realtimebusapp.BuildConfig;
 import com.example.vacho.realtimebusapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -49,9 +45,7 @@ import java.util.List;
 
 import adapter.CustomListViewAdapter;
 import async_tasks.AsyncResponse;
-import async_tasks.GetDirectionsTask;
 import async_tasks.GetNearestBusStations;
-import model.BusLineItem;
 import model.BusStationInfo;
 import model.HomeListView;
 import model.LocationItem;
@@ -191,7 +185,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.home_fragment);
+        SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.home_fragment);
         fragment.getMapAsync(this);
     }
 
@@ -264,7 +258,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 ////                getDirections.setKey(BuildConfig.SERVER_KEY);
 ////                getDirections.setOptimize(true);
 ////                getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
-////                getDirections.setWaypoints(waipoints());
+////                getDirections.setWaypoints(waipointsForRoute1());
 ////                new GetDirectionsTask().execute(getDirections);
 //
 ////                 Get nearest bus stations
@@ -285,9 +279,22 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         } else {
             setFavLocation(googleMap);
         }
+
+        Bundle extras = getActivity().getIntent().getExtras();
+        if(extras != null){
+            if(extras.containsKey("fromFrag"))
+            {
+                Toast.makeText(getActivity(), extras.getString("fromFrag"), Toast.LENGTH_SHORT).show();
+                ArrayList arrayList = getActivity().getIntent().getParcelableArrayListExtra("custom_data_list");
+                LocationItem i = (LocationItem) arrayList.get(0);
+                this.googleMap.addMarker(new MarkerOptions().title(i.getName()).position(new LatLng(i.getLat(), i.getLng())));
+                this.googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(i.getLat(), i.getLng())));
+                Log.d(TAG, i.toString());
+            }
+        }
     }
 
-    private List<LatLng> waipoints() {
+    private List<LatLng> waipointsForRoute1() {
         List<LatLng> points = new ArrayList<>();
         points.add(new LatLng(55.8622125, 9.8420348));
         points.add(new LatLng(55.8630615, 9.8481180));

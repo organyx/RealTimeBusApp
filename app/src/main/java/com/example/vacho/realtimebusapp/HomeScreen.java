@@ -1,12 +1,11 @@
 package com.example.vacho.realtimebusapp;
 
-import android.app.DialogFragment;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -24,10 +23,8 @@ import fragment.AboutScreenFragment;
 import fragment.EditFavFragment;
 import fragment.FavoritesScreenFragment;
 import fragment.HomeScreenFragment;
-import fragment.IntermediateMapFragment;
 import fragment.NavigationDrawerFragment;
 import utils.DatabaseHelper;
-
 
 public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener, GoogleApiClient.OnConnectionFailedListener, EditFavFragment.NoticeDialogListener {
 
@@ -117,7 +114,7 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
 
     private void displayView(int position) {
 
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
 
 //            fsf = FavoritesScreenFragment.newInstance(position);
 //            Bundle args = new Bundle();
@@ -184,13 +181,13 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
     }
 
     @Override
-    public void onDialogPositiveClick(DialogFragment dialog, String edited_name, String edited_address) {
+    public void onDialogPositiveClick(android.support.v4.app.DialogFragment dialog, String edited_name, String edited_address) {
         Log.d(TAG, "CLICKED: OK");
         Log.d(TAG, edited_address + " " + edited_name);
     }
 
     @Override
-    public void onDialogNegativeClick(DialogFragment dialog) {
+    public void onDialogNegativeClick(android.support.v4.app.DialogFragment dialog) {
         Log.d(TAG, "CLICKED: CANCEL");
     }
 }
