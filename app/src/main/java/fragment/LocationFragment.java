@@ -96,17 +96,7 @@ public class LocationFragment extends Fragment implements SearchScreen.Autocompl
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, "onItemClick");
-//                HomeScreenFragment homeScreenFragment = new HomeScreenFragment();
-//                Bundle args = new Bundle();
-//                args.putString("fromFrag", "From Location Fragment");
-//                homeScreenFragment.setArguments(args);
-//
-//                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-//                transaction.replace(R.id.view_pager, homeScreenFragment);
-//                transaction.addToBackStack(null);
-//                transaction.commit();
-
-                Intent intent  = new Intent(getActivity(), HomeScreen.class); // need to set your Intent View here
+                Intent intent  = new Intent(getActivity(), HomeScreen.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra("fromFrag", "From Location Fragment");

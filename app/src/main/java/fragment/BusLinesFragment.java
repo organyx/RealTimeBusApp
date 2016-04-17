@@ -4,12 +4,14 @@ package fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.example.vacho.realtimebusapp.HomeScreen;
 import com.example.vacho.realtimebusapp.R;
 import com.example.vacho.realtimebusapp.RouteScreen;
 
@@ -19,6 +21,7 @@ import java.util.List;
 import adapter.BusLinesListViewAdapter;
 import model.BusLineItem;
 import model.HomeListView;
+import model.LocationItem;
 import utils.Constants;
 import utils.DatabaseHelper;
 
@@ -39,7 +42,7 @@ public class BusLinesFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_bus_lines, container, false);
@@ -48,7 +51,7 @@ public class BusLinesFragment extends Fragment {
         BusLineItem route1 = databaseHelper.getBusLine(Constants.route1);
         BusLineItem route2 = databaseHelper.getBusLine(Constants.route2);
 
-        List<BusLineItem> busLinesInfo = new ArrayList<>();
+        final List<BusLineItem> busLinesInfo = new ArrayList<>();
         busLinesInfo.add(route1);
         busLinesInfo.add(route2);
 
@@ -58,8 +61,14 @@ public class BusLinesFragment extends Fragment {
         busLines.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent busRoute = new Intent(getActivity(), RouteScreen.class);
-                startActivity(busRoute);
+                Log.d(TAG, "onItemClick");
+                Intent intent = new Intent(getActivity(), HomeScreen.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                BusLineItem i = busLinesInfo.get(position);
+                intent.putExtra("SerializableRoute", i);
+                getActivity().startActivity(intent);
+                getActivity().finish();
             }
         });
 

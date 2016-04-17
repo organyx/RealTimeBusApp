@@ -5,12 +5,14 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.io.Serializable;
+
 /**
  * Created by Aleks on 05-Apr-16.
  * Model class for Location information.
  */
-public class LocationItem implements Comparable<LocationItem>, Parcelable {
-
+public class LocationItem implements Comparable<LocationItem>, Serializable, Parcelable {
+    private static final long serialVersionUID = 1L;
     private static final String TAG = "LocationItem";
     private boolean showNotify;
     private int id;

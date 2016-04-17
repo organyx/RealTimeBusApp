@@ -1,5 +1,6 @@
 package model;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,7 +8,9 @@ import java.util.List;
  * Created by Aleks on 08-Apr-16.
  * Model class for Bus Line information.
  */
-public class BusLineItem {
+public class BusLineItem implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private String busLineName;
     private List<LocationItem> busStations;
     private int[] busStationOrder;
@@ -20,6 +23,7 @@ public class BusLineItem {
 
     /**
      * Constructor for initialization without order.
+     *
      * @param busLineName Bus Line name.
      * @param busStations Bus Station list.
      */
@@ -30,8 +34,9 @@ public class BusLineItem {
 
     /**
      * Constructor for complete initialization.
-     * @param busLineName Bus Line name.
-     * @param busStations Bus Station list.
+     *
+     * @param busLineName     Bus Line name.
+     * @param busStations     Bus Station list.
      * @param busStationOrder Bus Station order.
      */
     public BusLineItem(String busLineName, List<LocationItem> busStations, int[] busStationOrder) {

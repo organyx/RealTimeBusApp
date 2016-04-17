@@ -4,6 +4,7 @@ package fragment;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -46,6 +47,7 @@ import java.util.List;
 import adapter.CustomListViewAdapter;
 import async_tasks.AsyncResponse;
 import async_tasks.GetNearestBusStations;
+import model.BusLineItem;
 import model.BusStationInfo;
 import model.HomeListView;
 import model.LocationItem;
@@ -281,15 +283,29 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         }
 
         Bundle extras = getActivity().getIntent().getExtras();
-        if(extras != null){
-            if(extras.containsKey("fromFrag"))
-            {
+        if (extras != null) {
+            if (extras.containsKey("fromFrag")) {
                 Toast.makeText(getActivity(), extras.getString("fromFrag"), Toast.LENGTH_SHORT).show();
                 ArrayList arrayList = getActivity().getIntent().getParcelableArrayListExtra("custom_data_list");
                 LocationItem i = (LocationItem) arrayList.get(0);
                 this.googleMap.addMarker(new MarkerOptions().title(i.getName()).position(new LatLng(i.getLat(), i.getLng())));
                 this.googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(i.getLat(), i.getLng())));
                 Log.d(TAG, i.toString());
+            } else if (extras.containsKey("SerializableRoute")) {
+                if (extras.getSerializable("SerializableRoute") != null) {
+                    Log.d(TAG, extras.getSerializable("SerializableRoute").toString());
+                    BusLineItem busLineItem = (BusLineItem) extras.getSerializable("SerializableRoute");
+                    PolylineOptions options = new PolylineOptions();
+                    List<LatLng> points = new ArrayList<>();
+                    for(LocationItem item : busLineItem.getBusStations())
+                    {
+                        points.add(new LatLng(item.getLat(), item.getLng()));
+                    }
+                    options.addAll(points);
+                    options.width(2);
+                    options.color(Color.BLUE);
+                    this.googleMap.addPolyline(options);
+                }
             }
         }
     }
