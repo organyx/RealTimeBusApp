@@ -28,6 +28,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.vacho.realtimebusapp.BuildConfig;
 import com.example.vacho.realtimebusapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -45,19 +46,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import adapter.CustomListViewAdapter;
-import async_tasks.AsyncResponse;
+import async_tasks.AsyncResponseBusStationsListener;
+import async_tasks.AsyncResponseDirectionsListener;
+import async_tasks.GetDirectionsTask;
 import async_tasks.GetNearestBusStations;
 import model.BusLineItem;
 import model.BusStationInfo;
 import model.HomeListView;
 import model.LocationItem;
+import model.google_items.Leg;
 import model.google_items.Place;
+import model.google_items.Route;
+import model.google_items.Step;
 import utils.TaskParameters;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, SlidingUpPanelLayout.PanelSlideListener, AsyncResponse {
+public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, SlidingUpPanelLayout.PanelSlideListener, AsyncResponseBusStationsListener, AsyncResponseDirectionsListener {
 
     private View transparentView;
     private View whiteSpaceView;
@@ -297,14 +303,25 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                     BusLineItem busLineItem = (BusLineItem) extras.getSerializable("SerializableRoute");
                     PolylineOptions options = new PolylineOptions();
                     List<LatLng> points = new ArrayList<>();
-                    for(LocationItem item : busLineItem.getBusStations())
-                    {
+                    for (LocationItem item : busLineItem.getBusStations()) {
                         points.add(new LatLng(item.getLat(), item.getLng()));
+                        this.googleMap.addMarker(new MarkerOptions()
+                                .title(item.getName())
+                                .position(new LatLng(item.getLat(), item.getLng()))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_24dp)));
                     }
-                    options.addAll(points);
-                    options.width(2);
-                    options.color(Color.BLUE);
-                    this.googleMap.addPolyline(options);
+//                    options.addAll(points);
+//                    options.width(2);
+//                    options.color(Color.BLUE);
+//                    this.googleMap.addPolyline(options);
+                    TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, trafikTerminal);
+                    getDirections.setKey(BuildConfig.SERVER_KEY);
+                    getDirections.setOptimize(true);
+                    getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
+                    getDirections.setWaypoints(points);
+                    GetDirectionsTask task = new GetDirectionsTask();
+                    task.delegate = this;
+                    task.execute(getDirections);
                 }
             }
         }
@@ -522,22 +539,22 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     }
 
     @Override
-    public void onTaskEndWithResult(int success) {
+    public void onLocationsTaskEndWithResult(int success) {
         switch (success) {
             case 0:
-                Log.d(TAG, "Task Success = " + success);
+                Log.d(TAG, "onLocationsTaskEndWithResult Success = " + success);
                 break;
             case 1:
-                Log.d(TAG, "Task Success = " + success);
+                Log.d(TAG, "onLocationsTaskEndWithResult Success = " + success);
                 break;
             default:
-                Log.d(TAG, "Task Success = " + success);
+                Log.d(TAG, "onLocationsTaskEndWithResult Success = " + success);
                 break;
         }
     }
 
     @Override
-    public void processFinish(final List<Place> places) {
+    public void onLocationsProcessFinish(final List<Place> places) {
 
         final List<BusStationInfo> busStationInfos = new ArrayList<>();
 
@@ -557,6 +574,58 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_36dp))
                                 .position(p.getLocation()));
                     }
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onDirectionsTaskEndWithResult(int success) {
+        switch (success) {
+            case 0:
+                Log.d(TAG, "onDirectionsTaskEndWithResult Success = " + success);
+                break;
+            case 1:
+                Log.d(TAG, "onDirectionsTaskEndWithResult Success = " + success);
+                break;
+            default:
+                Log.d(TAG, "onDirectionsTaskEndWithResult Success = " + success);
+                break;
+        }
+    }
+
+    @Override
+    public void onDirectionsProcessFinish(List<Route> places) {
+        Log.d("TaskFinished", "directions finished");
+        if (places != null) {
+
+            Log.d(TAG, places.toString());
+
+            ArrayList<LatLng> points;
+            final PolylineOptions polyLineOptions = new PolylineOptions();
+
+            // traversing through routes
+
+            for (int i = 0; i < places.size(); i++) {
+                points = new ArrayList<>();
+                Route path = places.get(i);
+                Log.d(TAG, path.toString());
+                for (Leg leg : path.getLegs()) {
+                    for (Step step : leg.getSteps()) {
+                        for (LatLng position : step.getPoints()) {
+                            points.add(position);
+                        }
+                    }
+                }
+                polyLineOptions.addAll(points);
+                polyLineOptions.width(2);
+                polyLineOptions.color(Color.BLUE);
+            }
+
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    googleMap.addPolyline(polyLineOptions);
                 }
             });
         }

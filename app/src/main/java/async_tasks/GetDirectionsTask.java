@@ -1,12 +1,9 @@
 package async_tasks;
 
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,14 +14,11 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import model.google_items.Leg;
 import model.google_items.Route;
-import model.google_items.Step;
 import utils.JSONParser;
 import utils.TaskParameters;
 
@@ -33,27 +27,23 @@ import utils.TaskParameters;
  * Created by Aleks on 29-Mar-16.
  * Async Task for retrieving directions.
  */
-public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String> {
+public class GetDirectionsTask extends AsyncTask<TaskParameters, String, List<Route>> {
     private static final String TAG = "GetDirectionsTask";
-    GoogleMap taskMap;
-    JSONObject resultSet;
+    public AsyncResponseDirectionsListener delegate;
 
     @Override
-    protected String doInBackground(TaskParameters... params) {
+    protected List<Route> doInBackground(TaskParameters... params) {
         JSONObject result = new JSONObject();
         URL url;
         HttpsURLConnection urlConnection;
         StringBuilder stringBuilder = new StringBuilder("https://maps.googleapis.com/maps/api/directions/json");
-        for (TaskParameters p : params)
-        {
+        for (TaskParameters p : params) {
             try {
-                taskMap = p.getGmap();
-
                 buildUrl(stringBuilder, p);
 
                 url = new URL(stringBuilder.toString());
 
-                urlConnection = (HttpsURLConnection)url.openConnection();
+                urlConnection = (HttpsURLConnection) url.openConnection();
 
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -63,46 +53,54 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
                 urlConnection.setDoInput(true);
                 urlConnection.setUseCaches(false);
 
-                StringBuilder sb= new StringBuilder();
+                StringBuilder sb = new StringBuilder();
                 int HttpResult = urlConnection.getResponseCode();
 
-                if(HttpResult == HttpURLConnection.HTTP_OK){
+                if (HttpResult == HttpURLConnection.HTTP_OK) {
                     BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
                     String line;
-                    while ((line = br.readLine()) != null){
+                    while ((line = br.readLine()) != null) {
                         sb.append(line + "\n");
                     }
                     br.close();
-                    Log.d(TAG, "json: " + sb.toString());
+//                    Log.d(TAG, "json: " + sb.toString());
                     // Parse the String to a JSON Object
                     result = new JSONObject(sb.toString());
-                }
-                else
-                {
+                } else {
                     Log.d(TAG, "urlConnection.getResponseMessage(): " + urlConnection.getResponseMessage());
                     result = null;
                 }
-            }
-            catch (UnsupportedEncodingException e){
+            } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
                 Log.d(TAG, "UnsuppoertedEncodingException: " + e.toString());
-            }
-            catch (JSONException e)
-            {
+            } catch (JSONException e) {
                 e.printStackTrace();
                 Log.d(TAG, "Error JSONException: " + e.toString());
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(TAG, "IOException: " + e.toString());
             }
         }
-        resultSet = result;
-        if (result != null) {
-            return result.toString();
+
+        List<Route> routesJson = null;
+        JSONParser parser = new JSONParser();
+
+        try {
+            routesJson = parser.parseRoutes(result != null ? result.toString() : null);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return null;
+
+        if (routesJson != null) {
+            for (int j = 0; j < routesJson.size(); j++) {
+                Log.d(TAG, routesJson.get(j).toString());
+            }
+        }
+
+        if (delegate != null) {
+            delegate.onDirectionsProcessFinish(routesJson);
+        }
+        return routesJson;
     }
 
     private void buildUrl(StringBuilder stringBuilder, TaskParameters p) {
@@ -126,7 +124,7 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
         // waypoints
         if (p.getWaypoints().size() > 0) {
             stringBuilder.append("&waypoints=");
-            if(p.isOptimize())
+            if (p.isOptimize())
                 stringBuilder.append("optimize:true|");
             for (int i = 0; i < p.getWaypoints().size(); i++) {
                 final LatLng points = p.getWaypoints().get(i);
@@ -147,7 +145,7 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
         }
 
         // API key
-        if(p.getKey() != null) {
+        if (p.getKey() != null) {
             stringBuilder.append("&key=").append(p.getKey());
         }
     }
@@ -158,41 +156,13 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, String>
     }
 
     @Override
-    protected void onPostExecute(String routes) {
-        List<Route> routesJson = null;
-        JSONParser parser = new JSONParser();
-//        routesJson = parser.parseRoutes(resultSet);
-        try {
-            routesJson = parser.parseRoutes(routes);
-        } catch (Exception e) {
-            e.printStackTrace();
+    protected void onPostExecute(List<Route> routes) {
+        if (delegate != null) {
+            if (routes != null)
+                delegate.onDirectionsTaskEndWithResult(1);
+
+            else
+                delegate.onDirectionsTaskEndWithResult(0);
         }
-        ArrayList<LatLng> points;
-        PolylineOptions polyLineOptions = null;
-
-        // traversing through routes
-        if (routesJson != null) {
-            for (int i = 0; i < routesJson.size(); i++) {
-                points = new ArrayList<>();
-                polyLineOptions = new PolylineOptions();
-                Route path = routesJson.get(i);
-
-                Log.d(TAG, path.toString());
-
-                for (Leg leg: path.getLegs()) {
-                    for (Step step: leg.getSteps()) {
-                        for (LatLng position: step.getPoints()) {
-                            points.add(position);
-                        }
-                    }
-                }
-
-                polyLineOptions.addAll(points);
-                polyLineOptions.width(2);
-                polyLineOptions.color(Color.BLUE);
-            }
-        }
-
-        taskMap.addPolyline(polyLineOptions);
     }
 }
