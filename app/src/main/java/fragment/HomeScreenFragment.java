@@ -74,6 +74,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private SlidingUpPanelLayout slidingPaneLayout;
     private LatLng horsens;
     private LatLng currentLocation;
+    private final LatLng trafikTerminal = new LatLng(55.8629951, 9.8365588);
+    private final LatLng via = new LatLng(55.8695091, 9.8858728);
     private GoogleMap googleMap;
     private static final int REQUEST_LOCATION = 0;
     private static final int RESULT_OK = 100;
@@ -252,8 +254,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
 //
 
-        final LatLng trafikTerminal = new LatLng(55.8629951, 9.8365588);
-        final LatLng via = new LatLng(55.8695091, 9.8858728);
+
         this.googleMap = googleMap;
 //        this.googleMap.addMarker(new MarkerOptions().title("Marker").position(trafikTerminal));
 //        this.googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -292,49 +293,60 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         if (extras != null) {
             if (extras.containsKey("fromFrag")) {
                 Toast.makeText(getActivity(), extras.getString("fromFrag"), Toast.LENGTH_SHORT).show();
-                ArrayList arrayList = getActivity().getIntent().getParcelableArrayListExtra("custom_data_list");
-                LocationItem i = (LocationItem) arrayList.get(0);
-                this.googleMap.addMarker(new MarkerOptions().title(i.getName()).position(new LatLng(i.getLat(), i.getLng())));
-                this.googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(i.getLat(), i.getLng())));
-                Log.d(TAG, i.toString());
+                drawLocation(extras);
             } else if (extras.containsKey("SerializableRoute")) {
                 if (extras.getSerializable("SerializableRoute") != null) {
                     Log.d(TAG, extras.getSerializable("SerializableRoute").toString());
-                    BusLineItem busLineItem = (BusLineItem) extras.getSerializable("SerializableRoute");
-                    PolylineOptions options = new PolylineOptions();
-                    List<LatLng> points = new ArrayList<>();
-                    for (LocationItem item : busLineItem.getBusStations()) {
-                        points.add(new LatLng(item.getLat(), item.getLng()));
-                        this.googleMap.addMarker(new MarkerOptions()
-                                .title(item.getName())
-                                .position(new LatLng(item.getLat(), item.getLng()))
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_24dp)));
-                    }
-//                    options.addAll(points);
-//                    options.width(2);
-//                    options.color(Color.BLUE);
-//                    this.googleMap.addPolyline(options);
-                    TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, trafikTerminal);
-                    getDirections.setKey(BuildConfig.SERVER_KEY);
-                    getDirections.setOptimize(true);
-                    getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
-                    getDirections.setWaypoints(points);
-                    GetDirectionsTask task = new GetDirectionsTask();
-                    task.delegate = this;
-                    task.execute(getDirections);
+                    drawRoute(extras);
                 }
             }
         }
     }
 
-    private List<LatLng> waipointsForRoute1() {
-        List<LatLng> points = new ArrayList<>();
-        points.add(new LatLng(55.8622125, 9.8420348));
-        points.add(new LatLng(55.8630615, 9.8481180));
-        points.add(new LatLng(55.8645606, 9.8721935));
-        points.add(new LatLng(55.8696416, 9.8752405));
-        points.add(new LatLng(55.8718567, 9.8820211));
-        return points;
+    private void drawLocation(Bundle extras) {
+        this.googleMap.clear();
+        ArrayList arrayList = getActivity().getIntent().getParcelableArrayListExtra("custom_data_list");
+        LocationItem i = (LocationItem) arrayList.get(0);
+        this.googleMap.addMarker(new MarkerOptions().title(i.getName()).position(new LatLng(i.getLat(), i.getLng())));
+        this.googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(i.getLat(), i.getLng())));
+        Log.d(TAG, i.toString());
+    }
+
+    private void drawRoute(Bundle extras) {
+        this.googleMap.clear();
+        BusLineItem busLineItem = (BusLineItem) extras.getSerializable("SerializableRoute");
+        PolylineOptions options = new PolylineOptions();
+        List<LatLng> busStations = new ArrayList<>();
+        List<LatLng> waypoints = new ArrayList<>();
+
+        // Adding bus Stations and Bus stations
+        for (LocationItem item : busLineItem.getBusStations()) {
+            busStations.add(new LatLng(item.getLat(), item.getLng()));
+            this.googleMap.addMarker(new MarkerOptions()
+                    .title(item.getName())
+                    .position(new LatLng(item.getLat(), item.getLng()))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_24dp)));
+        }
+        // Setting all waypoints
+        for (int i = 0; i < busLineItem.getBusStationOrder().length; i++) {
+            for (int j = 0; j < busLineItem.getBusStations().size(); j++) {
+                if (busLineItem.getBusStations().get(j).getId() == busLineItem.getBusStationOrder()[i]) {
+                    waypoints.add(new LatLng(busLineItem.getBusStations().get(j).getLat(), busLineItem.getBusStations().get(j).getLng()));
+                }
+            }
+        }
+
+        Log.d(TAG, waypoints.toString());
+        Log.d(TAG, waypoints.size() + "");
+
+        TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, trafikTerminal);
+        getDirections.setKey(BuildConfig.SERVER_KEY);
+        getDirections.setOptimize(true);
+        getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
+        getDirections.setWaypoints(waypoints);
+        GetDirectionsTask task = new GetDirectionsTask();
+        task.delegate = this;
+        task.execute(getDirections);
     }
 
     //    @Override
@@ -603,7 +615,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
             ArrayList<LatLng> points;
             final PolylineOptions polyLineOptions = new PolylineOptions();
-
+            final List<BusStationInfo> busStationInfos = new ArrayList<>();
             // traversing through routes
 
             for (int i = 0; i < places.size(); i++) {
@@ -612,6 +624,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 Log.d(TAG, path.toString());
                 for (Leg leg : path.getLegs()) {
                     for (Step step : leg.getSteps()) {
+                        busStationInfos.add(new BusStationInfo(step.getDuration().getText() + " " + step.getDuration().getValue(), step.getDistance().getText() + " " + step.getDistance().getValue()));
                         for (LatLng position : step.getPoints()) {
                             points.add(position);
                         }
@@ -625,6 +638,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, busStationInfos));
                     googleMap.addPolyline(polyLineOptions);
                 }
             });

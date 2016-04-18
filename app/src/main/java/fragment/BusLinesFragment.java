@@ -66,6 +66,11 @@ public class BusLinesFragment extends Fragment {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 BusLineItem i = busLinesInfo.get(position);
+                if (i.getBusLineName().equals(Constants.route1)) {
+                    i.setBusStationOrder(Constants.route1order);
+                } else if (i.getBusLineName().equals(Constants.route2)) {
+                    i.setBusStationOrder(Constants.route2order);
+                }
                 intent.putExtra("SerializableRoute", i);
                 getActivity().startActivity(intent);
                 getActivity().finish();

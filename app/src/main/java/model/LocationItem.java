@@ -196,6 +196,12 @@ public class LocationItem implements Comparable<LocationItem>, Serializable, Par
         this.date = date;
     }
 
+    public LocationItem setID(int id) {
+        LocationItem i = new LocationItem();
+        i.setId(id);
+        return i;
+    }
+
     @Override
     public String toString() {
         return "Location{" +
