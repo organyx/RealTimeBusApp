@@ -39,8 +39,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +62,7 @@ import model.google_items.Leg;
 import model.google_items.Place;
 import model.google_items.Route;
 import model.google_items.Step;
+import utils.PubNubManager;
 import utils.TaskParameters;
 
 /**
@@ -69,6 +74,11 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private View whiteSpaceView;
     private View transparentHeaderView;
     private View spaceHeaderView;
+
+    private static final int MODE_HOME = 10;
+    private static final int MODE_LOCATION = 11;
+    private static final int MODE_ROUTE = 12;
+    private static int DISPLAY_MODE = MODE_HOME;
 
     private HomeListView homeListView;
     private SlidingUpPanelLayout slidingPaneLayout;
@@ -112,6 +122,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.show();
 
+        DISPLAY_MODE = MODE_HOME;
+        Log.d("STATE", " onCreateView DISPLAY_MODE" + DISPLAY_MODE);
         Bundle bundle = getArguments();
         if (bundle != null) {
             String fav_item_name = bundle.getString("fav_item_name");
@@ -207,16 +219,9 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
         homeListView.addHeaderView(transparentHeaderView);
 
-        homeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                slidingPaneLayout.collapsePane();
-            }
-        });
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-
     }
 
 //    @Override
@@ -228,6 +233,16 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         Log.d(TAG, "Map Ready");
+
+        homeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                slidingPaneLayout.collapsePane();
+                BusStationInfo item = (BusStationInfo) parent.getAdapter().getItem(position);
+                Toast.makeText(getActivity(), item.toString(), Toast.LENGTH_SHORT).show();
+                googleMap.animateCamera(CameraUpdateFactory.newLatLng(item.getLocation()));
+            }
+        });
 //        this.googleMap = googleMap;
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -252,68 +267,52 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
         Log.d(TAG, "isCompassEnabled: " + googleMap.getUiSettings().isCompassEnabled());
         Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
-//
-
 
         this.googleMap = googleMap;
-//        this.googleMap.addMarker(new MarkerOptions().title("Marker").position(trafikTerminal));
-//        this.googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-//            @Override
-//            public boolean onMarkerClick(Marker marker) {
-//                Log.d(TAG, "MarkerCLicked");
-//                // Draw polyline between 2 points
-//
-////                TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, via);
-////                getDirections.setKey(BuildConfig.SERVER_KEY);
-////                getDirections.setOptimize(true);
-////                getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
-////                getDirections.setWaypoints(waipointsForRoute1());
-////                new GetDirectionsTask().execute(getDirections);
-//
-////                 Get nearest bus stations
-////
-////                TaskParameters getPlaces = new TaskParameters(googleMap, marker.getPosition());
-////                getPlaces.setPlaceType(TaskParameters.PlaceType.BUS_STATION);
-////                getPlaces.setRadius(500);
-////                new GetNearestBusStations().execute(getPlaces);
-//                return false;
-//            }
-//        });
-
 
 //        if(!requestingLocationUpdates)
 //        {
-        if (favoriteItem == null) {
-            setDefaultLocation(googleMap);
-        } else {
-            setFavLocation(googleMap);
-        }
 
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
             if (extras.containsKey("fromFrag")) {
                 Toast.makeText(getActivity(), extras.getString("fromFrag"), Toast.LENGTH_SHORT).show();
+                DISPLAY_MODE = MODE_LOCATION;
                 drawLocation(extras);
             } else if (extras.containsKey("SerializableRoute")) {
                 if (extras.getSerializable("SerializableRoute") != null) {
                     Log.d(TAG, extras.getSerializable("SerializableRoute").toString());
+                    DISPLAY_MODE = MODE_ROUTE;
                     drawRoute(extras);
                 }
             }
         }
+
+        if (favoriteItem == null) {
+            setDefaultLocation(googleMap);
+        } else {
+            setFavLocation(googleMap);
+        }
+        Log.d("STATE", " onMapReady DISPLAY_MODE" + DISPLAY_MODE);
     }
 
     private void drawLocation(Bundle extras) {
+        Log.d(TAG, "drawLocation started");
         this.googleMap.clear();
         ArrayList arrayList = getActivity().getIntent().getParcelableArrayListExtra("custom_data_list");
         LocationItem i = (LocationItem) arrayList.get(0);
+        final List<BusStationInfo> busStationInfos = new ArrayList<>();
+        busStationInfos.add(new BusStationInfo(i.getName(), i.getAddress(), new LatLng(i.getLat(), i.getLng())));
+        homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, busStationInfos));
         this.googleMap.addMarker(new MarkerOptions().title(i.getName()).position(new LatLng(i.getLat(), i.getLng())));
         this.googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(i.getLat(), i.getLng())));
         Log.d(TAG, i.toString());
     }
 
     private void drawRoute(Bundle extras) {
+        Log.d(TAG, "drawRoute started");
         this.googleMap.clear();
+        startFollowingLocation();
         BusLineItem busLineItem = (BusLineItem) extras.getSerializable("SerializableRoute");
         PolylineOptions options = new PolylineOptions();
         List<LatLng> busStations = new ArrayList<>();
@@ -370,72 +369,72 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 //        }
 //    }
 //
-//    private void startFollowingLocation() {
-//        initializePolyline();
-//        pubnub = PubNubManager.startPubnub();
-//        PubNubManager.subscribe(pubnub, channelName, subscribeCallback);
-//    }
-//
-//    private void stopFollowingLocation() {
-//        pubnub.unsubscribe(channelName);
-//        isFirstMessage = true;
-//    }
-//
-//    private void initializePolyline() {
-//        googleMap.clear();
-//        mPolylineOptions = new PolylineOptions();
-//        mPolylineOptions.color(Color.BLUE).width(10);
-//        googleMap.addPolyline(mPolylineOptions);
-//
-//        mMarkerOptions = new MarkerOptions();
-//    }
-//
-//    private void updatePolyline() {
-//        mPolylineOptions.add(mLatLng);
-//        googleMap.clear();
-//        googleMap.addPolyline(mPolylineOptions);
-//    }
-//
-//    private void updateCamera() {
-//        googleMap
-//                .animateCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 16));
-//    }
-//
-//    private void updateMarker() {
-////		if (!isFirstMessage) {
-////			isFirstMessage = false;
-////			mMarker.remove();
-////		}
-//        mMarker = googleMap.addMarker(mMarkerOptions.position(mLatLng));
-//    }
-//
-//    Callback subscribeCallback = new Callback() {
-//
-//        @Override
-//        public void successCallback(String channel, Object message) {
-//            Log.d(PUBNUB_TAG, "Message Received: " + message.toString());
-//            JSONObject jsonMessage = (JSONObject) message;
-//            try {
-//                String id = jsonMessage.getString("ID");
-//                double mLat = jsonMessage.getDouble("Lat");
-//                double mLng = jsonMessage.getDouble("Lng");
-//                long timeToken = jsonMessage.getInt("TimeToken");
-//                mLatLng = new LatLng(mLat, mLng);
-//            } catch (JSONException e) {
-//                Log.e(TAG, e.toString());
-//            }
-//
-//            mActivity.runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    updatePolyline();
-//                    updateCamera();
-//                    updateMarker();
-//                }
-//            });
-//        }
-//    };
-//
+    private void startFollowingLocation() {
+        initializePolyline();
+        pubnub = PubNubManager.startPubnub();
+        PubNubManager.subscribe(pubnub, channelName, subscribeCallback);
+    }
+
+    private void stopFollowingLocation() {
+        pubnub.unsubscribe(channelName);
+        isFirstMessage = true;
+    }
+
+    private void initializePolyline() {
+        googleMap.clear();
+        mPolylineOptions = new PolylineOptions();
+        mPolylineOptions.color(Color.BLUE).width(10);
+        googleMap.addPolyline(mPolylineOptions);
+
+        mMarkerOptions = new MarkerOptions();
+    }
+
+    private void updatePolyline() {
+        mPolylineOptions.add(mLatLng);
+        googleMap.clear();
+        googleMap.addPolyline(mPolylineOptions);
+    }
+
+    private void updateCamera() {
+        googleMap
+                .animateCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 16));
+    }
+
+    private void updateMarker() {
+//		if (!isFirstMessage) {
+//			isFirstMessage = false;
+//			mMarker.remove();
+//		}
+        mMarker = googleMap.addMarker(mMarkerOptions.position(mLatLng));
+    }
+
+    Callback subscribeCallback = new Callback() {
+
+        @Override
+        public void successCallback(String channel, Object message) {
+            Log.d(PUBNUB_TAG, "Message Received: " + message.toString());
+            JSONObject jsonMessage = (JSONObject) message;
+            try {
+                String id = jsonMessage.getString("ID");
+                double mLat = jsonMessage.getDouble("Lat");
+                double mLng = jsonMessage.getDouble("Lng");
+                long timeToken = jsonMessage.getInt("TimeToken");
+                mLatLng = new LatLng(mLat, mLng);
+            } catch (JSONException e) {
+                Log.e(TAG, e.toString());
+            }
+
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updatePolyline();
+                    updateCamera();
+                    updateMarker();
+                }
+            });
+        }
+    };
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -454,16 +453,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
-
-//    private void setDefaultLocation(GoogleMap defaultLocation){
-//                LatLng horsens = new LatLng(55.866, 9.833);
-//=======
-//        if (favoriteItem == null) {
-//            setDefaultLocation(googleMap);
-//        } else {
-//            setFavLocation(googleMap);
-//        }
-//    }
 
     private void setDefaultLocation(GoogleMap defaultLocation) {
         horsens = new LatLng(55.866, 9.833);
@@ -499,10 +488,13 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                     .position(horsens));
             parameters = new TaskParameters(googleMap, horsens);
         }
+        Log.d("STATE", " setDefaultLocation DISPLAY_MODE" + DISPLAY_MODE);
         Log.d(TAG, parameters.toString());
-        GetNearestBusStations task = new GetNearestBusStations();
-        task.delegate = this;
-        task.execute(parameters);
+        if (DISPLAY_MODE == MODE_HOME) {
+            GetNearestBusStations task = new GetNearestBusStations();
+            task.delegate = this;
+            task.execute(parameters);
+        }
     }
 
     private void setFavLocation(GoogleMap favLocation) {
@@ -573,7 +565,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         if (places != null) {
             Log.d(TAG, places.toString());
             for (Place place : places) {
-                busStationInfos.add(new BusStationInfo(place.getName(), place.getVicinity()));
+                busStationInfos.add(new BusStationInfo(place.getName(), place.getVicinity(), place.getLocation()));
             }
 
             mActivity.runOnUiThread(new Runnable() {
@@ -642,6 +634,22 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                     googleMap.addPolyline(polyLineOptions);
                 }
             });
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (DISPLAY_MODE == MODE_ROUTE) {
+            startFollowingLocation();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (DISPLAY_MODE == MODE_ROUTE) {
+            stopFollowingLocation();
         }
     }
 }

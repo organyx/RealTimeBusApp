@@ -138,7 +138,7 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
                 break;
             case 2:
                 fm.beginTransaction().replace(R.id.fragment_container, new AboutScreenFragment()).commit();
-                title = "About";
+                title = getString(R.string.nav_item_about);
                 break;
             default:
                 break;
