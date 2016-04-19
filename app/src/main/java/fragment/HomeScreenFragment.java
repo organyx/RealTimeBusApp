@@ -62,6 +62,7 @@ import model.google_items.Leg;
 import model.google_items.Place;
 import model.google_items.Route;
 import model.google_items.Step;
+import utils.DatabaseHelper;
 import utils.PubNubManager;
 import utils.TaskParameters;
 
@@ -79,6 +80,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private static final int MODE_LOCATION = 11;
     private static final int MODE_ROUTE = 12;
     private static int DISPLAY_MODE = MODE_HOME;
+
+    private DatabaseHelper databaseHelper;
 
     private HomeListView homeListView;
     private SlidingUpPanelLayout slidingPaneLayout;
@@ -143,6 +146,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             }
 //            getActivity().getActionBar().setTitle(R.string.title_home);
         }
+
+        databaseHelper = DatabaseHelper.getInstance(getActivity());
 
         homeListView = (HomeListView) v.findViewById(android.R.id.list);
         homeListView.setOverScrollMode(ListView.OVER_SCROLL_NEVER);
@@ -317,10 +322,11 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         PolylineOptions options = new PolylineOptions();
         List<LatLng> busStations = new ArrayList<>();
         List<LatLng> waypoints = new ArrayList<>();
-
+        List<BusStationInfo> infos = new ArrayList<>();
         // Adding bus Stations and Bus stations
         for (LocationItem item : busLineItem.getBusStations()) {
             busStations.add(new LatLng(item.getLat(), item.getLng()));
+            infos.add(new BusStationInfo(item.getName(), item.getAddress(), new LatLng(item.getLat(), item.getLng())));
             this.googleMap.addMarker(new MarkerOptions()
                     .title(item.getName())
                     .position(new LatLng(item.getLat(), item.getLng()))
@@ -334,6 +340,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 }
             }
         }
+
+        homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, infos));
 
         Log.d(TAG, waypoints.toString());
         Log.d(TAG, waypoints.size() + "");
@@ -607,7 +615,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
             ArrayList<LatLng> points;
             final PolylineOptions polyLineOptions = new PolylineOptions();
-            final List<BusStationInfo> busStationInfos = new ArrayList<>();
+//            final List<BusStationInfo> busStationInfos = new ArrayList<>();
             // traversing through routes
 
             for (int i = 0; i < places.size(); i++) {
@@ -616,7 +624,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 Log.d(TAG, path.toString());
                 for (Leg leg : path.getLegs()) {
                     for (Step step : leg.getSteps()) {
-                        busStationInfos.add(new BusStationInfo(step.getDuration().getText() + " " + step.getDuration().getValue(), step.getDistance().getText() + " " + step.getDistance().getValue()));
+//                        busStationInfos.add(new BusStationInfo(step.getDuration().getText() + " " + step.getDuration().getValue(), step.getDistance().getText() + " " + step.getDistance().getValue()));
                         for (LatLng position : step.getPoints()) {
                             points.add(position);
                         }
@@ -630,7 +638,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, busStationInfos));
+//                    homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, busStationInfos));
                     googleMap.addPolyline(polyLineOptions);
                 }
             });
