@@ -4,13 +4,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.vacho.realtimebusapp.BuildConfig;
-import com.example.vacho.realtimebusapp.R;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,7 +29,7 @@ import utils.TaskParameters;
  */
 public class GetNearestBusStations extends AsyncTask<TaskParameters, String, List<Place>> {
     private static final String TAG = "GetNearestBusStations";
-    public AsyncResponse delegate;
+    public AsyncResponseBusStationsListener delegate;
 
     @Override
     protected List<Place> doInBackground(TaskParameters... params) {
@@ -68,7 +63,7 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Lis
                         sb.append(line + "\n");
                     }
                     br.close();
-                    Log.d(TAG, "json: " + sb.toString());
+//                    Log.d(TAG, "json: " + sb.toString());
                     // Parse the String to a JSON Object
                     result = new JSONObject(sb.toString());
                 } else {
@@ -91,7 +86,7 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Lis
         JSONParser parser = new JSONParser();
 
         try {
-            placesJson = parser.parsePlaces(result.toString());
+            placesJson = parser.parsePlaces(result != null ? result.toString() : null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -103,7 +98,7 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Lis
         }
 
         if (delegate != null) {
-            delegate.processFinish(placesJson);
+            delegate.onLocationsProcessFinish(placesJson);
         }
         return placesJson;
     }
@@ -143,6 +138,7 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Lis
 
     @Override
     protected void onPreExecute() {
+        super.onPreExecute();
         // we can start a progress bar here
     }
 
@@ -150,10 +146,10 @@ public class GetNearestBusStations extends AsyncTask<TaskParameters, String, Lis
     protected void onPostExecute(List<Place> places) {
         if (delegate != null) {
             if (places != null)
-                delegate.onTaskEndWithResult(1);
+                delegate.onLocationsTaskEndWithResult(1);
 
             else
-                delegate.onTaskEndWithResult(0);
+                delegate.onLocationsTaskEndWithResult(0);
         }
     }
 }

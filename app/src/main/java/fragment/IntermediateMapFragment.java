@@ -1,9 +1,9 @@
 package fragment;
 
 import android.annotation.TargetApi;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentTransaction;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -38,6 +38,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -129,7 +130,7 @@ public class IntermediateMapFragment extends Fragment implements OnMapReadyCallb
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.f_intermediate_map);
+        SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.f_intermediate_map);
         fragment.getMapAsync(this);
     }
 

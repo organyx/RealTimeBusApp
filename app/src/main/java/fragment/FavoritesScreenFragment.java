@@ -1,9 +1,9 @@
 package fragment;
 
 
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
@@ -103,7 +103,7 @@ public class FavoritesScreenFragment extends Fragment implements EditFavFragment
                 Bundle args = new Bundle();
                 mapFragment.setArguments(args);
 
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
 
                 transaction.replace(R.id.fragment_container, mapFragment);
                 transaction.addToBackStack(null);

@@ -1,13 +1,19 @@
 package model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.util.Log;
+
+import java.io.Serializable;
 
 /**
  * Created by Aleks on 05-Apr-16.
  * Model class for Location information.
  */
-public class LocationItem implements Comparable<LocationItem>{
-
+public class LocationItem implements Comparable<LocationItem>, Serializable, Parcelable {
+    private static final long serialVersionUID = 1L;
+    private static final String TAG = "LocationItem";
     private boolean showNotify;
     private int id;
     private String name;
@@ -21,12 +27,13 @@ public class LocationItem implements Comparable<LocationItem>{
 
     /**
      * Constructor for complete initialization.
-     * @param id ID of the Location in the Database.
-     * @param name Name of the Location.
-     * @param address Address of the Location.
-     * @param lat Latitude of the Location.
-     * @param lng Longitude of the Location.
-     * @param zoom Zoom value for using with Google Maps
+     *
+     * @param id           ID of the Location in the Database.
+     * @param name         Name of the Location.
+     * @param address      Address of the Location.
+     * @param lat          Latitude of the Location.
+     * @param lng          Longitude of the Location.
+     * @param zoom         Zoom value for using with Google Maps
      * @param isFavourited Check if the Location is favorite.
      */
     public LocationItem(int id, String name, String address, double lat, double lng, float zoom, boolean isFavourited) {
@@ -43,11 +50,12 @@ public class LocationItem implements Comparable<LocationItem>{
 
     /**
      * Constructor for partial initialization.
-     * @param name Name of the Location.
-     * @param address Address of the Location.
-     * @param lat Latitude of the Location.
-     * @param lng Longitude of the Location.
-     * @param zoom Zoom value for using with Google Maps
+     *
+     * @param name         Name of the Location.
+     * @param address      Address of the Location.
+     * @param lat          Latitude of the Location.
+     * @param lng          Longitude of the Location.
+     * @param zoom         Zoom value for using with Google Maps
      * @param isFavourited Check if the Location is favorite.
      */
     public LocationItem(String name, String address, double lat, double lng, float zoom, boolean isFavourited) {
@@ -63,10 +71,11 @@ public class LocationItem implements Comparable<LocationItem>{
 
     /**
      * Constructor for partial initialization.
-     * @param name Name of the Location.
+     *
+     * @param name    Name of the Location.
      * @param address Address of the Location.
      */
-    public LocationItem(String name, String address){
+    public LocationItem(String name, String address) {
         this.name = name;
         this.address = address;
         this.visits = 0;
@@ -75,9 +84,10 @@ public class LocationItem implements Comparable<LocationItem>{
 
     /**
      * Constructor for Bus station initialization.
+     *
      * @param name Name of the Location.
-     * @param lat Latitude of the Location.
-     * @param lng Longitude of the Location.
+     * @param lat  Latitude of the Location.
+     * @param lng  Longitude of the Location.
      */
     public LocationItem(String name, double lat, double lng) {
         this.name = name;
@@ -91,6 +101,19 @@ public class LocationItem implements Comparable<LocationItem>{
      * Default empty constructor.
      */
     public LocationItem() {
+    }
+
+    public LocationItem(Parcel source) {
+        Log.d(TAG, "LocationItem(Parcel source) unpacking source.");
+        this.id = source.readInt();
+        this.name = source.readString();
+        this.address = source.readString();
+        this.lat = source.readDouble();
+        this.lng = source.readDouble();
+        this.zoom = source.readFloat();
+        this.isFavourited = source.readInt() == 0;
+        this.visits = source.readInt();
+        this.date = source.readLong();
     }
 
     public boolean isShowNotify() {
@@ -173,6 +196,12 @@ public class LocationItem implements Comparable<LocationItem>{
         this.date = date;
     }
 
+    public LocationItem setID(int id) {
+        LocationItem i = new LocationItem();
+        i.setId(id);
+        return i;
+    }
+
     @Override
     public String toString() {
         return "Location{" +
@@ -190,4 +219,34 @@ public class LocationItem implements Comparable<LocationItem>{
     public int compareTo(@NonNull LocationItem another) {
         return (visits - another.visits);
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        Log.d(TAG, "writeToParcel" + flags);
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeString(address);
+        dest.writeDouble(lat);
+        dest.writeDouble(lng);
+        dest.writeFloat(zoom);
+        dest.writeInt(isFavourited ? 0 : 1);
+        dest.writeInt(visits);
+        dest.writeLong(date);
+    }
+
+    public static final Parcelable.Creator<LocationItem> CREATOR = new Parcelable.Creator<LocationItem>() {
+        public LocationItem createFromParcel(Parcel source) {
+            return new LocationItem(source);
+        }
+
+        public LocationItem[] newArray(int size) {
+            return new LocationItem[size];
+        }
+    };
+
 }
