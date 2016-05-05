@@ -5,6 +5,8 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.vacho.realtimebusapp.R;
+
 import java.io.Serializable;
 
 /**
@@ -16,6 +18,7 @@ public class LocationItem implements Comparable<LocationItem>, Serializable, Par
     private static final String TAG = "LocationItem";
     private boolean showNotify;
     private int id;
+    private int icon;
     private String name;
     private String address;
     private double lat;
@@ -39,6 +42,7 @@ public class LocationItem implements Comparable<LocationItem>, Serializable, Par
     public LocationItem(int id, String name, String address, double lat, double lng, float zoom, boolean isFavourited) {
         this.isFavourited = isFavourited;
         this.id = id;
+        this.icon = R.drawable.ic_flag_24dp;
         this.name = name;
         this.address = address;
         this.lat = lat;
@@ -59,6 +63,7 @@ public class LocationItem implements Comparable<LocationItem>, Serializable, Par
      * @param isFavourited Check if the Location is favorite.
      */
     public LocationItem(String name, String address, double lat, double lng, float zoom, boolean isFavourited) {
+        this.icon = R.drawable.ic_flag_24dp;
         this.name = name;
         this.address = address;
         this.lat = lat;
@@ -76,6 +81,7 @@ public class LocationItem implements Comparable<LocationItem>, Serializable, Par
      * @param address Address of the Location.
      */
     public LocationItem(String name, String address) {
+        this.icon = R.drawable.ic_flag_24dp;
         this.name = name;
         this.address = address;
         this.visits = 0;
@@ -90,7 +96,26 @@ public class LocationItem implements Comparable<LocationItem>, Serializable, Par
      * @param lng  Longitude of the Location.
      */
     public LocationItem(String name, double lat, double lng) {
+        this.icon = R.drawable.ic_flag_24dp;
         this.name = name;
+        this.lat = lat;
+        this.lng = lng;
+        this.visits = 0;
+        this.date = System.currentTimeMillis();
+    }
+
+    /**
+     * Constructor for Bus station initialization.
+     *
+     * @param name Name of the Location.
+     * @param address Address of the Location.
+     * @param lat  Latitude of the Location.
+     * @param lng  Longitude of the Location.
+     */
+    public LocationItem(String name, String address, double lat, double lng) {
+        this.icon = R.drawable.ic_flag_24dp;
+        this.name = name;
+        this.address = address;
         this.lat = lat;
         this.lng = lng;
         this.visits = 0;
@@ -106,6 +131,7 @@ public class LocationItem implements Comparable<LocationItem>, Serializable, Par
     public LocationItem(Parcel source) {
         Log.d(TAG, "LocationItem(Parcel source) unpacking source.");
         this.id = source.readInt();
+        this.icon = source.readInt();
         this.name = source.readString();
         this.address = source.readString();
         this.lat = source.readDouble();
@@ -202,6 +228,14 @@ public class LocationItem implements Comparable<LocationItem>, Serializable, Par
         return i;
     }
 
+    public int getIcon() {
+        return icon;
+    }
+
+    public void setIcon(int icon) {
+        this.icon = icon;
+    }
+
     @Override
     public String toString() {
         return "Location{" +
@@ -229,6 +263,7 @@ public class LocationItem implements Comparable<LocationItem>, Serializable, Par
     public void writeToParcel(Parcel dest, int flags) {
         Log.d(TAG, "writeToParcel" + flags);
         dest.writeInt(id);
+        dest.writeInt(icon);
         dest.writeString(name);
         dest.writeString(address);
         dest.writeDouble(lat);

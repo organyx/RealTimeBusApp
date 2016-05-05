@@ -13,7 +13,6 @@ import android.widget.ListView;
 
 import com.example.vacho.realtimebusapp.HomeScreen;
 import com.example.vacho.realtimebusapp.R;
-import com.example.vacho.realtimebusapp.RouteScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,6 @@ import java.util.List;
 import adapter.BusLinesListViewAdapter;
 import model.BusLineItem;
 import model.HomeListView;
-import model.LocationItem;
 import utils.Constants;
 import utils.DatabaseHelper;
 

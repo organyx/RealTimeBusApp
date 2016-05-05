@@ -1,6 +1,5 @@
 package utils;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.List;
  * Class to Handle sending parameters to Async tasks.
  */
 public class TaskParameters {
-    private GoogleMap gmap;
     private LatLng location;
     private LatLng from;
     private LatLng to;
@@ -69,23 +67,19 @@ public class TaskParameters {
     /**
      * Constructor for requesting information about a specific location.
      *
-     * @param map      GoogleMap that displays the information.
      * @param location Location for research.
      */
-    public TaskParameters(GoogleMap map, LatLng location) {
-        this.gmap = map;
+    public TaskParameters(LatLng location) {
         this.location = location;
     }
 
     /**
      * Constructor for requesting information about a specific route.
      *
-     * @param map  GoogleMap that displays the information.
      * @param from Starting location for the route.
      * @param to   Destination location for the route.
      */
-    public TaskParameters(GoogleMap map, LatLng from, LatLng to) {
-        this.gmap = map;
+    public TaskParameters(LatLng from, LatLng to) {
         this.from = from;
         this.to = to;
     }
@@ -93,13 +87,11 @@ public class TaskParameters {
     /**
      * Constructor for requesting information about a specific route with waipoints.
      *
-     * @param gmap      GoogleMap that displays the information.
      * @param from      Starting location for the route.
      * @param to        Destination location for the route.
      * @param wayPoints Waypoints for the route.
      */
-    public TaskParameters(GoogleMap gmap, LatLng from, LatLng to, List<LatLng> wayPoints) {
-        this.gmap = gmap;
+    public TaskParameters(LatLng from, LatLng to, List<LatLng> wayPoints) {
         this.from = from;
         this.to = to;
         this.waypoints = wayPoints;
@@ -127,14 +119,6 @@ public class TaskParameters {
 
     public void setLocation(LatLng location) {
         this.location = location;
-    }
-
-    public GoogleMap getGmap() {
-        return gmap;
-    }
-
-    public void setGmap(GoogleMap gmap) {
-        this.gmap = gmap;
     }
 
     public List<LatLng> getWaypoints() {
@@ -204,8 +188,7 @@ public class TaskParameters {
     @Override
     public String toString() {
         return "TaskParameters{" +
-                "gmap=" + gmap +
-                ", location=" + location +
+                "location=" + location +
                 ", from=" + from +
                 ", to=" + to +
                 ", travelMode=" + travelMode +

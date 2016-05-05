@@ -13,7 +13,7 @@ import com.example.vacho.realtimebusapp.R;
 
 import java.util.List;
 
-import model.BusStationInfo;
+import model.LocationItem;
 
 /**
  * Created by Vacho on 3/11/2016.
@@ -22,9 +22,9 @@ public class CustomListViewAdapter extends ArrayAdapter {
 
     Context context;
     int layoutResourceId;
-    List<BusStationInfo> data = null;
+    List<LocationItem> data = null;
 
-    public CustomListViewAdapter(Context context, int layoutResourceId, List<BusStationInfo> data) {
+    public CustomListViewAdapter(Context context, int layoutResourceId, List<LocationItem> data) {
         super(context, layoutResourceId, data);
         this.context = context;
         this.layoutResourceId = layoutResourceId;
@@ -50,10 +50,10 @@ public class CustomListViewAdapter extends ArrayAdapter {
             holder = (BusStationInfoHolder) row.getTag();
         }
 
-        BusStationInfo b = data.get(position);
+        LocationItem b = data.get(position);
         holder.imgIcon.setImageResource(b.getIcon());
-        holder.txtTitle1.setText(b.getBusStationName());
-        holder.txtTitle2.setText(b.getBusLines());
+        holder.txtTitle1.setText(b.getName());
+        holder.txtTitle2.setText(b.getAddress());
 
         return row;
     }

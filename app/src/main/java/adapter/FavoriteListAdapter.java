@@ -18,6 +18,7 @@ import model.LocationItem;
 
 /**
  * Created by Aleks on 05-Mar-16.
+ * Adapter class for Location list.
  */
 public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapter.MyFavViewHolder> {
 
@@ -28,18 +29,20 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
 
     // Define listener member variable
     private static OnItemClickListener listener;
+
     // Define the listener interface
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position);
+
         void onClick(View itemView);
     }
+
     // Define the method that allows the parent activity or fragment to define the listener
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 
-    public FavoriteListAdapter(Context context, List<LocationItem> data)
-    {
+    public FavoriteListAdapter(Context context, List<LocationItem> data) {
         this.context = context;
         inflater = LayoutInflater.from(context);
         this.data = data;
@@ -53,8 +56,7 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
     @Override
     public MyFavViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.content_favourite_list_item, parent, false);
-        MyFavViewHolder holder = new MyFavViewHolder(view);
-        return holder;
+        return new MyFavViewHolder(view);
     }
 
     @Override
@@ -80,13 +82,13 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
             name = (TextView) itemView.findViewById(R.id.tv_name);
             descr = (TextView) itemView.findViewById(R.id.tv_descr);
             iv = (ImageView) itemView.findViewById(R.id.favourite_image_view);
-            r = (RelativeLayout)itemView.findViewById(R.id.aaaa);
+            r = (RelativeLayout) itemView.findViewById(R.id.aaaa);
 
             iv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (listener != null) {
-                        listener.onItemClick(itemView,getPosition());
+                        listener.onItemClick(itemView, getPosition());
                     }
                 }
             });
@@ -102,15 +104,13 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
         }
     }
 
-    public void removeItem(LocationItem item)
-    {
+    public void removeItem(LocationItem item) {
         int currentPos = data.indexOf(item);
         data.remove(currentPos);
         notifyItemRemoved(currentPos);
     }
 
-    public void addItem(int position, LocationItem item)
-    {
+    public void addItem(int position, LocationItem item) {
         data.add(position, item);
         notifyItemInserted(position);
     }
