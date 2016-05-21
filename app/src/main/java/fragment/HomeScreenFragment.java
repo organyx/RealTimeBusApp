@@ -8,7 +8,10 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationListener;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.location.LocationListener;
+
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,7 +32,12 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.BuildConfig;
+import com.example.vacho.realtimebusapp.HomeScreen;
 import com.example.vacho.realtimebusapp.R;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -68,7 +76,7 @@ import utils.TaskParameters;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, SlidingUpPanelLayout.PanelSlideListener, AsyncResponseBusStationsListener, AsyncResponseDirectionsListener {
+public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, SlidingUpPanelLayout.PanelSlideListener, AsyncResponseBusStationsListener, AsyncResponseDirectionsListener {
 
     private View transparentView;
     private View whiteSpaceView;
@@ -92,16 +100,16 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private static final int REQUEST_LOCATION = 0;
     private static final int RESULT_OK = 100;
 
+    private static GoogleApiClient googleApiClient;
+
     protected LocationManager locationManager;
     private boolean isGPSEnabled;
-    private LocationListener locationListener;
     private Location location;
 
     private static final String TAG = "HomeScreenFrag";
     public int pos = 0;
     LocationItem favoriteItem;
 
-    private MenuItem btnTrack;
     private static final String PUBNUB_TAG = "PUBNUB";
     private boolean isFirstMessage = true;
     private boolean requestingLocationUpdates = false;
@@ -169,27 +177,16 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
 
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+            else {
+                Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
             }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
+        }
+        locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
         slidingPaneLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -202,7 +199,16 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         });
 
         mActivity = getActivity();
-//         setHasOptionsMenu(true); // For Handling Fragment calls to menu items
+        setHasOptionsMenu(true); // For Handling Fragment calls to menu items
+
+        googleApiClient = new GoogleApiClient
+                .Builder(getActivity())
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
         return v;
     }
@@ -219,20 +225,12 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         whiteSpaceView.setVisibility(View.VISIBLE);
-        String dot = "\u2022 Bullet";
 
         homeListView.addHeaderView(transparentHeaderView);
-
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
     }
-
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        super.onCreateOptionsMenu(menu, inflater);
-//        btnTrack = menu.findItem(R.id.action_tracking);
-//    }
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
@@ -243,11 +241,13 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 slidingPaneLayout.collapsePane();
                 LocationItem item = (LocationItem) parent.getAdapter().getItem(position);
-                Toast.makeText(getActivity(), item.toString(), Toast.LENGTH_SHORT).show();
-                googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(item.getLat(), item.getLng())));
+                if(item != null){
+                    Toast.makeText(getActivity(), item.toString(), Toast.LENGTH_SHORT).show();
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(item.getLat(), item.getLng())));
+                }
             }
         });
-//        this.googleMap = googleMap;
+
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -259,11 +259,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         }
 
         googleMap.setMyLocationEnabled(true);
-//        Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
-//
-////        this.googleMap.setTrafficEnabled(true);
-////        this.googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-////        googleMap.setPadding(20, 20, 20, 20);
         googleMap.getUiSettings().setCompassEnabled(true);
         googleMap.getUiSettings().setMapToolbarEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
@@ -273,9 +268,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         Log.d(TAG, "isMyLocationButtonEnabled: " + googleMap.getUiSettings().isMyLocationButtonEnabled());
 
         this.googleMap = googleMap;
-
-//        if(!requestingLocationUpdates)
-//        {
 
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
@@ -355,27 +347,27 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         task.execute(getDirections);
     }
 
-    //    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle presses on the action bar items
-//        switch (item.getItemId()) {
-//            case R.id.action_tracking:
-//                Log.d(TAG, "'Tracking' Button Pressed");
-//                requestingLocationUpdates = !requestingLocationUpdates;
-//                if (requestingLocationUpdates) {
-//                    startFollowingLocation();
-//                    btnTrack.setTitle("Tracking");
-//                }
-//                if (!requestingLocationUpdates) {
-//                    stopFollowingLocation();
-//                    btnTrack.setTitle("Track");
-//                }
-//                return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
-//
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_map_normal:
+                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                return true;
+            case R.id.action_map_hybrid:
+                googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                return true;
+            case R.id.action_map_satellite:
+                googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                return true;
+            case R.id.action_map_terrain:
+                googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void startFollowingLocation() {
         initializePolyline();
         pubnub = PubNubManager.startPubnub();
@@ -648,6 +640,15 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         if (DISPLAY_MODE == MODE_ROUTE) {
             startFollowingLocation();
         }
+        if (googleApiClient.isConnected() && !requestingLocationUpdates) {
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        googleApiClient.connect();
     }
 
     @Override
@@ -656,5 +657,65 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         if (DISPLAY_MODE == MODE_ROUTE) {
             stopFollowingLocation();
         }
+        googleApiClient.disconnect();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                googleApiClient, this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.d(TAG, "Location changed");
+        this.location = location;
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (requestingLocationUpdates)
+            startLocationUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    protected void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+            else {
+                Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+            }
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, createLocationRequest(), this);
+    }
+
+    protected LocationRequest createLocationRequest() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        return mLocationRequest;
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.e(TAG, "Google Places API connection failed with error code: "
+                + connectionResult.getErrorCode());
+
+        Toast.makeText(getActivity(),
+                "Google Places API connection failed with error code:" +
+                        connectionResult.getErrorCode(),
+                Toast.LENGTH_LONG).show();
     }
 }

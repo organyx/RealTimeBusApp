@@ -108,10 +108,6 @@ public class FavoritesScreenFragment extends Fragment implements EditFavFragment
                 transaction.addToBackStack(null);
                 transaction.commit();
                 addButton.hide();
-//                Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-//                if (toolbar != null) {
-//                    toolbar.setNavigationIcon(R.drawable.ic_keyboard_backspace_white_24dp);
-//                }
             }
         });
 

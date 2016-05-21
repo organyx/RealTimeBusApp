@@ -69,4 +69,10 @@
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+
+    <!--MAP TYPE-->
+    <string name="action_map_normal">Normal</string>
+    <string name="action_map_terrain">Terrain</string>
+    <string name="action_map_hybrid">Hybrid</string>
+    <string name="action_map_satellite">Satellite</string>
 </resources>
