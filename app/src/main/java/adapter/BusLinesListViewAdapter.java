@@ -8,12 +8,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.example.vacho.realtimebusapp.R;
 
 import java.util.List;
 
 import model.BusLineItem;
-import model.BusStationInfo;
 
 /**
  * Created by Vacho on 3/21/2016.
@@ -34,7 +34,7 @@ public class BusLinesListViewAdapter extends ArrayAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        BusLineInfoHolder holder = null;
+        BusLineInfoHolder holder;
 
         if (row == null) {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();

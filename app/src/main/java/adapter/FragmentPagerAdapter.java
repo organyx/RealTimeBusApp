@@ -1,9 +1,7 @@
 package adapter;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-
 
 import fragment.BusLinesFragment;
 import fragment.LocationFragment;

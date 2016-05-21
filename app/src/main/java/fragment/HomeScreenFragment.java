@@ -4,10 +4,9 @@ package fragment;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.graphics.Color;
-import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -55,7 +55,6 @@ import async_tasks.AsyncResponseDirectionsListener;
 import async_tasks.GetDirectionsTask;
 import async_tasks.GetNearestBusStations;
 import model.BusLineItem;
-import model.BusStationInfo;
 import model.HomeListView;
 import model.LocationItem;
 import model.google_items.Leg;
@@ -243,9 +242,9 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 slidingPaneLayout.collapsePane();
-                BusStationInfo item = (BusStationInfo) parent.getAdapter().getItem(position);
+                LocationItem item = (LocationItem) parent.getAdapter().getItem(position);
                 Toast.makeText(getActivity(), item.toString(), Toast.LENGTH_SHORT).show();
-                googleMap.animateCamera(CameraUpdateFactory.newLatLng(item.getLocation()));
+                googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(item.getLat(), item.getLng())));
             }
         });
 //        this.googleMap = googleMap;
@@ -306,8 +305,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         this.googleMap.clear();
         ArrayList arrayList = getActivity().getIntent().getParcelableArrayListExtra("custom_data_list");
         LocationItem i = (LocationItem) arrayList.get(0);
-        final List<BusStationInfo> busStationInfos = new ArrayList<>();
-        busStationInfos.add(new BusStationInfo(i.getName(), i.getAddress(), new LatLng(i.getLat(), i.getLng())));
+        final List<LocationItem> busStationInfos = new ArrayList<>();
+        busStationInfos.add(new LocationItem(i.getName(), i.getAddress(), i.getLat(), i.getLng()));
         homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, busStationInfos));
         this.googleMap.addMarker(new MarkerOptions().title(i.getName()).position(new LatLng(i.getLat(), i.getLng())));
         this.googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(i.getLat(), i.getLng())));
@@ -322,11 +321,11 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         PolylineOptions options = new PolylineOptions();
         List<LatLng> busStations = new ArrayList<>();
         List<LatLng> waypoints = new ArrayList<>();
-        List<BusStationInfo> infos = new ArrayList<>();
+        List<LocationItem> infos = new ArrayList<>();
         // Adding bus Stations and Bus stations
         for (LocationItem item : busLineItem.getBusStations()) {
             busStations.add(new LatLng(item.getLat(), item.getLng()));
-            infos.add(new BusStationInfo(item.getName(), item.getAddress(), new LatLng(item.getLat(), item.getLng())));
+            infos.add(new LocationItem(item.getName(), item.getAddress(), item.getLat(), item.getLng()));
             this.googleMap.addMarker(new MarkerOptions()
                     .title(item.getName())
                     .position(new LatLng(item.getLat(), item.getLng()))
@@ -346,7 +345,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         Log.d(TAG, waypoints.toString());
         Log.d(TAG, waypoints.size() + "");
 
-        TaskParameters getDirections = new TaskParameters(googleMap, trafikTerminal, trafikTerminal);
+        TaskParameters getDirections = new TaskParameters(trafikTerminal, trafikTerminal);
         getDirections.setKey(BuildConfig.SERVER_KEY);
         getDirections.setOptimize(true);
         getDirections.setTravelMode(TaskParameters.TravelMode.DRIVING);
@@ -486,7 +485,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                         .position(latLng));
                 //--------------------------
                 currentLocation = latLng;
-                parameters = new TaskParameters(googleMap, new LatLng(location.getLatitude(), location.getLongitude()));
+                parameters = new TaskParameters(new LatLng(location.getLatitude(), location.getLongitude()));
             }
         } else {
             defaultLocation.moveCamera(CameraUpdateFactory.newLatLng(horsens));
@@ -494,7 +493,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
             defaultLocation.addMarker(new MarkerOptions()
                     .title("Horsens")
                     .position(horsens));
-            parameters = new TaskParameters(googleMap, horsens);
+            parameters = new TaskParameters(horsens);
         }
         Log.d("STATE", " setDefaultLocation DISPLAY_MODE" + DISPLAY_MODE);
         Log.d(TAG, parameters.toString());
@@ -568,12 +567,12 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onLocationsProcessFinish(final List<Place> places) {
 
-        final List<BusStationInfo> busStationInfos = new ArrayList<>();
+        final List<LocationItem> busStationInfos = new ArrayList<>();
 
         if (places != null) {
             Log.d(TAG, places.toString());
             for (Place place : places) {
-                busStationInfos.add(new BusStationInfo(place.getName(), place.getVicinity(), place.getLocation()));
+                busStationInfos.add(new LocationItem(place.getName(), place.getVicinity(), place.getLocation().latitude, place.getLocation().longitude));
             }
 
             mActivity.runOnUiThread(new Runnable() {
@@ -615,7 +614,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
 
             ArrayList<LatLng> points;
             final PolylineOptions polyLineOptions = new PolylineOptions();
-//            final List<BusStationInfo> busStationInfos = new ArrayList<>();
             // traversing through routes
 
             for (int i = 0; i < places.size(); i++) {
@@ -624,7 +622,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 Log.d(TAG, path.toString());
                 for (Leg leg : path.getLegs()) {
                     for (Step step : leg.getSteps()) {
-//                        busStationInfos.add(new BusStationInfo(step.getDuration().getText() + " " + step.getDuration().getValue(), step.getDistance().getText() + " " + step.getDistance().getValue()));
                         for (LatLng position : step.getPoints()) {
                             points.add(position);
                         }

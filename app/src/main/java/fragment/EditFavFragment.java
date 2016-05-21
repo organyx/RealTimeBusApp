@@ -36,9 +36,9 @@ public class EditFavFragment extends DialogFragment {
 
 
     public interface NoticeDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog, String edited_name, String edited_address);
+        void onDialogPositiveClick(DialogFragment dialog, String edited_name, String edited_address);
 
-        public void onDialogNegativeClick(DialogFragment dialog);
+        void onDialogNegativeClick(DialogFragment dialog);
     }
 
     NoticeDialogListener noticeDialogListener;
@@ -89,14 +89,14 @@ public class EditFavFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int id) {
 //                        activity.onDialogPositiveClick(EditFavFragment.this, et_name.getText().toString(), et_address.getText().toString());
                         Log.d(TAG, "CLICKED: OK");
-                        ((NoticeDialogListener)getTargetFragment()).onDialogPositiveClick(EditFavFragment.this, et_name.getText().toString(), et_address.getText().toString());
+                        ((NoticeDialogListener) getTargetFragment()).onDialogPositiveClick(EditFavFragment.this, et_name.getText().toString(), et_address.getText().toString());
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 //                        activity.onDialogNegativeClick(EditFavFragment.this);
                         Log.d(TAG, "CLICKED: CANCEL");
-                        ((NoticeDialogListener)getTargetFragment()).onDialogNegativeClick(EditFavFragment.this);
+                        ((NoticeDialogListener) getTargetFragment()).onDialogNegativeClick(EditFavFragment.this);
                         EditFavFragment.this.getDialog().cancel();
                     }
                 });

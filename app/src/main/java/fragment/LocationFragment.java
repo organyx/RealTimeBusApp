@@ -1,9 +1,8 @@
 package fragment;
 
 
-import android.content.Intent;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import adapter.CustomListViewAdapter;
-import model.BusStationInfo;
 import model.HomeListView;
 import model.LocationItem;
 import utils.DatabaseHelper;
@@ -42,7 +40,7 @@ public class LocationFragment extends Fragment implements SearchScreen.Autocompl
     private static HomeListView homeListView;
     private ImageView imageView;
 
-    private static List<BusStationInfo> busStationInfos;
+    private static List<LocationItem> busStationInfos;
     private static DatabaseHelper databaseHelper;
     private static Context context;
 
@@ -71,7 +69,7 @@ public class LocationFragment extends Fragment implements SearchScreen.Autocompl
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         databaseHelper.clearRecentHistory();
-                        homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, new ArrayList<BusStationInfo>()));
+                        homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, new ArrayList<LocationItem>()));
                         return true;
                     }
                 });
@@ -89,14 +87,14 @@ public class LocationFragment extends Fragment implements SearchScreen.Autocompl
         final List<LocationItem> locationsInfo = databaseHelper.getRecentHistory();
         busStationInfos = new ArrayList<>();
         for (LocationItem item : locationsInfo) {
-            busStationInfos.add(new BusStationInfo(item.getName(), item.getAddress()));
+            busStationInfos.add(new LocationItem(item.getName(), item.getAddress()));
         }
         updateAdapter(busStationInfos);
         homeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, "onItemClick");
-                Intent intent  = new Intent(getActivity(), HomeScreen.class);
+                Intent intent = new Intent(getActivity(), HomeScreen.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra("fromFrag", "From Location Fragment");
@@ -133,12 +131,12 @@ public class LocationFragment extends Fragment implements SearchScreen.Autocompl
         List<LocationItem> locationsInfo = databaseHelper.getRecentHistory();
         busStationInfos = new ArrayList<>();
         for (LocationItem item : locationsInfo) {
-            busStationInfos.add(new BusStationInfo(item.getName(), item.getAddress()));
+            busStationInfos.add(new LocationItem(item.getName(), item.getAddress()));
         }
         updateAdapter(busStationInfos);
     }
 
-    private void updateAdapter(List<BusStationInfo> i) {
+    private void updateAdapter(List<LocationItem> i) {
         if (homeListView != null)
             if (context != null)
                 homeListView.setAdapter(new CustomListViewAdapter(context, R.layout.list_item, i));
