@@ -75,4 +75,6 @@
     <string name="action_map_terrain">Terrain</string>
     <string name="action_map_hybrid">Hybrid</string>
     <string name="action_map_satellite">Satellite</string>
+    <string name="action_map_clear">Clear Map</string>
+    <string name="action_map_find_stations">Find Bus Stations</string>
 </resources>

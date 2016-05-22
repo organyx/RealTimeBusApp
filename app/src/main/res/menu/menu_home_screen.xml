@@ -40,4 +40,14 @@
         android:orderInCategory="100"
         android:title="@string/action_map_terrain"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_map_clear"
+        android:orderInCategory="100"
+        android:title="@string/action_map_clear"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_map_find_stations"
+        android:orderInCategory="100"
+        android:title="@string/action_map_find_stations"
+        app:showAsAction="never"/>
 </menu>
