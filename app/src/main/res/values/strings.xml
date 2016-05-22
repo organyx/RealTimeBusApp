@@ -77,6 +77,7 @@
     <string name="action_map_satellite">Satellite</string>
     <string name="action_map_clear">Clear Map</string>
     <string name="action_map_find_stations">Find Bus Stations</string>
+    <string name="action_map_get_directions">Get Directions</string>
 
     <!--PLACE PICKER-->
     <string name="hint_loc_from">From:</string>

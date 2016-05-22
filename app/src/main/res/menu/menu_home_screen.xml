@@ -53,6 +53,6 @@
     <item
         android:id="@+id/action_loc_pick"
         android:orderInCategory="100"
-        android:title="@string/action_map_find_stations"
+        android:title="@string/action_map_get_directions"
         app:showAsAction="never"/>
 </menu>

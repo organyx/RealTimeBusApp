@@ -642,6 +642,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         if (places != null) {
 
             Log.d(TAG, places.toString());
+            List<Step> steps = new ArrayList<>();
+            final List<LocationItem> items = new ArrayList<>();
 
             ArrayList<LatLng> points;
             final PolylineOptions polyLineOptions = new PolylineOptions();
@@ -653,6 +655,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 Log.d(TAG, path.toString());
                 for (Leg leg : path.getLegs()) {
                     for (Step step : leg.getSteps()) {
+                        steps.add(step);
                         for (LatLng position : step.getPoints()) {
                             points.add(position);
                         }
@@ -663,11 +666,20 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 polyLineOptions.color(Color.BLUE);
             }
 
+            for (Step step: steps) {
+                items.add(new LocationItem(step.getHtmlInstructions().replaceAll("<.*?>",""), step.getDistance().getText() + " " + step.getDuration().getText(), step.getStartLocation().latitude, step.getStartLocation().longitude));
+            }
+
+
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-//                    homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, busStationInfos));
-                    googleMap.addPolyline(polyLineOptions);
+                    if(DISPLAY_MODE == MODE_ROUTE)
+                        googleMap.addPolyline(polyLineOptions);
+                    else{
+                        homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, items));
+                        googleMap.addPolyline(polyLineOptions);
+                    }
                 }
             });
         }
@@ -773,6 +785,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onDialogLocPositiveClick(DialogFragment dialog, List<com.google.android.gms.location.places.Place> places) {
         Log.d(TAG, "onDialogPositiveClick");
+        DISPLAY_MODE = MODE_HOME;
         googleMap.clear();
         List<LatLng> wpoints = new ArrayList<>();
         for (com.google.android.gms.location.places.Place p : places) {
