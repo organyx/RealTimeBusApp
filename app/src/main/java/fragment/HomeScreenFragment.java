@@ -36,6 +36,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -772,6 +773,21 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onDialogLocPositiveClick(DialogFragment dialog, List<com.google.android.gms.location.places.Place> places) {
         Log.d(TAG, "onDialogPositiveClick");
+        googleMap.clear();
+        List<LatLng> wpoints = new ArrayList<>();
+        for (com.google.android.gms.location.places.Place p : places) {
+            googleMap.addMarker(new MarkerOptions().title(p.getName().toString()).position(p.getLatLng()));
+            wpoints.add(p.getLatLng());
+        }
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(places.get(0).getLatLng()));
+
+        TaskParameters parameters = new TaskParameters(wpoints.get(0), wpoints.get(1), wpoints);
+        parameters.setOptimize(true);
+        parameters.setKey(BuildConfig.SERVER_KEY);
+        parameters.setTravelMode(TaskParameters.TravelMode.DRIVING);
+        GetDirectionsTask task = new GetDirectionsTask();
+        task.delegate = this;
+        task.execute(parameters);
     }
 
     @Override
