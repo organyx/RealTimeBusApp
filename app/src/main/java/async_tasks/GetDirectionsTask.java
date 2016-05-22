@@ -3,6 +3,7 @@ package async_tasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.vacho.realtimebusapp.BuildConfig;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
@@ -119,7 +120,10 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, List<Ro
                 .append(destination.longitude);
 
         // travel
-        stringBuilder.append("&mode=").append(p.getTravelMode().getValue());
+        if (p.getTravelMode() == null)
+            stringBuilder.append("&mode=").append(TaskParameters.TravelMode.DRIVING);
+        else
+            stringBuilder.append("&mode=").append(p.getTravelMode().getValue());
 
         // waypoints
         if (p.getWaypoints().size() > 0) {
@@ -147,6 +151,9 @@ public class GetDirectionsTask extends AsyncTask<TaskParameters, String, List<Ro
         // API key
         if (p.getKey() != null) {
             stringBuilder.append("&key=").append(p.getKey());
+        }
+        else {
+            stringBuilder.append("&key=").append(BuildConfig.SERVER_KEY);
         }
     }
 

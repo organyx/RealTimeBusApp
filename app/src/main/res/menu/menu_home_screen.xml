@@ -3,21 +3,56 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.vacho.realtimebusapp.HomeScreen">
 
-    <item
-        android:id="@+id/action_search"
-        android:title="@string/action_search"
-        android:orderInCategory="100"
-        android:icon="@drawable/ic_action_search"
-        app:showAsAction="ifRoom" />
+    <!--<item-->
+    <!--android:id="@+id/action_search"-->
+    <!--android:title="@string/action_search"-->
+    <!--android:orderInCategory="100"-->
+    <!--android:icon="@drawable/ic_action_search"-->
+    <!--app:showAsAction="ifRoom" />-->
 
+    <!--<item-->
+    <!--android:id="@+id/action_settings"-->
+    <!--android:orderInCategory="100"-->
+    <!--android:title="@string/action_settings"-->
+    <!--app:showAsAction="never" />-->
+    <!--<item-->
+    <!--android:id="@+id/action_tracking"-->
+    <!--android:orderInCategory="100"-->
+    <!--android:title="Track"-->
+    <!--app:showAsAction="ifRoom"/>-->
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_map_normal"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="@string/action_map_normal"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_tracking"
+        android:id="@+id/action_map_hybrid"
         android:orderInCategory="100"
-        android:title="Track"
-        app:showAsAction="ifRoom"/>
+        android:title="@string/action_map_hybrid"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_map_satellite"
+        android:orderInCategory="100"
+        android:title="@string/action_map_satellite"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_map_terrain"
+        android:orderInCategory="100"
+        android:title="@string/action_map_terrain"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_map_clear"
+        android:orderInCategory="100"
+        android:title="@string/action_map_clear"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_map_find_stations"
+        android:orderInCategory="100"
+        android:title="@string/action_map_find_stations"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_loc_pick"
+        android:orderInCategory="100"
+        android:title="@string/action_map_get_directions"
+        app:showAsAction="never"/>
 </menu>

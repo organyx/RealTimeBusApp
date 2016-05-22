@@ -3,8 +3,8 @@ package com.example.vacho.realtimebusapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -13,29 +13,26 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.Place;
+
+import java.util.List;
 
 import fragment.AboutScreenFragment;
 import fragment.EditFavFragment;
 import fragment.FavoritesScreenFragment;
 import fragment.HomeScreenFragment;
 import fragment.NavigationDrawerFragment;
+import fragment.PickLocationsFragment;
 import utils.DatabaseHelper;
 
-public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener, GoogleApiClient.OnConnectionFailedListener, EditFavFragment.NoticeDialogListener {
+public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener, EditFavFragment.NoticeDialogListener, PickLocationsFragment.LocationPickedListener {
 
     private static final String TAG = "HomeScreen";
     public static final String SAVED_PREFERENCES = "SAVED_PREFERENCES";
     public static final String SAVED_FIRST_START = "SAVED_FIRST_START";
     private NavigationDrawerFragment navigationDrawerFragment;
-    public static GoogleApiClient googleApiClient;
     FloatingActionButton fab;
-
-    private FavoritesScreenFragment fsf;
 
     private boolean firstStart = true;
 
@@ -46,29 +43,17 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        tracking = false;
-
         navigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         navigationDrawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
         navigationDrawerFragment.setDrawerListener(this);
 
         fab = (FloatingActionButton) this.findViewById(R.id.fab);
 
-
-        googleApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .enableAutoManage(this, this)
-                .build();
-
-
         displayView(0);
 
         // THIS BLOCK EXECUTES ONLY ON THE 1ST LAUNCH OF THE APP
         loadFirstTime();
         if (firstStart) {
-//            DatabaseHelper databaseHelper = new DatabaseHelper(this);
             DatabaseHelper databaseHelper = DatabaseHelper.getInstance(this);
             databaseHelper.populateBusLineBusStations();
             firstStart = false;
@@ -99,9 +84,9 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -109,18 +94,11 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
     @Override
     public void onDrawerItemSelected(View view, int position) {
         displayView(position);
-
     }
 
     private void displayView(int position) {
 
         FragmentManager fm = getSupportFragmentManager();
-
-//            fsf = FavoritesScreenFragment.newInstance(position);
-//            Bundle args = new Bundle();
-//            args.putInt(FavoritesScreenFragment.IMAGE_RES, position);
-//            fsf.setArguments(args);
-//
 
         String title = getString(R.string.app_name);
         switch (position) {
@@ -128,13 +106,13 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
                 fm.beginTransaction().replace(R.id.fragment_container, new HomeScreenFragment()).commit();
                 title = getString(R.string.title_home);
                 fab.setOnClickListener(clickSearchIcon);
-                fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_search_black_24dp));
+                fab.setImageResource(R.drawable.ic_search_black_24dp);
                 break;
             case 1:
                 fm.beginTransaction().replace(R.id.fragment_container, new FavoritesScreenFragment()).commit();
 
                 title = getString(R.string.title_favourites);
-                fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_dark_plus_24dp));
+                fab.setImageResource(R.drawable.ic_dark_plus_24dp);
                 break;
             case 2:
                 fm.beginTransaction().replace(R.id.fragment_container, new AboutScreenFragment()).commit();
@@ -145,18 +123,6 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
         }
 
         getSupportActionBar().setTitle(title);
-    }
-
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.e(TAG, "Google Places API connection failed with error code: "
-                + connectionResult.getErrorCode());
-
-        Toast.makeText(this,
-                "Google Places API connection failed with error code:" +
-                        connectionResult.getErrorCode(),
-                Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -188,6 +154,16 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
 
     @Override
     public void onDialogNegativeClick(android.support.v4.app.DialogFragment dialog) {
+        Log.d(TAG, "CLICKED: CANCEL");
+    }
+
+    @Override
+    public void onDialogLocPositiveClick(DialogFragment dialog, List<Place> places) {
+        Log.d(TAG, "CLICKED: OK");
+    }
+
+    @Override
+    public void onDialogLocNegativeClick(DialogFragment dialog) {
         Log.d(TAG, "CLICKED: CANCEL");
     }
 }
