@@ -8,10 +8,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.location.LocationListener;
-
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,9 +28,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.BuildConfig;
-import com.example.vacho.realtimebusapp.HomeScreen;
 import com.example.vacho.realtimebusapp.R;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
@@ -178,15 +175,15 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
-            else {
-                Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
-            }
-        }
-        locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+//            else {
+//                Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
+//            }
+//        }
+//        locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
         slidingPaneLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -232,6 +229,12 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
     }
 
+    private void prepareDirectionsTask(TaskParameters parameters){
+        GetDirectionsTask task = new GetDirectionsTask();
+        task.delegate = this;
+        task.execute(parameters);
+    }
+
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         Log.d(TAG, "Map Ready");
@@ -242,8 +245,24 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 slidingPaneLayout.collapsePane();
                 LocationItem item = (LocationItem) parent.getAdapter().getItem(position);
                 if (item != null) {
+                    updateLocation();
+                    googleMap.clear();
+                    LatLng from = new LatLng(location.getLatitude(), location.getLongitude());
+                    LatLng to = new LatLng(item.getLat(), item.getLng());
+                    googleMap.addMarker(new MarkerOptions().title("Current position").position(from));
+                    googleMap.addMarker(new MarkerOptions().title(item.getName()).position(to));
                     Toast.makeText(getActivity(), item.toString(), Toast.LENGTH_SHORT).show();
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(item.getLat(), item.getLng())));
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(to));
+
+                    List<LatLng> wp = new ArrayList<>();
+                    wp.add(from);
+                    wp.add(to);
+                    TaskParameters parameters = new TaskParameters(from, to);
+                    parameters.setOptimize(true);
+                    parameters.setTravelMode(TaskParameters.TravelMode.DRIVING);
+                    parameters.setKey(BuildConfig.SERVER_KEY);
+                    parameters.setWaypoints(wp);
+                    prepareDirectionsTask(parameters);
                 }
             }
         });
@@ -367,14 +386,6 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 googleMap.clear();
                 return true;
             case R.id.action_map_find_stations:
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
-                    else {
-                        Log.d(TAG, "MyLocation: " + googleMap.isMyLocationEnabled());
-                    }
-                }
                 updateLocation();
                 if (isGPSEnabled) {
                     googleMap.clear();
