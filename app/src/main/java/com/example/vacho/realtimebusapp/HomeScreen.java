@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -13,14 +14,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.gms.location.places.Place;
+
+import java.util.List;
+
 import fragment.AboutScreenFragment;
 import fragment.EditFavFragment;
 import fragment.FavoritesScreenFragment;
 import fragment.HomeScreenFragment;
 import fragment.NavigationDrawerFragment;
+import fragment.PickLocationsFragment;
 import utils.DatabaseHelper;
 
-public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener, EditFavFragment.NoticeDialogListener {
+public class HomeScreen extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener, EditFavFragment.NoticeDialogListener, PickLocationsFragment.LocationPickedListener {
 
     private static final String TAG = "HomeScreen";
     public static final String SAVED_PREFERENCES = "SAVED_PREFERENCES";
@@ -148,6 +154,16 @@ public class HomeScreen extends AppCompatActivity implements NavigationDrawerFra
 
     @Override
     public void onDialogNegativeClick(android.support.v4.app.DialogFragment dialog) {
+        Log.d(TAG, "CLICKED: CANCEL");
+    }
+
+    @Override
+    public void onDialogLocPositiveClick(DialogFragment dialog, List<Place> places) {
+        Log.d(TAG, "CLICKED: OK");
+    }
+
+    @Override
+    public void onDialogLocNegativeClick(DialogFragment dialog) {
         Log.d(TAG, "CLICKED: CANCEL");
     }
 }

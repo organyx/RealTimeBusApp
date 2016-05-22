@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
@@ -73,7 +74,7 @@ import utils.TaskParameters;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, SlidingUpPanelLayout.PanelSlideListener, AsyncResponseBusStationsListener, AsyncResponseDirectionsListener {
+public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, SlidingUpPanelLayout.PanelSlideListener, AsyncResponseBusStationsListener, AsyncResponseDirectionsListener, PickLocationsFragment.LocationPickedListener {
 
     private View transparentView;
     private View whiteSpaceView;
@@ -395,6 +396,11 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                     task.delegate = this;
                     task.execute(parameters);
                 }
+                return true;
+            case R.id.action_loc_pick:
+                DialogFragment newFragment = PickLocationsFragment.newInstance();
+                newFragment.setTargetFragment(this, 0);
+                newFragment.show(getFragmentManager(), "Pick traveling points");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -761,5 +767,15 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 "Google Places API connection failed with error code:" +
                         connectionResult.getErrorCode(),
                 Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onDialogLocPositiveClick(DialogFragment dialog, List<com.google.android.gms.location.places.Place> places) {
+        Log.d(TAG, "onDialogPositiveClick");
+    }
+
+    @Override
+    public void onDialogLocNegativeClick(DialogFragment dialog) {
+        Log.d(TAG, "onDialogNegativeClick");
     }
 }
