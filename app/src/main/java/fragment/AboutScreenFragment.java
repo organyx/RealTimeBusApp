@@ -2,6 +2,7 @@ package fragment;
 
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.example.vacho.realtimebusapp.R;
 public class AboutScreenFragment extends Fragment {
 
     private static final String TAG = "AboutScreenFragment";
+    private FloatingActionButton fab;
 
     public AboutScreenFragment() {
         // Required empty public constructor
@@ -27,18 +29,8 @@ public class AboutScreenFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_about_screen, container, false);
-        ImageView v = (ImageView) view.findViewById(R.id.omg);
-        if (v != null) {
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(v.getContext(), "DODO", Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-
-//        setHasOptionsMenu(true); // For Handling Fragment calls to menu items
-
+        fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.hide();
         return view;
     }
 }
