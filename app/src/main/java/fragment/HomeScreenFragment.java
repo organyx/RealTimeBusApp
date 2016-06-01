@@ -231,7 +231,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
     }
 
-    private void prepareDirectionsTask(TaskParameters parameters){
+    private void prepareDirectionsTask(TaskParameters parameters) {
         GetDirectionsTask task = new GetDirectionsTask();
         task.delegate = this;
         task.execute(parameters);
@@ -391,7 +391,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 updateLocation();
                 if (isGPSEnabled) {
                     googleMap.clear();
-                    googleMap.addMarker(new MarkerOptions().title("Current Position").position(new LatLng(location.getLatitude(), location.getLongitude())));
+                    googleMap.addMarker(new MarkerOptions().title("Current Position").position(new LatLng(location.getLatitude(), location.getLongitude()))); // Crash test this
                     TaskParameters parameters = new TaskParameters(new LatLng(location.getLatitude(), location.getLongitude()));
                     GetNearestBusStations task = new GetNearestBusStations();
                     task.delegate = this;
@@ -422,10 +422,11 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     private void initializePolyline() {
         googleMap.clear();
         mPolylineOptions = new PolylineOptions();
-        mPolylineOptions.color(Color.BLUE).width(10);
+        mPolylineOptions.color(Color.GREEN).width(10);
         googleMap.addPolyline(mPolylineOptions);
 
         mMarkerOptions = new MarkerOptions();
+        mMarkerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_directions_bus_black_24dp));
     }
 
     private void updatePolyline() {
@@ -439,11 +440,13 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
     }
 
     private void updateMarker() {
-//		if (!isFirstMessage) {
-//			isFirstMessage = false;
-//			mMarker.remove();
-//		}
+//        if (isFirstMessage) {
+//            isFirstMessage = false;
+////			mMarker.remove();
+//            mMarker = googleMap.addMarker(mMarkerOptions.position(mLatLng));
+//        }
         mMarker = googleMap.addMarker(mMarkerOptions.position(mLatLng));
+//        mMarker = googleMap.addMarker(mMarkerOptions.position(mLatLng).visible(true).draggable(true));
     }
 
     Callback subscribeCallback = new Callback() {
@@ -666,17 +669,17 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
                 polyLineOptions.color(Color.BLUE);
             }
 
-            for (Step step: steps) {
-                items.add(new LocationItem(step.getHtmlInstructions().replaceAll("<.*?>",""), step.getDistance().getText() + " " + step.getDuration().getText(), step.getStartLocation().latitude, step.getStartLocation().longitude));
+            for (Step step : steps) {
+                items.add(new LocationItem(step.getHtmlInstructions().replaceAll("<.*?>", ""), step.getDistance().getText() + " " + step.getDuration().getText(), step.getStartLocation().latitude, step.getStartLocation().longitude));
             }
 
 
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(DISPLAY_MODE == MODE_ROUTE)
+                    if (DISPLAY_MODE == MODE_ROUTE)
                         googleMap.addPolyline(polyLineOptions);
-                    else{
+                    else {
                         homeListView.setAdapter(new CustomListViewAdapter(getActivity(), R.layout.list_item, items));
                         googleMap.addPolyline(polyLineOptions);
                     }
@@ -794,13 +797,16 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback, 
         }
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(places.get(0).getLatLng()));
 
-        TaskParameters parameters = new TaskParameters(wpoints.get(0), wpoints.get(1), wpoints);
-        parameters.setOptimize(true);
-        parameters.setKey(BuildConfig.SERVER_KEY);
-        parameters.setTravelMode(TaskParameters.TravelMode.DRIVING);
-        GetDirectionsTask task = new GetDirectionsTask();
-        task.delegate = this;
-        task.execute(parameters);
+        if(wpoints.size() == 2)
+        {
+            TaskParameters parameters = new TaskParameters(wpoints.get(0), wpoints.get(1), wpoints);
+            parameters.setOptimize(true);
+            parameters.setKey(BuildConfig.SERVER_KEY);
+            parameters.setTravelMode(TaskParameters.TravelMode.DRIVING);
+            GetDirectionsTask task = new GetDirectionsTask();
+            task.delegate = this;
+            task.execute(parameters);
+        }
     }
 
     @Override

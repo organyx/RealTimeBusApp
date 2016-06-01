@@ -80,6 +80,8 @@
     <string name="action_map_get_directions">Get Directions</string>
 
     <!--PLACE PICKER-->
+    <string name="where_to_travel">Where do you want to travel?</string>
     <string name="hint_loc_from">From:</string>
     <string name="hint_loc_to">To:</string>
+    <string name="error_loc_missing">Please enter both traveling points</string>
 </resources>

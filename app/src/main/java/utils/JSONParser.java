@@ -18,7 +18,7 @@ import model.google_items.Route;
 import model.google_items.Step;
 
 /**
- * Created by Aleks on 29-Mar-16.
+ * Created by Aleks on 29-April-16.
  * Utility class for parsing Google Directions API response.
  */
 public class JSONParser {

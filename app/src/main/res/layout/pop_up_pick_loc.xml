@@ -5,6 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+    <TextView
+        android:id="@+id/tv_notification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/error_loc_missing"/>
     <android.support.design.widget.TextInputLayout
         android:id="@+id/input_layout_from"
         android:layout_width="match_parent"
@@ -17,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/fav_screen_input_margin_top"
-            android:hint="@string/hint_loc_to" />
+            android:hint="@string/hint_loc_from" />
     </android.support.design.widget.TextInputLayout>
     <android.support.design.widget.TextInputLayout
         android:id="@+id/input_layout_to"
@@ -31,6 +37,6 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/fav_screen_input_margin_top"
-            android:hint="@string/hint_loc_from" />
+            android:hint="@string/hint_loc_to" />
     </android.support.design.widget.TextInputLayout>
 </LinearLayout>

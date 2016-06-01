@@ -5,7 +5,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.List;
 
 /**
- * Created by Aleks on 29-Mar-16.
+ * Created by Aleks on 15-April-16.
  * Class to Handle sending parameters to Async tasks.
  */
 public class TaskParameters {
