@@ -84,4 +84,14 @@
     <string name="hint_loc_from">From:</string>
     <string name="hint_loc_to">To:</string>
     <string name="error_loc_missing">Please enter both traveling points</string>
+
+    <!--ABOUT TAB-->
+    <string name="version">Version 1</string>
+    <string name="feedback">Send feedback</string>
+    <string name="opinions">Tell us what you think</string>
+    <string name="report">Report a problem</string>
+    <string name="report2">Let us know about a bug or problem</string>
+    <string name="description">The app is build on the idea that people should use the technology in order to reduce or totally avoid the time spend on waiting for the bus </string>
+    <string name="developers">Developers:</string>
+    <string name="names">Ivan and Aleksandr</string>
 </resources>
