@@ -8,13 +8,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vacho.realtimebusapp.R;
@@ -42,6 +41,7 @@ public class PickLocationsFragment extends DialogFragment implements GoogleApiCl
 
     private AutoCompleteTextView et_from;
     private AutoCompleteTextView et_to;
+    private TextView tv_notification;
 
     private List<Place> points;
 
@@ -94,6 +94,9 @@ public class PickLocationsFragment extends DialogFragment implements GoogleApiCl
 
         points = new ArrayList<>();
 
+        tv_notification = (TextView) thisView.findViewById(R.id.tv_notification);
+        tv_notification.setVisibility(View.INVISIBLE);
+
         et_from = (AutoCompleteTextView) thisView.findViewById(R.id.pop_up_edit_loc_from);
         et_from.setThreshold(1);
         et_to = (AutoCompleteTextView) thisView.findViewById(R.id.pop_up_edit_loc_to);
@@ -129,9 +132,16 @@ public class PickLocationsFragment extends DialogFragment implements GoogleApiCl
                     public void onClick(DialogInterface dialog, int id) {
 //                        activity.onDialogPositiveClick(EditFavFragment.this, et_name.getText().toString(), et_address.getText().toString());
                         Log.d(TAG, "CLICKED: OK");
-                        ((LocationPickedListener) getTargetFragment()).onDialogLocPositiveClick(PickLocationsFragment.this, points);
-                        if (points.size() > 0)
-                            Log.d(TAG, "Items in the list " + points.size());
+
+                        if (points.size() < 2) {
+                            tv_notification.setVisibility(View.VISIBLE);
+                            dialog.dismiss();
+                        } else {
+                            ((LocationPickedListener) getTargetFragment()).onDialogLocPositiveClick(PickLocationsFragment.this, points);
+
+                            if (points.size() > 0)
+                                Log.d(TAG, "Items in the list " + points.size());
+                        }
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -142,6 +152,8 @@ public class PickLocationsFragment extends DialogFragment implements GoogleApiCl
                         PickLocationsFragment.this.getDialog().cancel();
                     }
                 });
+
+        builder.setTitle(R.string.where_to_travel);
         return builder.create();
     }
 
